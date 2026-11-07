@@ -2460,7 +2460,11 @@ pub fn preparer(
     let version = game_version(tag);
     let dir = version_dir(tag);
     let reused = horizon_prepare::artifacts::reuse_imported(&dir, &|line| log(line.to_string()))?;
-    let chosen = minecraft.to_path_buf();
+    // A picked client jar stands for the folder it is in wherever a folder is wanted.
+    let chosen = match minecraft.is_file() {
+        true => minecraft.parent().unwrap_or(minecraft).to_path_buf(),
+        false => minecraft.to_path_buf(),
+    };
     // Resolved even when the game files are reused: the assets still come from the install.
     let minecraft = {
         let pins = read_json(&dir.join("research-lock.json"))
@@ -2488,7 +2492,21 @@ pub fn preparer(
                 .map_err(|e| e.trim_start_matches("\n  • ").to_string())?;
             own
         } else {
-            let resolved = sources::resolve(minecraft, &pins, &known, &linked, &fetch, log);
+            // A picked jar that has since been deleted still goes to `from_jar`, which says so.
+            let picked_jar = minecraft.is_file()
+                || (!minecraft.is_dir()
+                    && minecraft
+                        .extension()
+                        .is_some_and(|e| e.eq_ignore_ascii_case("jar")));
+            let resolved = if picked_jar {
+                let others: Vec<PathBuf> = minecraft_folders()
+                    .into_iter()
+                    .filter(|d| d != &linked)
+                    .collect();
+                sources::from_jar(minecraft, &pins, &linked, &others, &fetch, log)
+            } else {
+                sources::resolve(minecraft, &pins, &known, &linked, &fetch, log)
+            };
             if reused {
                 assets_folder(resolved, &chosen, &version, log)
             } else {
@@ -3134,11 +3152,14 @@ pub fn prune_old_versions() -> Vec<String> {
     gone
 }
 
-/// The Minecraft folder to prepare from: the one given, the one chosen in the launcher, or the
-/// official launcher's default. It may be absent when imported files can be reused.
+/// The Minecraft folder (or client jar) to prepare from: the one given, the jar picked in the
+/// launcher, the folder chosen in the launcher, or the official launcher's default. It may be
+/// absent when imported files can be reused.
 pub fn minecraft_dir(requested: Option<PathBuf>) -> Result<PathBuf, String> {
+    let settings = Settings::load();
     Ok(requested
-        .or(Settings::load().minecraft_dir)
+        .or(settings.minecraft_jar)
+        .or(settings.minecraft_dir)
         .or_else(default_minecraft_dir)
         .unwrap_or_else(|| horizon_prepare::artifacts::minecraft_dir(None)))
 }
@@ -4429,6 +4450,10 @@ pub struct Settings {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub instance: Option<String>,
     pub minecraft_dir: Option<PathBuf>,
+    /// A Minecraft client jar the player picked themselves: preparing uses it instead of
+    /// looking through the launchers' folders.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub minecraft_jar: Option<PathBuf>,
     pub server_dir: Option<PathBuf>,
     /// Unset means on: only a player who turned it off has `false` here. 0.1.1 wrote its
     /// `auto_install` (off by default) for everyone, so this is a new key and that one is ignored.
@@ -5563,6 +5588,18 @@ pub fn {f}("
         assert_eq!(offered(before, &["v0.2.0"]), None);
         assert_eq!(offered(before, &["v0.2.12", "v0.2.0"]), None);
         assert_eq!(CHECK_EVERY.as_secs(), 30 * 60);
+    }
+
+    #[test]
+    fn settings_keep_the_picked_jar() {
+        let picked = Settings::parse(r#"{"minecraft_jar": "/x/26.3.jar"}"#);
+        assert_eq!(picked.minecraft_jar, Some(PathBuf::from("/x/26.3.jar")));
+        assert_eq!(Settings::parse("{}").minecraft_jar, None);
+        let text = serde_json::to_string(&picked).unwrap();
+        assert_eq!(
+            Settings::parse(&text).minecraft_jar,
+            Some(PathBuf::from("/x/26.3.jar"))
+        );
     }
 
     #[test]

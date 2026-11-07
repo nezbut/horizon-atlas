@@ -848,7 +848,8 @@ enum Cmd {
     },
     /// Show the launcher's settings, or set one (the Settings page): selected-version TAG,
     /// game-architecture auto|x64|arm64,
-    /// minecraft-dir PATH, server-dir PATH ("default" resets a folder), install-new-versions
+    /// minecraft-dir PATH, minecraft-jar PATH (your own Minecraft 26.3 client jar; "default"
+    /// clears it), server-dir PATH ("default" resets a folder), install-new-versions
     /// on|off, prune-old-versions on|off (delete old versions after an install, keeping the
     /// selected one, the ones instances use and the newest few), keep-versions N (how many of the
     /// newest to keep; "default" is 2), opening-animation on|off, proxy http://host:port|socks5://host:port
@@ -1007,9 +1008,10 @@ pub fn command() -> clap::Command {
 pub const AI_COMMANDS: [&str; 2] = ["mcp", "agent-config"];
 
 /// The keys `settings` sets.
-const SETTING_KEYS: [&str; 15] = [
+const SETTING_KEYS: [&str; 16] = [
     "selected-version",
     "minecraft-dir",
+    "minecraft-jar",
     "server-dir",
     "install-new-versions",
     "prune-old-versions",
@@ -1038,6 +1040,7 @@ fn set_setting(s: &mut backend::Settings, key: &str, value: &str) -> Result<(), 
     match key {
         "selected-version" => s.selected = Some(backend::resolve_version(Some(value))?),
         "minecraft-dir" => s.minecraft_dir = folder(value),
+        "minecraft-jar" => s.minecraft_jar = folder(value),
         "server-dir" => s.server_dir = folder(value),
         "install-new-versions" => s.install_new_versions = Some(on_off(value)?),
         "prune-old-versions" => s.prune_old_versions = Some(on_off(value)?),
@@ -1142,6 +1145,7 @@ fn settings_json(s: &backend::Settings) -> serde_json::Value {
         "selected_version": backend::resolve_version(None).ok(),
         "game_architecture": s.game_architecture.name(),
         "minecraft_dir": s.minecraft_dir,
+        "minecraft_jar": s.minecraft_jar,
         "server_dir": backend::server_dir(None),
         "install_new_versions": s.install_new_versions.unwrap_or(true),
         "prune_old_versions": s.auto_prune(),

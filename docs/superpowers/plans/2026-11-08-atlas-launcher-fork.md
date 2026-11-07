@@ -42,9 +42,9 @@
 
 **Interfaces:** Produces: remote `upstream`; refs `refs/upstream/tags/launcher@*`; `main` = latest upstream launcher tag (the docs already written stay untracked/uncommitted meanwhile).
 
-- [ ] **Step 1:** `git remote add upstream https://github.com/horizon-rust/horizon.git`, then `git fetch upstream '+refs/tags/launcher@*:refs/upstream/tags/launcher@*'`. Run `git for-each-ref refs/upstream/tags | wc -l`. Expected: dozens of refs, including `launcher@0.2.50` or newer.
-- [ ] **Step 2:** Pick the numerically newest tag (the sync tool does this in Task 2; until then `git for-each-ref --sort=-version:refname refs/upstream/tags/launcher@* --count=1`). The docs commit `atlas: design, plan and roadmap` (made before the plan starts) is the only Atlas commit on `main`; move it onto the tag: `git rebase --onto <that tag's ref> origin/main main`. Expected: `git log --oneline -2` shows the docs commit on top of the tag's commit; `git status` clean.
-- [ ] **Step 3:** `git diff --stat <that tag's ref> HEAD`. Expected: only files under `docs/superpowers/`.
+- [x] **Step 1:** `git remote add upstream https://github.com/horizon-rust/horizon.git`, then `git fetch upstream '+refs/tags/launcher@*:refs/upstream/tags/launcher@*'`. Run `git for-each-ref refs/upstream/tags | wc -l`. Expected: dozens of refs, including `launcher@0.2.50` or newer.
+- [x] **Step 2:** Pick the numerically newest tag (the sync tool does this in Task 2; until then `git for-each-ref --sort=-version:refname refs/upstream/tags/launcher@* --count=1`). The docs commit `atlas: design, plan and roadmap` (made before the plan starts) is the only Atlas commit on `main`; move it onto the tag: `git rebase --onto <that tag's ref> origin/main main`. Expected: `git log --oneline -2` shows the docs commit on top of the tag's commit; `git status` clean.
+- [x] **Step 3:** `git diff --stat <that tag's ref> HEAD`. Expected: only files under `docs/superpowers/`.
 
 ### Task 2: The sync tool (`tools/atlas_sync.py`)
 
@@ -63,16 +63,16 @@
 - `rebase_patches(repo: Path, new_tag: str) -> RebaseResult` (`git rebase --onto refs/upstream/tags/<new_tag> <current_base>`; on conflict `git rebase --abort`, `ok=False`, `failed_patch` = the conflicting commit's subject)
 - CLI `python tools/atlas_sync.py new-tag | base | next-version | rebase TAG | title ATLAS UPSTREAM` (`base` prints `current_base`; `next-version` reads this repo's own `launcher@*` tags): prints the result; `new-tag` prints nothing and exits 0 when there is no new tag; `rebase` exits 1 and prints `FAILED_PATCH=<subject>` on conflict.
 
-- [ ] **Step 1: Write the failing tests** in `tests/test_atlas_sync.py` (`unittest`, temp git repos built with `subprocess`):
+- [x] **Step 1: Write the failing tests** in `tests/test_atlas_sync.py` (`unittest`, temp git repos built with `subprocess`):
   - `test_parse_launcher_tag`: `launcher@0.2.50` → `(0, 2, 50)`; `launcher-v0.16.0`, `launcher@0.2.51-rc1`, `nightly`, `launcher@1.2` → `None`.
   - `test_latest_launcher_tag_sorts_numerically`: `["launcher@0.2.9", "launcher@0.2.50", "launcher@0.10.0", "launcher-v9.0.0"]` → `"launcher@0.10.0"`; `[]` → `None`.
   - `test_next_atlas_version`: `[]` → `"0.1.0"`; `["launcher@0.1.0", "launcher@0.1.1", "v2"]` → `"0.1.2"`; `release_title("0.1.0", "launcher@0.2.50")` == `"Atlas 0.1.0 · based on Horizon launcher 0.2.50"`.
   - `test_rebase_replays_patches_onto_the_new_tag`: upstream repo with commit c1 (`a.txt`) tagged `launcher@0.2.50`, commit c2 (`c.txt`) tagged `launcher@0.2.51`; Atlas repo fetched into `refs/upstream/tags/`, reset to the first tag, patch commits `patch: one` (edits `a.txt`) and `patch: two` (adds `b.txt`). `new_tag(repo)` == `"launcher@0.2.51"`; `rebase_patches` gives `ok=True`; `git log --format=%s` ends `patch: two`, `patch: one`, then c2's subject; `current_base(repo)` == `"launcher@0.2.51"`; `new_tag(repo)` is now `None`.
   - `test_a_conflicting_patch_is_named_and_the_repo_left_clean`: same, but c2 also edits the line `patch: one` edited. `ok=False`, `failed_patch == "patch: one"`, `git status --porcelain` empty, no `.git/rebase-merge`, `HEAD` unchanged.
-- [ ] **Step 2: Run to verify it fails:** `uv run python -m unittest tests.test_atlas_sync -v`. Expected: ImportError / FAIL (no module `atlas_sync`; add `tools/` to the path the way neighbouring `tests/test_*.py` import tools).
-- [ ] **Step 3: Implement** the interfaces above with `subprocess` calls to `git` (`-C repo`), no third-party packages. Order tags by `parse_launcher_tag`'s tuple.
-- [ ] **Step 4: Run to verify it passes:** same command. Expected: all five tests `ok`.
-- [ ] **Step 5: Commit:** `git add tools/atlas_sync.py tests/test_atlas_sync.py && git commit -m "atlas: sync tool"`.
+- [x] **Step 2: Run to verify it fails:** `uv run python -m unittest tests.test_atlas_sync -v`. Expected: ImportError / FAIL (no module `atlas_sync`; add `tools/` to the path the way neighbouring `tests/test_*.py` import tools).
+- [x] **Step 3: Implement** the interfaces above with `subprocess` calls to `git` (`-C repo`), no third-party packages. Order tags by `parse_launcher_tag`'s tuple.
+- [x] **Step 4: Run to verify it passes:** same command. Expected: all five tests `ok`.
+- [x] **Step 5: Commit:** `git add tools/atlas_sync.py tests/test_atlas_sync.py && git commit -m "atlas: sync tool"`.
 
 ### Task 3: Patch `offline-play`
 

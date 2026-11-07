@@ -1,0 +1,224 @@
+name: sync
+# Follows Horizon's launcher releases (tools/atlas_sync.py). Every day, and by hand:
+#  - tag: when upstream has a launcher@X.Y.Z newer than the one main is based on, replay Atlas's patches onto it, run
+#    the formatting check and the launcher's tests, push main and start release.yml. Nothing is pushed or published
+#    unless all of that succeeded; otherwise an issue says what stopped it.
+#  - main-check: do the patches still apply to, and build on, upstream's main? Never pushes or publishes: it opens an
+#    issue labelled sync-main (only one at a time) when they do not.
+# Needs the repository secret SYNC_TOKEN, a fine-grained personal access token (contents, workflows, actions, issues:
+# read and write): the workflow's own token can neither push commits that change .github/workflows nor start another
+# workflow.
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: atlas-sync
+  cancel-in-progress: false
+
+env:
+  UPSTREAM_URL: https://github.com/horizon-rust/horizon.git
+  HORIZON_TELEMETRY_URL: "off"
+
+jobs:
+  tag:
+    # The rebased main is pushed to main: only a run on main may do that.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SYNC_TOKEN }}
+      - name: Upstream's launcher tags
+        run: |
+          git config user.name "atlas-sync"
+          git config user.email "atlas-sync@users.noreply.github.com"
+          git remote add upstream "$UPSTREAM_URL"
+          git fetch --no-tags upstream '+refs/tags/launcher@*:refs/upstream/tags/launcher@*'
+      - name: A new upstream launcher tag?
+        id: find
+        run: |
+          tag=$(python3 tools/atlas_sync.py new-tag)
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "### New upstream launcher tag: ${tag:-none}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Atlas's patches onto the new tag
+        id: rebase
+        if: steps.find.outputs.tag != ''
+        env:
+          TAG: ${{ steps.find.outputs.tag }}
+        run: |
+          # Exit 1 with FAILED_PATCH=<subject> is a conflict; exit 1 without it, another reason (stderr says which).
+          status=0
+          python3 tools/atlas_sync.py rebase "$TAG" > "$RUNNER_TEMP/rebase.out" 2> "$RUNNER_TEMP/rebase.err" || status=$?
+          cat "$RUNNER_TEMP/rebase.out" "$RUNNER_TEMP/rebase.err"
+          if [[ $status == 0 ]]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "failed_patch=$(sed -n 's/^FAILED_PATCH=//p' "$RUNNER_TEMP/rebase.out" | head -n 1)" >> "$GITHUB_OUTPUT"
+          fi
+      - name: An issue, the rebase failed
+        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'false'
+        env:
+          TAG: ${{ steps.find.outputs.tag }}
+          FAILED_PATCH: ${{ steps.rebase.outputs.failed_patch }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$FAILED_PATCH" ]]; then
+            title="Sync to $TAG failed: $FAILED_PATCH"
+            reason="The patch \`$FAILED_PATCH\` no longer applies to $TAG."
+          else
+            title="Sync to $TAG failed: the rebase did not start or finish"
+            reason="The rebase onto $TAG failed for a reason other than a conflicting patch (see the log below)."
+          fi
+          {
+            echo "$reason Nothing was pushed or published; main is unchanged."
+            echo
+            echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo '```'
+            tail -n 40 "$RUNNER_TEMP/rebase.err"
+            echo '```'
+          } > "$RUNNER_TEMP/body.md"
+          titles=$(gh issue list --state open --limit 200 --json title --jq '.[].title')
+          if grep -Fxq -- "$title" <<<"$titles"; then
+            echo "An issue titled '$title' is already open"
+          else
+            gh issue create --title "$title" --body-file "$RUNNER_TEMP/body.md"
+          fi
+          exit 1
+      - uses: dtolnay/rust-toolchain@stable
+        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'true'
+        with:
+          components: rustfmt
+      - uses: Swatinem/rust-cache@v2
+        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'true'
+        with:
+          workspaces: launcher
+          shared-key: launcher-sync
+      - name: Linux libraries GPUI links to
+        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxkbcommon-x11-dev libwayland-dev libx11-xcb-dev libfontconfig-dev libvulkan-dev libasound2-dev
+      - name: Format check and tests
+        id: checks
+        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'true'
+        working-directory: launcher
+        run: |
+          status=0
+          { cargo fmt --check && cargo test --release --lib --bins; } > "$RUNNER_TEMP/checks.log" 2>&1 || status=$?
+          tail -n 60 "$RUNNER_TEMP/checks.log"
+          if [[ $status == 0 ]]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; fi
+      - name: An issue, the checks failed
+        if: steps.find.outputs.tag != '' && steps.checks.outputs.ok == 'false'
+        env:
+          TAG: ${{ steps.find.outputs.tag }}
+        run: |
+          set -euo pipefail
+          title="Sync to $TAG failed: cargo fmt or the tests"
+          {
+            echo "Atlas's patches applied to $TAG, but \`cargo fmt --check\` or \`cargo test --release --lib --bins\` failed in \`launcher/\`. Nothing was pushed or published; main is unchanged."
+            echo
+            echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo '```'
+            tail -n 60 "$RUNNER_TEMP/checks.log"
+            echo '```'
+          } > "$RUNNER_TEMP/body.md"
+          titles=$(gh issue list --state open --limit 200 --json title --jq '.[].title')
+          if grep -Fxq -- "$title" <<<"$titles"; then
+            echo "An issue titled '$title' is already open"
+          else
+            gh issue create --title "$title" --body-file "$RUNNER_TEMP/body.md"
+          fi
+          exit 1
+      - name: Push main and start the release
+        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'true' && steps.checks.outputs.ok == 'true'
+        env:
+          TAG: ${{ steps.find.outputs.tag }}
+        run: |
+          set -euo pipefail
+          version=$(python3 tools/atlas_sync.py next-version)
+          git push --force-with-lease origin HEAD:main
+          gh workflow run release.yml --ref main -f version="$version" -f upstream_tag="$TAG" -f dry_run=false
+          echo "### Pushed main on $TAG, release $version started" >> "$GITHUB_STEP_SUMMARY"
+
+  main-check:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SYNC_TOKEN }}
+      - name: Upstream's launcher tags and main
+        run: |
+          git config user.name "atlas-sync"
+          git config user.email "atlas-sync@users.noreply.github.com"
+          git remote add upstream "$UPSTREAM_URL"
+          git fetch --no-tags upstream '+refs/tags/launcher@*:refs/upstream/tags/launcher@*'
+          git fetch --no-tags upstream '+refs/heads/main:refs/remotes/upstream/main'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: launcher
+          shared-key: launcher-sync-main
+      - name: Linux libraries GPUI links to
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxkbcommon-x11-dev libwayland-dev libx11-xcb-dev libfontconfig-dev libvulkan-dev libasound2-dev
+      - name: Atlas's patches on upstream's main, checked
+        id: check
+        run: |
+          # A throwaway branch of this runner: nothing is pushed.
+          status=0
+          # Chained with &&: set -e does not apply inside a group that is followed by ||.
+          {
+            base=$(python3 tools/atlas_sync.py base) &&
+            git checkout -q -b atlas-main-check &&
+            git rebase --onto upstream/main "refs/upstream/tags/$base" &&
+            cargo check --manifest-path launcher/Cargo.toml --release
+          } > "$RUNNER_TEMP/check.log" 2>&1 || status=$?
+          tail -n 60 "$RUNNER_TEMP/check.log"
+          if [[ $status == 0 ]]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; fi
+      - name: An issue, upstream's main is ahead of the patches
+        if: steps.check.outputs.ok == 'false'
+        run: |
+          set -euo pipefail
+          # Fails the same way when the label exists already.
+          gh label create sync-main --color D93F0B --description "Atlas's patches against upstream's main" || true
+          open=$(gh issue list --state open --label sync-main --json number --jq 'length')
+          if [[ "$open" != 0 ]]; then
+            echo "A sync-main issue is already open"
+            exit 1
+          fi
+          {
+            echo "Rebasing Atlas's patches onto upstream's main, or \`cargo check --release\` of the result, failed. This is an early warning for the next upstream launcher release: nothing was pushed or published."
+            echo
+            echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo '```'
+            tail -n 60 "$RUNNER_TEMP/check.log"
+            echo '```'
+          } > "$RUNNER_TEMP/body.md"
+          gh issue create --label sync-main --title "Atlas's patches do not apply to or build on upstream's main" --body-file "$RUNNER_TEMP/body.md"
+          exit 1

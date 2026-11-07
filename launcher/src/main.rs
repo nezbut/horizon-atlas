@@ -1779,10 +1779,12 @@ impl Launcher {
             return;
         };
         horizon_launcher::mojang::CANCEL.store(false, Ordering::Relaxed);
+        // The jar the player picked comes first, then the folder they chose.
         let minecraft = self
             .settings
-            .minecraft_dir
+            .minecraft_jar
             .clone()
+            .or_else(|| self.settings.minecraft_dir.clone())
             .unwrap_or_else(|| horizon_prepare::artifacts::minecraft_dir(None));
         self.prepare_log.clear();
         self.prepare_error = None;
@@ -2102,6 +2104,34 @@ impl Launcher {
             }
         })
         .detach();
+    }
+
+    /// Picks a Minecraft client jar to prepare from; preparing checks it is the right one.
+    fn choose_jar(&mut self, cx: &mut Context<Self>) {
+        let paths = cx.prompt_for_paths(PathPromptOptions {
+            files: true,
+            directories: false,
+            multiple: false,
+            prompt: Some("Choose".into()),
+        });
+        cx.spawn(async move |this, cx| {
+            if let Ok(Ok(Some(mut paths))) = paths.await {
+                if let Some(path) = paths.pop() {
+                    let _ = this.update(cx, |this, cx| {
+                        this.settings.minecraft_jar = Some(path);
+                        this.save_settings();
+                        cx.notify();
+                    });
+                }
+            }
+        })
+        .detach();
+    }
+
+    /// Goes back to finding Minecraft in the launchers' folders.
+    fn clear_jar(&mut self) {
+        self.settings.minecraft_jar = None;
+        self.save_settings();
     }
 }
 
@@ -3545,6 +3575,32 @@ impl Launcher {
                     .into_any_element()
             },
         );
+        let jar = match self.settings.minecraft_jar.as_deref() {
+            Some(p) => div()
+                .font_family(theme::MONO)
+                .child(short(p))
+                .into_any_element(),
+            None => div()
+                .child(trf(
+                    "Found by itself in your launcher's folder. Or pick the {version}.jar file.",
+                    &[("version", &version)],
+                ))
+                .into_any_element(),
+        };
+        let mut jar_buttons = div().flex().gap(px(8.));
+        if self.settings.minecraft_jar.is_some() {
+            jar_buttons =
+                jar_buttons.child(button("auto-jar", "Automatic", Kind::Ghost, &t).on_click(
+                    cx.listener(|this, _: &ClickEvent, _, cx| {
+                        this.clear_jar();
+                        cx.notify();
+                    }),
+                ));
+        }
+        jar_buttons = jar_buttons.child(
+            button("choose-jar", "Choose jar…", Kind::Ghost, &t)
+                .on_click(cx.listener(|this, _: &ClickEvent, _, cx| this.choose_jar(cx))),
+        );
         let mut rows = div()
             .flex()
             .flex_col()
@@ -3590,7 +3646,14 @@ impl Launcher {
                         .into_any_element(),
                 ),
                 &t,
-            )),
+            ))
+                .child(index_row(
+                    4,
+                    tr("Minecraft jar"),
+                    Some(jar),
+                    Some(jar_buttons.into_any_element()),
+                    &t,
+                )),
         };
         // The top bar shows who plays; a row only when there is something to do about it: no
         // account that owns the game (Play needs one), or offline. The glass look's top bar has

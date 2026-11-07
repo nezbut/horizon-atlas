@@ -134,6 +134,124 @@ fn folders_with_ampersands_are_linked() {
 }
 
 #[test]
+fn from_jar_refuses_a_jar_that_is_not_the_pinned_release() {
+    let s = Scratch::new("jar-other");
+    let other = s.write("Downloads/1.21.jar", b"another version");
+    let linked = s.0.join("linked");
+    let mojang = Mojang::new(MANIFEST);
+    let refused =
+        from_jar(&other, &pins(), &linked, &[], &|u| mojang.fetch(u), &|_| {}).unwrap_err();
+    assert!(
+        refused.contains("is not the Minecraft 26.3 release client jar"),
+        "{refused}"
+    );
+    // Refused before anything is linked or fetched.
+    assert!(!linked.exists());
+    assert!(mojang.urls.lock().unwrap().is_empty());
+}
+
+#[test]
+fn from_jar_refuses_a_missing_file() {
+    let s = Scratch::new("jar-missing");
+    let linked = s.0.join("linked");
+    let mojang = Mojang::new(MANIFEST);
+    let missing = s.0.join("missing.jar");
+    let refused = from_jar(
+        &missing,
+        &pins(),
+        &linked,
+        &[],
+        &|u| mojang.fetch(u),
+        &|_| {},
+    )
+    .unwrap_err();
+    assert!(refused.contains("the file doesn't exist"), "{refused}");
+    // A folder is not a jar either.
+    let folder = from_jar(&s.0, &pins(), &linked, &[], &|u| mojang.fetch(u), &|_| {}).unwrap_err();
+    assert!(folder.contains("the file doesn't exist"), "{folder}");
+    assert!(!linked.exists());
+}
+
+/// A jar alone in a folder with no `libraries` or `assets` beside it (Downloads) and no other
+/// launcher folder to borrow them from is still linked, without them; only the version file is
+/// fetched from Mojang, never a game jar.
+#[test]
+fn from_jar_accepts_the_pinned_jar_in_a_bare_folder() {
+    let s = Scratch::new("jar-bare");
+    let jar = s.write("Downloads/whatever.jar", b"the bytes of some pinned jar");
+    let pinned = Pins {
+        client_sha1: sha1_hex(b"the bytes of some pinned jar"),
+        ..pins()
+    };
+    let linked = s.0.join("linked");
+    let mojang = Mojang::new(MANIFEST);
+    let resolved = from_jar(&jar, &pinned, &linked, &[], &|u| mojang.fetch(u), &|_| {});
+    assert_eq!(resolved, Ok(Resolved::Folder(linked.clone())));
+    assert_eq!(
+        fs::read(linked.join("versions/26.3/26.3.jar")).unwrap(),
+        b"the bytes of some pinned jar"
+    );
+    assert!(linked.join("versions/26.3/26.3.json").is_file());
+    assert!(!linked.join("libraries").exists());
+    assert!(!linked.join("assets").exists());
+    let urls = mojang.urls.lock().unwrap();
+    assert!(
+        urls.iter()
+            .all(|u| u.contains("piston-meta") && u.ends_with("/26.3.json")),
+        "{urls:?}"
+    );
+}
+
+/// A jar picked inside Prism Launcher's libraries (`libraries/com/mojang/minecraft/<v>/`, six
+/// folders down) brings that launcher's libraries and assets.
+#[test]
+fn a_chosen_jar_deep_in_prism_finds_its_launcher_folder() {
+    let s = Scratch::new("jar-prism");
+    let jar = "libraries/com/mojang/minecraft/26.3/minecraft-26.3-client.jar";
+    let prism = s.launcher("ElyPrismLauncher", "", jar);
+    let linked = s.0.join("linked");
+    let mojang = Mojang::new(MANIFEST);
+    from_jar(
+        &prism.join(jar),
+        &pins(),
+        &linked,
+        &[],
+        &|u| mojang.fetch(u),
+        &|_| {},
+    )
+    .unwrap();
+    assert_linked(&linked, &prism, jar);
+}
+
+/// A jar copied out of its launcher (to Downloads) takes the libraries and assets of a launcher
+/// folder that has the version, never those of the linked folder itself.
+#[test]
+fn a_lone_jar_borrows_a_launcher_folders_libraries() {
+    let s = Scratch::new("jar-lone");
+    let official = s.launcher("minecraft", "", "versions/26.3/26.3.jar");
+    let empty = s.0.join("nothing-here");
+    fs::create_dir_all(&empty).unwrap();
+    let linked = s.0.join("linked");
+    let copy = s.write("Downloads/26.3.jar", CLIENT);
+    let others = [empty, linked.clone(), official];
+    let mojang = Mojang::new(MANIFEST);
+    from_jar(
+        &copy,
+        &pins(),
+        &linked,
+        &others,
+        &|u| mojang.fetch(u),
+        &|_| {},
+    )
+    .unwrap();
+    assert_eq!(
+        fs::read(linked.join("libraries/org/lib/1/lib-1.jar")).unwrap(),
+        b"lib"
+    );
+    assert!(linked.join("assets/indexes/30.json").is_file());
+}
+
+#[test]
 fn maven_names_become_repository_paths() {
     assert_eq!(
         maven_path("com.mojang:minecraft:26.3:client").as_deref(),

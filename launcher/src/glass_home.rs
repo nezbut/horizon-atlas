@@ -769,6 +769,23 @@ impl Launcher {
                         .map_or_else(|| tr("Not found").into(), short),
                     None,
                 ));
+                items.push((
+                    "folder-jar",
+                    tr("Choose jar…"),
+                    self.settings
+                        .minecraft_jar
+                        .as_deref()
+                        .map_or_else(|| tr("Automatic").into(), short),
+                    None,
+                ));
+                if self.settings.minecraft_jar.is_some() {
+                    items.push((
+                        "folder-jar-clear",
+                        tr("Automatic"),
+                        tr("Minecraft jar").into(),
+                        None,
+                    ));
+                }
             }
             let mut menu = ui::popover(290.)
                 .id("folder-menu")
@@ -782,12 +799,14 @@ impl Launcher {
                 menu = menu.child(ui::menu_item(key, label.into(), note, false, &t).on_click(
                     cx.listener(move |this, _: &ClickEvent, _, cx| {
                         this.home_menu = HomeMenu::None;
-                        match &path {
-                            Some(p) => {
+                        match (&path, key) {
+                            (Some(p), _) => {
                                 let _ = std::fs::create_dir_all(p);
                                 crate::glass_toast::open(cx, p);
                             }
-                            None => this.choose_folder(cx),
+                            (None, "folder-jar") => this.choose_jar(cx),
+                            (None, "folder-jar-clear") => this.clear_jar(),
+                            (None, _) => this.choose_folder(cx),
                         }
                         cx.notify();
                     }),

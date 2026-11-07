@@ -3181,6 +3181,10 @@ pub fn client(tag: &str) -> Result<Command, String> {
 /// What the command line adds to a refusal to play for want of an account.
 pub const SIGN_IN_HINT: &str = "Sign in with `horizon-launcher account sign-in`.";
 
+/// Atlas plays offline: the game starts, and offline names play, without a Microsoft account
+/// that owns Minecraft. Downloading the game from Mojang stays owner-gated.
+pub const OFFLINE_PLAY: bool = true;
+
 /// [`client`], playing as `who` for this launch only (`play --account`).
 pub fn client_as(tag: &str, who: Option<&account::Player>) -> Result<Command, String> {
     if let Some(error) = game_architecture_launch_error(tag) {
@@ -3189,7 +3193,7 @@ pub fn client_as(tag: &str, who: Option<&account::Player>) -> Result<Command, St
     play_step("reading the sign-in");
     let hint = |refused: String| format!("{refused} {}", crate::i18n::tr(SIGN_IN_HINT));
     let session = match who {
-        None => account::session_for_game(&game_home(), false).map_err(|refused| {
+        None => account::session_for_game(&game_home(), OFFLINE_PLAY).map_err(|refused| {
             // A keyring that didn't answer isn't a missing sign-in (#12179).
             match refused.keyring {
                 Some(why) => why,
@@ -4529,7 +4533,10 @@ pub struct Settings {
 
 impl Settings {
     pub fn load() -> Self {
-        Self::parse(&fs::read_to_string(data_dir().join("settings.json")).unwrap_or_default())
+        let mut settings =
+            Self::parse(&fs::read_to_string(data_dir().join("settings.json")).unwrap_or_default());
+        settings.dev_offline = OFFLINE_PLAY;
+        settings
     }
     pub fn parse(text: &str) -> Self {
         let Ok(mut value) = serde_json::from_str::<serde_json::Value>(text) else {
@@ -5670,6 +5677,32 @@ pub fn {f}("
         };
         let text = serde_json::to_string(&settings).unwrap();
         assert!(text.contains(r#""appearance":"system""#), "{text}");
+    }
+
+    #[test]
+    fn settings_load_is_offline_whatever_the_file_says() {
+        // `HORIZON_LAUNCHER_HOME` is process-wide: one test at a time, and put back after.
+        static ENV: std::sync::Mutex<()> = std::sync::Mutex::new(());
+        let _guard = ENV.lock().unwrap_or_else(|e| e.into_inner());
+        let previous = std::env::var_os("HORIZON_LAUNCHER_HOME");
+        let home = scratch("settings-offline");
+        std::env::set_var("HORIZON_LAUNCHER_HOME", &home);
+        for file in [
+            r#"{"dev_offline": false}"#,
+            "",
+            "not json",
+            r#"{"dev_offline": true}"#,
+        ] {
+            fs::write(home.join("settings.json"), file).unwrap();
+            assert!(Settings::load().dev_offline, "settings.json: {file:?}");
+        }
+        let _ = fs::remove_file(home.join("settings.json"));
+        assert!(Settings::load().dev_offline, "no settings.json");
+        match previous {
+            Some(p) => std::env::set_var("HORIZON_LAUNCHER_HOME", p),
+            None => std::env::remove_var("HORIZON_LAUNCHER_HOME"),
+        }
+        let _ = fs::remove_dir_all(home);
     }
 
     #[test]

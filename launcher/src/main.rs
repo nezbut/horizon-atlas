@@ -3518,6 +3518,7 @@ impl Launcher {
                         cx.notify();
                     })),
                 ),
+            Some(false) if backend::OFFLINE_PLAY => div(),
             Some(false) => div().child(microsoft::sign_in_button("prepare-sign-in", &t).on_click(
                 cx.listener(|this, _: &ClickEvent, _, cx| {
                     this.sign_in_to_play();
@@ -4453,6 +4454,10 @@ impl Launcher {
     /// Settings' Microsoft accounts: who is signed in and plays, the sign-in with its code. The
     /// rows are numbered from 01; returns them and how many there are.
     fn account_rows(&mut self, cx: &mut Context<Self>) -> (Div, usize) {
+        // Atlas has no Microsoft accounts section; offline names are all there is to manage.
+        if backend::OFFLINE_PLAY {
+            return (div().flex().flex_col(), 0);
+        }
         let t = self.theme;
         let (mut rows, mut n) = self.microsoft_rows(cx);
         n += 1;

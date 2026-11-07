@@ -1,9 +1,12 @@
-name: sync
+name: atlas-sync
 # Follows Horizon's launcher releases (tools/atlas_sync.py). Every day, and by hand:
-#  - build: when upstream has a launcher@X.Y.Z newer than the one main is based on, replay Atlas's patches onto it and
-#    run the formatting check and the launcher's tests. Success hands a git bundle of the rebased main to `publish`.
-#    A failure hands an issue's title and body to `report`.
-#  - publish: pushes the rebased main and starts release.yml. Nothing is pushed or published unless build succeeded.
+#  - build: when upstream has a launcher@X.Y.Z newer than the one main is based on, replay Atlas's patches onto it,
+#    drop the upstream workflows that came with it (Atlas's own are named atlas-*), and run the formatting check and the
+#    launcher's tests. Success hands a git bundle of the rebased main to `publish`. A failure hands an issue's title and
+#    body to `report`, which also opens a non-blocking issue when upstream changed how the launcher is built
+#    (atlas-release.yml is a derived copy of upstream's launcher.yml and has to be compared by hand).
+#  - publish: pushes the rebased main and starts atlas-release.yml. Nothing is pushed or published unless build
+#    succeeded, and not in a dry run (a by-hand run with dry_run on, the default; scheduled runs are not dry runs).
 #  - main-check: do the patches still apply to, and build on, upstream's main? It never pushes or publishes. A failure
 #    hands an issue to `report-main`, which opens one labelled sync-main (only one at a time).
 # Needs the repository secret SYNC_TOKEN, a fine-grained personal access token (contents, workflows, actions, issues:
@@ -16,6 +19,11 @@ on:
   schedule:
     - cron: '17 4 * * *'
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Rebase and test, report what would be pushed and released, but push and release nothing
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -41,6 +49,7 @@ jobs:
       tag: ${{ steps.find.outputs.tag }}
       version: ${{ steps.find.outputs.version }}
       expected: ${{ steps.find.outputs.expected }}
+      notice: ${{ steps.drift.outputs.notice }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -57,11 +66,16 @@ jobs:
         run: |
           set -euo pipefail
           tag=$(python3 tools/atlas_sync.py new-tag)
-          # The version and the main this run started from, taken before the rebase.
+          # The version, the main this run started from and the tag it is based on, taken before the rebase.
+          version=$(python3 tools/atlas_sync.py next-version)
+          expected=$(git rev-parse HEAD)
+          base=
+          if [[ -n "$tag" ]]; then base=$(python3 tools/atlas_sync.py base); fi
           {
             echo "tag=$tag"
-            echo "version=$(python3 tools/atlas_sync.py next-version)"
-            echo "expected=$(git rev-parse HEAD)"
+            echo "version=$version"
+            echo "expected=$expected"
+            echo "base=$base"
           } >> "$GITHUB_OUTPUT"
           echo "### New upstream launcher tag: ${tag:-none}" >> "$GITHUB_STEP_SUMMARY"
       - name: Atlas's patches onto the new tag
@@ -95,6 +109,39 @@ jobs:
             echo '```'
           } > report/body.md
           exit 1
+      - name: Upstream's workflows, dropped (Atlas's own are atlas-*)
+        if: steps.find.outputs.tag != ''
+        run: |
+          set -euo pipefail
+          dropped=$(python3 tools/atlas_sync.py drop-workflows)
+          echo "### Upstream workflows dropped: ${dropped:-none}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Did upstream change how the launcher is built?
+        id: drift
+        if: steps.find.outputs.tag != ''
+        env:
+          TAG: ${{ steps.find.outputs.tag }}
+          BASE: ${{ steps.find.outputs.base }}
+        run: |
+          # Not a failure: atlas-release.yml is a copy of upstream's launcher.yml, so a change there needs a human.
+          paths=(.github/workflows/launcher.yml packaging tools/ci/sign_release.sh)
+          if git diff --quiet "refs/upstream/tags/$BASE" "refs/upstream/tags/$TAG" -- "${paths[@]}"; then
+            echo "The launcher's build is unchanged between $BASE and $TAG"
+            exit 0
+          fi
+          mkdir -p report
+          printf '%s\n' "Upstream changed the launcher's build in $TAG: compare atlas-release.yml" > report/notice-title.txt
+          {
+            echo "Between $BASE and $TAG upstream changed how the launcher is built, packaged or signed."
+            echo
+            echo "\`.github/workflows/atlas-release.yml\` is a derived copy of upstream's \`.github/workflows/launcher.yml\`, so it did not follow. Compare it with \`launcher.yml\` at \`$TAG\` and port what matters. The sync itself went on: this notice blocks nothing."
+            echo
+            echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo '```'
+            git diff --stat "refs/upstream/tags/$BASE" "refs/upstream/tags/$TAG" -- "${paths[@]}"
+            echo '```'
+          } > report/notice-body.md
+          echo "notice=true" >> "$GITHUB_OUTPUT"
       - uses: dtolnay/rust-toolchain@stable
         if: steps.find.outputs.tag != ''
         with:
@@ -118,7 +165,7 @@ jobs:
           (cd launcher && cargo fmt --check && cargo test --release --lib --bins) > "$RUNNER_TEMP/checks.log" 2>&1 || status=$?
           tail -n 60 "$RUNNER_TEMP/checks.log"
           [[ $status == 0 ]] && exit 0
-          mkdir report
+          mkdir -p report
           printf '%s\n' "Sync to $TAG failed: cargo fmt or the tests" > report/title.txt
           {
             echo "Atlas's patches applied to $TAG, but \`cargo fmt --check\` or \`cargo test --release --lib --bins\` failed in \`launcher/\`. Nothing was pushed or published; main is unchanged."
@@ -135,11 +182,20 @@ jobs:
         if: steps.find.outputs.tag != ''
         env:
           EXPECTED: ${{ steps.find.outputs.expected }}
+          TAG: ${{ steps.find.outputs.tag }}
+          VERSION: ${{ steps.find.outputs.version }}
+          DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
           git branch -f atlas-rebased HEAD
           git bundle create "$RUNNER_TEMP/atlas.bundle" "$EXPECTED..atlas-rebased"
           echo "ok=true" >> "$GITHUB_OUTPUT"
+          tip=$(git rev-parse HEAD)
+          if [[ "$DRY_RUN" == true ]]; then
+            echo "### Dry run: would push main at $tip (Atlas's patches on $TAG, was $EXPECTED) and release Atlas $VERSION; nothing was pushed or released" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### Ready to push main at $tip (Atlas's patches on $TAG, was $EXPECTED) and release Atlas $VERSION" >> "$GITHUB_STEP_SUMMARY"
+          fi
       - uses: actions/upload-artifact@v7
         if: steps.bundle.outputs.ok == 'true'
         with:
@@ -148,7 +204,7 @@ jobs:
           if-no-files-found: error
           retention-days: 3
       - uses: actions/upload-artifact@v7
-        if: failure() && hashFiles('report/title.txt') != ''
+        if: always() && hashFiles('report/**') != ''
         with:
           name: report
           path: report/
@@ -156,7 +212,8 @@ jobs:
 
   publish:
     needs: build
-    if: github.ref == 'refs/heads/main' && needs.build.outputs.ok == 'true'
+    # Never in a dry run (a by-hand run with dry_run on): the build summary says what would have been pushed.
+    if: github.ref == 'refs/heads/main' && needs.build.outputs.ok == 'true' && !inputs.dry_run
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     # The only job that holds SYNC_TOKEN. It runs no code from the repository: no cargo, no script of the checkout; it
@@ -201,12 +258,14 @@ jobs:
           VERSION: ${{ needs.build.outputs.version }}
           TAG: ${{ needs.build.outputs.tag }}
         run: |
-          gh workflow run release.yml --ref main -f version="$VERSION" -f upstream_tag="$TAG" -f dry_run=false
+          gh workflow run atlas-release.yml --ref main -f version="$VERSION" -f upstream_tag="$TAG" -f dry_run=false
           echo "### Release $VERSION (on $TAG) started" >> "$GITHUB_STEP_SUMMARY"
 
   report:
     needs: build
-    if: always() && needs.build.result == 'failure'
+    # The failure of build (title.txt, body.md), and the notice that upstream changed the launcher's build
+    # (notice-title.txt, notice-body.md), which does not fail the run.
+    if: always() && (needs.build.result == 'failure' || needs.build.outputs.notice == 'true')
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     permissions:
@@ -221,17 +280,21 @@ jobs:
         with:
           name: report
           path: report
-      - name: An issue, unless one with this title is open
+      - name: An issue for each report, unless one with that title is open
         if: steps.download.outcome == 'success'
         run: |
           set -euo pipefail
-          title=$(head -n 1 report/title.txt | head -c 250)
           titles=$(gh issue list --state open --limit 200 --json title --jq '.[].title')
-          if grep -Fxq -- "$title" <<<"$titles"; then
-            echo "An issue titled '$title' is already open"
-          else
-            gh issue create --title "$title" --body-file report/body.md
-          fi
+          for kind in "title.txt body.md" "notice-title.txt notice-body.md"; do
+            read -r title_file body_file <<<"$kind"
+            [[ -f "report/$title_file" && -f "report/$body_file" ]] || continue
+            title=$(head -n 1 "report/$title_file" | head -c 250)
+            if grep -Fxq -- "$title" <<<"$titles"; then
+              echo "An issue titled '$title' is already open"
+            else
+              gh issue create --title "$title" --body-file "report/$body_file"
+            fi
+          done
 
   main-check:
     if: github.ref == 'refs/heads/main'

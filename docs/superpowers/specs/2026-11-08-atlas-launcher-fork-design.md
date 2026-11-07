@@ -25,7 +25,7 @@ releases, unchanged.
 
 ## Non-goals
 
-- Forking the game: no game patches for now (offline skins, protocol changes: see ROADMAP).
+- Forking the game: no game patches for now (offline skins and capes already exist in upstream; see ROADMAP).
 - Any feature that fetches Minecraft's client or server jar from Mojang for a player who has no
   license, in the launcher or in a companion tool. Downloading the game from Mojang stays gated on an
   owner exactly as upstream has it.
@@ -162,5 +162,6 @@ ported code (from `Horizon-Offline-Launcher`, MIT) goes into `THIRD_PARTY_NOTICE
 ## Roadmap (docs/superpowers/ROADMAP.md)
 
 - Landing page on GitHub Pages for easy access to the fork.
-- Game patches: offline skins and capes, protocol framing fix (what `Horizon-Offline-Launcher` has).
+- Check offline skins and capes, which upstream already has; patch the game only if something does
+  not work.
 - More of the owner's own features.

@@ -5,6 +5,7 @@ pub(super) fn settings_json(s: &backend::Settings) -> serde_json::Value {
         "selected_version": backend::resolve_version(None).ok(),
         "game_architecture": s.game_architecture.name(),
         "minecraft_dir": s.minecraft_dir,
+        "minecraft_jar": s.minecraft_jar,
         "server_dir": backend::server_dir(None),
         "install_new_versions": s.install_new_versions.unwrap_or(true),
         "prune_old_versions": s.auto_prune(),

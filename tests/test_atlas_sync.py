@@ -75,6 +75,56 @@ class SyncFixture(unittest.TestCase):
         commit_file(self.atlas, "b.txt", "mine\n", "patch: two")
 
 
+WORKFLOWS = ".github/workflows"
+
+
+class WorkflowFixture(SyncFixture):
+    """An upstream whose two tags differ in `newer` (a text, or None to delete), and an Atlas on the first."""
+
+    def build(self, base, newer):
+        self.upstream = Path(self._tmp.name) / "upstream-workflows"
+        init_repo(self.upstream)
+        self.write(self.upstream, base)
+        git(self.upstream, "add", "-A")
+        git(self.upstream, "commit", "-q", "-m", "c1")
+        git(self.upstream, "tag", "launcher@0.2.50")
+        self.write(self.upstream, newer)
+        git(self.upstream, "add", "-A")
+        git(self.upstream, "commit", "-q", "-m", "c2")
+        git(self.upstream, "tag", "launcher@0.2.51")
+        init_repo(self.atlas)
+        git(
+            self.atlas,
+            "fetch",
+            "-q",
+            str(self.upstream),
+            "+refs/tags/launcher@*:refs/upstream/tags/launcher@*",
+        )
+        git(self.atlas, "reset", "-q", "--hard", "refs/upstream/tags/launcher@0.2.50")
+
+    @staticmethod
+    def write(repo, files):
+        for name, text in files.items():
+            path = repo / name
+            if text is None:
+                path.unlink()
+                continue
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text)
+
+    def atlas_commit(self, subject, files):
+        self.write(self.atlas, files)
+        git(self.atlas, "add", "-A")
+        git(self.atlas, "commit", "-q", "-m", subject)
+
+    def assert_clean(self):
+        self.assertEqual(git(self.atlas, "status", "--porcelain"), "")
+        self.assertFalse((self.atlas / ".git" / "rebase-merge").exists())
+
+    def subjects(self, count):
+        return git(self.atlas, "log", "--format=%s").split("\n")[:count]
+
+
 class TagParsingTests(unittest.TestCase):
     def test_parse_launcher_tag(self):
         self.assertEqual(atlas_sync.parse_launcher_tag("launcher@0.2.50"), (0, 2, 50))
@@ -152,6 +202,147 @@ class RebaseTests(SyncFixture):
         self.assertEqual(atlas_sync.new_tag(self.atlas), "launcher@0.2.51")
 
 
+class UpstreamWorkflowTests(WorkflowFixture):
+    ci = f"{WORKFLOWS}/ci.yml"
+
+    def test_a_deleted_workflow_that_upstream_edited_is_not_a_conflict(self):
+        self.build({"a.txt": "line\n", self.ci: "ci\n"}, {self.ci: "ci changed\n"})
+        self.atlas_commit("atlas: workflows", {self.ci: None})
+        self.atlas_commit("patch: one", {"a.txt": "line patched\n"})
+        self.atlas_commit("patch: two", {"b.txt": "mine\n"})
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertTrue(result.ok)
+        self.assertIsNone(result.failed_patch)
+        self.assertFalse((self.atlas / self.ci).exists())
+        self.assertEqual((self.atlas / "a.txt").read_text(), "line patched\n")
+        self.assertEqual(
+            self.subjects(4), ["patch: two", "patch: one", "atlas: workflows", "c2"]
+        )
+        self.assert_clean()
+        self.assertEqual(atlas_sync.current_base(self.atlas), "launcher@0.2.51")
+
+    def test_every_conflicting_workflow_is_resolved_in_one_stop(self):
+        other = f"{WORKFLOWS}/parity.yml"
+        self.build(
+            {self.ci: "ci\n", other: "parity\n"}, {self.ci: "ci 2\n", other: "parity 2\n"}
+        )
+        self.atlas_commit("atlas: workflows", {self.ci: None, other: None})
+
+        self.assertTrue(atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51").ok)
+        self.assertEqual(git(self.atlas, "ls-files", WORKFLOWS), "")
+        self.assert_clean()
+
+    def test_workflow_conflicts_in_several_patches_are_resolved_in_turn(self):
+        other = f"{WORKFLOWS}/parity.yml"
+        self.build(
+            {self.ci: "ci\n", other: "parity\n", "a.txt": "x\n"},
+            {self.ci: "ci 2\n", other: "parity 2\n"},
+        )
+        self.atlas_commit("atlas: ci", {self.ci: None})
+        self.atlas_commit("patch: one", {"a.txt": "y\n"})
+        self.atlas_commit("atlas: parity", {other: None})
+
+        self.assertTrue(atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51").ok)
+        self.assertEqual(git(self.atlas, "ls-files", WORKFLOWS), "")
+        self.assertEqual(
+            self.subjects(4), ["atlas: parity", "patch: one", "atlas: ci", "c2"]
+        )
+
+    def test_a_conflict_in_a_source_file_is_still_named_and_left_clean(self):
+        self.build({"a.txt": "line\n", self.ci: "ci\n"}, {"a.txt": "line upstream\n"})
+        self.atlas_commit("atlas: workflows", {self.ci: None})
+        self.atlas_commit("patch: one", {"a.txt": "line patched\n"})
+        head = git(self.atlas, "rev-parse", "HEAD")
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.failed_patch, "patch: one")
+        self.assert_clean()
+        self.assertEqual(git(self.atlas, "rev-parse", "HEAD"), head)
+
+    def test_a_mixed_conflict_is_not_resolved(self):
+        self.build(
+            {"a.txt": "line\n", self.ci: "ci\n"},
+            {"a.txt": "line upstream\n", self.ci: "ci changed\n"},
+        )
+        self.atlas_commit("patch: mixed", {"a.txt": "line patched\n", self.ci: None})
+        head = git(self.atlas, "rev-parse", "HEAD")
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.failed_patch, "patch: mixed")
+        self.assert_clean()
+        self.assertEqual(git(self.atlas, "rev-parse", "HEAD"), head)
+
+    def test_a_patch_that_upstream_made_pointless_is_dropped(self):
+        self.build({"a.txt": "line\n", self.ci: "ci\n"}, {self.ci: None})
+        self.atlas_commit("atlas: tweak ci", {self.ci: "ci tweaked\n"})
+        self.atlas_commit("patch: one", {"a.txt": "line patched\n"})
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertTrue(result.ok)
+        self.assertFalse((self.atlas / self.ci).exists())
+        self.assertEqual(self.subjects(2), ["patch: one", "c2"])
+        self.assert_clean()
+
+    def test_atlas_own_workflows_are_never_resolved_by_deleting(self):
+        own = f"{WORKFLOWS}/atlas-ci.yml"
+        self.build({own: "own\n"}, {own: "upstream wrote this\n"})
+        self.atlas_commit("patch: own", {own: "mine\n"})
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.failed_patch, "patch: own")
+        self.assert_clean()
+
+    def test_new_upstream_workflows_are_dropped_in_one_commit_and_atlas_ones_kept(self):
+        own = f"{WORKFLOWS}/atlas-ci.yml"
+        new = f"{WORKFLOWS}/new.yml"
+        self.build({"a.txt": "line\n"}, {new: "new\n"})
+        self.atlas_commit("atlas: own ci", {own: "own\n"})
+        self.assertTrue(atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51").ok)
+        self.assertTrue((self.atlas / new).exists())
+
+        dropped = atlas_sync.drop_upstream_workflows(self.atlas)
+
+        self.assertEqual(dropped, ["new.yml"])
+        self.assertFalse((self.atlas / new).exists())
+        self.assertTrue((self.atlas / own).exists())
+        self.assertEqual(self.subjects(1), ["atlas: drop upstream workflows (new.yml)"])
+        self.assert_clean()
+        head = git(self.atlas, "rev-parse", "HEAD")
+        self.assertEqual(atlas_sync.drop_upstream_workflows(self.atlas), [])
+        self.assertEqual(git(self.atlas, "rev-parse", "HEAD"), head)
+
+    def test_several_dropped_workflows_are_listed_in_the_subject(self):
+        self.build(
+            {"a.txt": "line\n"},
+            {f"{WORKFLOWS}/b.yml": "b\n", f"{WORKFLOWS}/a.yml": "a\n"},
+        )
+        self.assertTrue(atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51").ok)
+
+        self.assertEqual(atlas_sync.drop_upstream_workflows(self.atlas), ["a.yml", "b.yml"])
+        self.assertEqual(self.subjects(1), ["atlas: drop upstream workflows (a.yml, b.yml)"])
+
+    def test_upstream_deleting_a_workflow_we_already_dropped_is_fine(self):
+        self.build({"a.txt": "line\n", self.ci: "ci\n"}, {self.ci: None})
+        self.assertEqual(atlas_sync.drop_upstream_workflows(self.atlas), ["ci.yml"])
+        self.atlas_commit("patch: one", {"a.txt": "line patched\n"})
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertTrue(result.ok)
+        self.assertFalse((self.atlas / self.ci).exists())
+        self.assertEqual((self.atlas / "a.txt").read_text(), "line patched\n")
+        self.assert_clean()
+
+
 class CliTests(SyncFixture):
     def cli(self, *args):
         out = io.StringIO()
@@ -180,6 +371,17 @@ class CliTests(SyncFixture):
         git(self.atlas, "tag", "launcher@0.1.0")
         git(self.atlas, "tag", "launcher@0.1.1")
         self.assertEqual(self.cli("next-version"), (0, "0.1.2\n"))
+
+    def test_drop_workflows_prints_what_it_removed(self):
+        self.atlas_on_first_tag()
+        self.assertEqual(self.cli("drop-workflows"), (0, ""))
+        (self.atlas / WORKFLOWS).mkdir(parents=True)
+        for name in ["x.yml", "atlas-keep.yml"]:
+            (self.atlas / WORKFLOWS / name).write_text("on: push\n")
+        git(self.atlas, "add", "-A")
+        git(self.atlas, "commit", "-q", "-m", "upstream-like")
+        self.assertEqual(self.cli("drop-workflows"), (0, "x.yml\n"))
+        self.assertEqual(git(self.atlas, "ls-files", WORKFLOWS).strip(), f"{WORKFLOWS}/atlas-keep.yml")
 
     def test_title_and_base(self):
         self.atlas_on_first_tag()

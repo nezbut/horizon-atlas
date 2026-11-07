@@ -709,7 +709,10 @@ impl Launcher {
             .children(self.glass_account_menu(cx));
 
         // Signing in with Microsoft, while nobody is: the mockup's button.
-        let sign_in = (!matches!(self.accounts.player(), Player::Microsoft(_))).then(|| {
+        // Atlas has no Microsoft sign-in, so the button stays out.
+        let sign_in = (!backend::OFFLINE_PLAY
+            && !matches!(self.accounts.player(), Player::Microsoft(_)))
+        .then(|| {
             keyboard(
                 div()
                     .id("topbar-sign-in")

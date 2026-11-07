@@ -105,7 +105,7 @@
 ### Task 5: Patches `own-releases` and `own-keys`
 
 **Files:**
-- Modify: `launcher/src/backend.rs` (`pub const LAUNCHER_REPO: &str = "nezbut/horizon-atlas";` launcher releases read from it; Atom-feed fallback `launcher_feed()` / `feed_releases(&str) -> Vec<Release>`; `Updates::launcher_error: Option<String>` shown instead of "up to date"; the `platform_assets_are_published` test reads only `.github/workflows/release.yml`), `launcher/src/cli.rs` (print the error), `launcher/src/main.rs` (show it in the update line); for keys: `crates/horizon-release-sign/release-keys.txt`
+- Modify: `launcher/src/backend.rs` (`pub const LAUNCHER_REPO: &str = "nezbut/horizon-atlas";` launcher releases read from it; Atom-feed fallback `launcher_feed()` / `feed_releases(&str) -> Vec<Release>`; `Updates::launcher_error: Option<String>` shown instead of "up to date"; the `platform_assets_are_published` test reads only `.github/workflows/atlas-release.yml`), `launcher/src/cli.rs` (print the error), `launcher/src/main.rs` (show it in the update line); for keys: `crates/horizon-release-sign/release-keys.txt`
 - Test: `launcher/src/backend.rs` tests; `crates/horizon-release-sign/src/lib.rs` tests
 
 **Interfaces:** Consumes: `Release`, `launcher_update_from`, `releases_and_updates_with`. Produces: `LAUNCHER_REPO`, `feed_releases`, `Updates::launcher_error`. The game's repo `backend::REPO` stays `horizon-rust/horizon`; signature code (`signed_digest`) is untouched.
@@ -120,27 +120,27 @@
 
 **Files:**
 - Delete: every `.github/workflows/*.yml` except `launcher.yml` (`git rm`)
-- Create: `.github/workflows/release.yml` (from `launcher.yml`, then `git rm` `launcher.yml`), `.github/workflows/ci.yml`
+- Create: `.github/workflows/atlas-release.yml` (from `launcher.yml`, then `git rm` `launcher.yml`), `.github/workflows/atlas-ci.yml` (names start with `atlas-` so rebases never conflict with upstream's files)
 
-**Interfaces:** Produces: `release.yml` with `workflow_dispatch` inputs `version` (required, `X.Y.Z`), `upstream_tag` (required, `launcher@X.Y.Z`), `dry_run` (boolean, default `true`). Consumed by Task 7 via `gh workflow run release.yml -f version=... -f upstream_tag=... -f dry_run=false`.
+**Interfaces:** Produces: `atlas-release.yml` with `workflow_dispatch` inputs `version` (required, `X.Y.Z`), `upstream_tag` (required, `launcher@X.Y.Z`), `dry_run` (boolean, default `true`). Consumed by Task 7 via `gh workflow run atlas-release.yml -f version=... -f upstream_tag=... -f dry_run=false`.
 
-- [ ] **Step 1: Delete** the upstream workflows with `git rm`.
-- [ ] **Step 2: Create `release.yml`** by copying `launcher.yml` and editing: remove the `push`/`schedule` triggers and the `paths` list; replace the `decide` job with a `meta` job that outputs `tag=launcher@<version>`, `version`, `head=$GITHUB_SHA`, `dry_run` (no `tools/release_train.py`); replace `(vars.MAC_RUNNER || 'ludovics-mac-mini')` with `macos-15`; in the `release` job build notes with `python3 tools/atlas_sync.py title "$version" "$upstream_tag"` (title) plus one line "Unofficial fork; see README" (body); publish with `--latest=true` (so `releases/latest/download/...` works for `install.sh`). Keep the `sign` job, the `release` environment and the `verify` step exactly as upstream has them.
-- [ ] **Step 3: Create `ci.yml`:** on `push` and `pull_request`, ubuntu-22.04, install the Linux packages listed in `launcher/README.md`, `cargo fmt --manifest-path launcher/Cargo.toml --check`, `cargo test --manifest-path launcher/Cargo.toml --release --lib --bins`.
-- [ ] **Step 4: Verify the YAML parses:** `uv run --with pyyaml python -c "import glob,yaml; [yaml.safe_load(open(f)) for f in glob.glob('.github/workflows/*.yml')]"`. Expected: no output, exit 0. (Actions behaviour itself is verified by the owner's dry run, Task 9.)
-- [ ] **Step 5: Commit:** `git add .github && git commit -m "atlas: workflows"`.
+- [x] **Step 1: Delete** the upstream workflows with `git rm`.
+- [x] **Step 2: Create `atlas-release.yml`** by copying `launcher.yml` and editing: remove the `push`/`schedule` triggers and the `paths` list; replace the `decide` job with a `meta` job that outputs `tag=launcher@<version>`, `version`, `head=$GITHUB_SHA`, `dry_run` (no `tools/release_train.py`); replace `(vars.MAC_RUNNER || 'ludovics-mac-mini')` with `macos-15`; in the `release` job build notes with `python3 tools/atlas_sync.py title "$version" "$upstream_tag"` (title) plus one line "Unofficial fork; see README" (body); publish with `--latest=true` (so `releases/latest/download/...` works for `install.sh`). Keep the `sign` job, the `release` environment and the `verify` step exactly as upstream has them.
+- [x] **Step 3: Create `atlas-ci.yml`:** on `push` and `pull_request`, ubuntu-22.04, install the Linux packages listed in `launcher/README.md`, `cargo fmt --manifest-path launcher/Cargo.toml --check`, `cargo test --manifest-path launcher/Cargo.toml --release --lib --bins`.
+- [x] **Step 4: Verify the YAML parses:** `uv run --with pyyaml python -c "import glob,yaml; [yaml.safe_load(open(f)) for f in glob.glob('.github/workflows/*.yml')]"`. Expected: no output, exit 0. (Actions behaviour itself is verified by the owner's dry run, Task 9.)
+- [x] **Step 5: Commit:** `git add .github && git commit -m "atlas: workflows"`.
 
 ### Task 7: The daily sync workflow
 
-**Files:** Create: `.github/workflows/sync.yml`
+**Files:** Create: `.github/workflows/atlas-sync.yml`
 
-**Interfaces:** Consumes: `tools/atlas_sync.py` CLI (Task 2), `release.yml` inputs (Task 6), secret `SYNC_TOKEN`.
+**Interfaces:** Consumes: `tools/atlas_sync.py` CLI (Task 2), `atlas-release.yml` inputs (Task 6), secret `SYNC_TOKEN`.
 
-- [ ] **Step 1: Create `sync.yml`** with `schedule: cron '17 4 * * *'` and `workflow_dispatch`, `concurrency: group: atlas-sync, cancel-in-progress: false`, and two jobs, both checking out with `fetch-depth: 0` and `token: ${{ secrets.SYNC_TOKEN }}`, adding `upstream` and fetching `'+refs/tags/launcher@*:refs/upstream/tags/launcher@*'`:
-  - `tag`: `tag=$(python3 tools/atlas_sync.py new-tag)`; if empty, stop. Otherwise `python3 tools/atlas_sync.py rebase "$tag"`; on exit 1, open an issue titled `Sync to <tag> failed: <FAILED_PATCH>` with `gh issue create` and stop; on success run `cargo fmt --check` and `cargo test --release --lib --bins` in `launcher/`, `git push --force-with-lease origin HEAD:main`, then `gh workflow run release.yml -f version="$(python3 tools/atlas_sync.py next-version)" -f upstream_tag="$tag" -f dry_run=false`. A failed test opens an issue too and publishes nothing.
+- [x] **Step 1: Create `atlas-sync.yml`** (as built: see "As built" at the end) with `schedule: cron '17 4 * * *'` and `workflow_dispatch`, `concurrency: group: atlas-sync, cancel-in-progress: false`, and two jobs, both checking out with `fetch-depth: 0` and `token: ${{ secrets.SYNC_TOKEN }}`, adding `upstream` and fetching `'+refs/tags/launcher@*:refs/upstream/tags/launcher@*'`:
+  - `tag`: `tag=$(python3 tools/atlas_sync.py new-tag)`; if empty, stop. Otherwise `python3 tools/atlas_sync.py rebase "$tag"`; on exit 1, open an issue titled `Sync to <tag> failed: <FAILED_PATCH>` with `gh issue create` and stop; on success run `cargo fmt --check` and `cargo test --release --lib --bins` in `launcher/`, `git push --force-with-lease origin HEAD:main`, then `gh workflow run atlas-release.yml -f version="$(python3 tools/atlas_sync.py next-version)" -f upstream_tag="$tag" -f dry_run=false`. A failed test opens an issue too and publishes nothing.
   - `main-check` (no publishing): `git fetch upstream main`; on a throwaway branch `git rebase --onto upstream/main "refs/upstream/tags/$(python3 tools/atlas_sync.py base)"`; `cargo check --manifest-path launcher/Cargo.toml --release`; on failure open an issue labelled `sync-main` only if none is open.
-- [ ] **Step 2: Verify:** the YAML check from Task 6 Step 4; then rehearse locally against the sibling clone as upstream: in a scratch copy run `git fetch ../horizon '+refs/tags/launcher@*:refs/upstream/tags/launcher@*'` and `uv run python tools/atlas_sync.py new-tag`. Expected: prints a tag or nothing, no traceback.
-- [ ] **Step 3: Commit:** `git add .github tools && git commit -m "atlas: daily sync"`.
+- [x] **Step 2: Verify:** the YAML check from Task 6 Step 4; then rehearse locally against the sibling clone as upstream: in a scratch copy run `git fetch ../horizon '+refs/tags/launcher@*:refs/upstream/tags/launcher@*'` and `uv run python tools/atlas_sync.py new-tag`. Expected: prints a tag or nothing, no traceback.
+- [x] **Step 3: Commit:** `git add .github tools && git commit -m "atlas: daily sync"`.
 
 ### Task 8: Install script, README, branding, notices, owner checklist
 
@@ -164,6 +164,14 @@
 
 ---
 
+## As built (Tasks 6-7, after the controller's review)
+
+- `atlas-sync.yml`: the job that runs the rebased code (`build`, `main-check`) holds no token; only `publish` holds `SYNC_TOKEN` and runs no repository code (it takes the rebased commits as a git bundle artifact and pushes with a lease). Issues are opened by separate `report` jobs with the default `github.token`.
+- Upstream's workflows are deleted, never kept: `tools/atlas_sync.py` resolves modify/delete conflicts under `.github/workflows/` (files not named `atlas-*`) in favour of the deletion, and `drop-workflows` removes any new upstream workflow in its own commit.
+- A non-blocking issue is opened when upstream changed `.github/workflows/launcher.yml`, `packaging/` or `tools/ci/sign_release.sh` between two tags: `atlas-release.yml` is a copy of upstream's `launcher.yml` and must be compared by hand.
+- `atlas-sync.yml` has a manual `dry_run` input (default true): everything runs, nothing is pushed or released.
+- If `atlas-release.yml` fails after `publish` pushed main, the next daily run finds no new tag and does not retry: re-run `atlas-release.yml` by hand.
+
 ## Self-review notes
 
-Spec coverage: goal 1 → Tasks 2, 6, 7; goal 2 → Task 3; goal 3 → Task 4; goal 4 → Tasks 5, 6; goal 5 → Tasks 6, 8 (installers come from upstream's build jobs, plus `install.sh`); goal 6 → Task 8; non-goals → Global Constraints; roadmap → already written. Names used across tasks (`rebase_patches`, `new_tag`, `current_base`, `release.yml` inputs, `OFFLINE_PLAY`, `LAUNCHER_REPO`) are defined once in the owning task's Interfaces.
+Spec coverage: goal 1 → Tasks 2, 6, 7; goal 2 → Task 3; goal 3 → Task 4; goal 4 → Tasks 5, 6; goal 5 → Tasks 6, 8 (installers come from upstream's build jobs, plus `install.sh`); goal 6 → Task 8; non-goals → Global Constraints; roadmap → already written. Names used across tasks (`rebase_patches`, `new_tag`, `current_base`, `atlas-release.yml` inputs, `OFFLINE_PLAY`, `LAUNCHER_REPO`) are defined once in the owning task's Interfaces.

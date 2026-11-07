@@ -427,6 +427,85 @@ pub fn resolve(
     Ok(Resolved::Folder(linked.to_path_buf()))
 }
 
+/// A client jar the player picked themselves, wherever it is: checked against the pin, then
+/// linked into the official layout with the `libraries` and `assets` of the launcher folder it
+/// sits in (the closest folder above that has them, up to Prism's and ATLauncher's
+/// `libraries/com/mojang/minecraft/<v>/`), and the version JSON beside it or Mojang's. A jar
+/// outside any launcher folder (copied to Downloads) takes them from the first of `others` that
+/// has the version, else from the first that has a `libraries` folder at all.
+pub fn from_jar(
+    jar: &Path,
+    pins: &Pins,
+    linked: &Path,
+    others: &[PathBuf],
+    fetch: Fetch,
+    log: &dyn Fn(String),
+) -> Result<Resolved, String> {
+    let v = &pins.version;
+    if !jar.is_file() {
+        return Err(format!("{}: the file doesn't exist", jar.display()));
+    }
+    if sha1_file(jar).as_ref() != Some(&pins.client_sha1) {
+        return Err(format!(
+            "{} is not the Minecraft {v} release client jar. Pick the {v}.jar your launcher \
+             downloaded (versions/{v}/{v}.jar in its folder): Horizon is made for {v} only.",
+            jar.display()
+        ));
+    }
+    let folder = jar.parent().unwrap_or(jar);
+    let has_files = |d: &Path| d.join("assets").is_dir() || d.join("libraries").is_dir();
+    // Six levels: Prism's jar is in libraries/com/mojang/minecraft/<v>/, its folder above that.
+    let near = folder.ancestors().take(6).find(|d| has_files(d));
+    let base = match near {
+        Some(d) => d.to_path_buf(),
+        None => match borrowed_files(others, linked, pins) {
+            Some(b) => {
+                log(format!(
+                    "No libraries beside the jar: using those in {}",
+                    b.display()
+                ));
+                b
+            }
+            None => folder.to_path_buf(),
+        },
+    };
+    let manifest = [
+        jar.with_extension("json"),
+        base.join(format!("versions/{v}/{v}.json")),
+    ]
+    .into_iter()
+    .find(|m| pins.manifest_accepted(m));
+    let found = Found {
+        base,
+        client: jar.to_path_buf(),
+        manifest,
+    };
+    log(format!(
+        "Using the Minecraft {v} jar you chose ({})",
+        jar.display()
+    ));
+    if found.official_layout(v) {
+        return Ok(Resolved::Folder(found.base));
+    }
+    link_official_layout(&found, pins, linked, fetch, log)?;
+    Ok(Resolved::Folder(linked.to_path_buf()))
+}
+
+/// Where a lone jar takes its libraries and assets: the first of `others` (never the linked
+/// folder itself) that has the pinned version, else the first with a `libraries` folder.
+fn borrowed_files(others: &[PathBuf], linked: &Path, pins: &Pins) -> Option<PathBuf> {
+    let others: Vec<&PathBuf> = others.iter().filter(|d| d.as_path() != linked).collect();
+    others
+        .iter()
+        .find_map(|d| find(d, pins).ok().map(|f| f.base))
+        .or_else(|| {
+            others
+                .iter()
+                .flat_map(|d| ["", "meta", "data", "datastore"].map(|sub| d.join(sub)))
+                .find(|b| b.join("libraries").is_dir())
+        })
+}
+
 /// The pinned version JSON at `path`, from piston-meta (by its sha1) unless it is there.
 pub(crate) fn fetch_manifest(
     pins: &Pins,

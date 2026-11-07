@@ -78,12 +78,31 @@ class SyncFixture(unittest.TestCase):
 class TagParsingTests(unittest.TestCase):
     def test_parse_launcher_tag(self):
         self.assertEqual(atlas_sync.parse_launcher_tag("launcher@0.2.50"), (0, 2, 50))
-        for name in ["launcher-v0.16.0", "launcher@0.2.51-rc1", "nightly", "launcher@1.2"]:
+        ignored = [
+            "launcher-v0.16.0",
+            "launcher@0.2.51-rc1",
+            "nightly",
+            "launcher@1.2",
+            "v0.2.97",
+            "nightly-2026-11-07",
+        ]
+        for name in ignored:
             self.assertIsNone(atlas_sync.parse_launcher_tag(name), name)
 
     def test_latest_launcher_tag_sorts_numerically(self):
-        names = ["launcher@0.2.9", "launcher@0.2.50", "launcher@0.10.0", "launcher-v9.0.0"]
+        names = [
+            "launcher@0.2.9",
+            "launcher@0.2.50",
+            "launcher@0.10.0",
+            "launcher-v9.0.0",
+            "v0.2.97",
+            "v99.0.0",
+            "nightly-2026-11-07",
+        ]
         self.assertEqual(atlas_sync.latest_launcher_tag(names), "launcher@0.10.0")
+        self.assertEqual(
+            atlas_sync.latest_launcher_tag(["v0.2.97", "nightly-2026-11-07"]), None
+        )
         self.assertIsNone(atlas_sync.latest_launcher_tag([]))
 
     def test_next_atlas_version(self):

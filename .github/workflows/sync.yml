@@ -1,13 +1,16 @@
 name: sync
 # Follows Horizon's launcher releases (tools/atlas_sync.py). Every day, and by hand:
-#  - tag: when upstream has a launcher@X.Y.Z newer than the one main is based on, replay Atlas's patches onto it, run
-#    the formatting check and the launcher's tests, push main and start release.yml. Nothing is pushed or published
-#    unless all of that succeeded; otherwise an issue says what stopped it.
-#  - main-check: do the patches still apply to, and build on, upstream's main? Never pushes or publishes: it opens an
-#    issue labelled sync-main (only one at a time) when they do not.
+#  - build: when upstream has a launcher@X.Y.Z newer than the one main is based on, replay Atlas's patches onto it and
+#    run the formatting check and the launcher's tests. Success hands a git bundle of the rebased main to `publish`.
+#    A failure hands an issue's title and body to `report`.
+#  - publish: pushes the rebased main and starts release.yml. Nothing is pushed or published unless build succeeded.
+#  - main-check: do the patches still apply to, and build on, upstream's main? It never pushes or publishes. A failure
+#    hands an issue to `report-main`, which opens one labelled sync-main (only one at a time).
 # Needs the repository secret SYNC_TOKEN, a fine-grained personal access token (contents, workflows, actions, issues:
 # read and write): the workflow's own token can neither push commits that change .github/workflows nor start another
-# workflow.
+# workflow. SYNC_TOKEN is read only by `publish`, which runs no repository code: cargo, tests, build scripts and
+# dependencies run in `build` and `main-check` (code from upstream and third parties), which never see it; the issue
+# jobs use the workflow's own token and run no repository code either.
 
 on:
   schedule:
@@ -26,21 +29,23 @@ env:
   HORIZON_TELEMETRY_URL: "off"
 
 jobs:
-  tag:
-    # The rebased main is pushed to main: only a run on main may do that.
+  build:
+    # The rebased main is published to main: only a run on main may do that.
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 90
     permissions:
       contents: read
-    env:
-      GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
-      GH_REPO: ${{ github.repository }}
+    outputs:
+      ok: ${{ steps.bundle.outputs.ok }}
+      tag: ${{ steps.find.outputs.tag }}
+      version: ${{ steps.find.outputs.version }}
+      expected: ${{ steps.find.outputs.expected }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          token: ${{ secrets.SYNC_TOKEN }}
+          persist-credentials: false
       - name: Upstream's launcher tags
         run: |
           git config user.name "atlas-sync"
@@ -50,8 +55,14 @@ jobs:
       - name: A new upstream launcher tag?
         id: find
         run: |
+          set -euo pipefail
           tag=$(python3 tools/atlas_sync.py new-tag)
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          # The version and the main this run started from, taken before the rebase.
+          {
+            echo "tag=$tag"
+            echo "version=$(python3 tools/atlas_sync.py next-version)"
+            echo "expected=$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
           echo "### New upstream launcher tag: ${tag:-none}" >> "$GITHUB_STEP_SUMMARY"
       - name: Atlas's patches onto the new tag
         id: rebase
@@ -63,26 +74,17 @@ jobs:
           status=0
           python3 tools/atlas_sync.py rebase "$TAG" > "$RUNNER_TEMP/rebase.out" 2> "$RUNNER_TEMP/rebase.err" || status=$?
           cat "$RUNNER_TEMP/rebase.out" "$RUNNER_TEMP/rebase.err"
-          if [[ $status == 0 ]]; then
-            echo "ok=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ok=false" >> "$GITHUB_OUTPUT"
-            echo "failed_patch=$(sed -n 's/^FAILED_PATCH=//p' "$RUNNER_TEMP/rebase.out" | head -n 1)" >> "$GITHUB_OUTPUT"
-          fi
-      - name: An issue, the rebase failed
-        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'false'
-        env:
-          TAG: ${{ steps.find.outputs.tag }}
-          FAILED_PATCH: ${{ steps.rebase.outputs.failed_patch }}
-        run: |
-          set -euo pipefail
-          if [[ -n "$FAILED_PATCH" ]]; then
-            title="Sync to $TAG failed: $FAILED_PATCH"
-            reason="The patch \`$FAILED_PATCH\` no longer applies to $TAG."
+          [[ $status == 0 ]] && exit 0
+          failed_patch=$(sed -n 's/^FAILED_PATCH=//p' "$RUNNER_TEMP/rebase.out" | head -n 1)
+          if [[ -n "$failed_patch" ]]; then
+            title="Sync to $TAG failed: $failed_patch"
+            reason="The patch \`$failed_patch\` no longer applies to $TAG."
           else
             title="Sync to $TAG failed: the rebase did not start or finish"
             reason="The rebase onto $TAG failed for a reason other than a conflicting patch (see the log below)."
           fi
+          mkdir report
+          printf '%s\n' "$title" > report/title.txt
           {
             echo "$reason Nothing was pushed or published; main is unchanged."
             echo
@@ -91,44 +93,33 @@ jobs:
             echo '```'
             tail -n 40 "$RUNNER_TEMP/rebase.err"
             echo '```'
-          } > "$RUNNER_TEMP/body.md"
-          titles=$(gh issue list --state open --limit 200 --json title --jq '.[].title')
-          if grep -Fxq -- "$title" <<<"$titles"; then
-            echo "An issue titled '$title' is already open"
-          else
-            gh issue create --title "$title" --body-file "$RUNNER_TEMP/body.md"
-          fi
+          } > report/body.md
           exit 1
       - uses: dtolnay/rust-toolchain@stable
-        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'true'
+        if: steps.find.outputs.tag != ''
         with:
           components: rustfmt
       - uses: Swatinem/rust-cache@v2
-        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'true'
+        if: steps.find.outputs.tag != ''
         with:
           workspaces: launcher
           shared-key: launcher-sync
       - name: Linux libraries GPUI links to
-        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'true'
+        if: steps.find.outputs.tag != ''
         run: |
           sudo apt-get update
           sudo apt-get install -y libxkbcommon-x11-dev libwayland-dev libx11-xcb-dev libfontconfig-dev libvulkan-dev libasound2-dev
       - name: Format check and tests
-        id: checks
-        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'true'
-        working-directory: launcher
-        run: |
-          status=0
-          { cargo fmt --check && cargo test --release --lib --bins; } > "$RUNNER_TEMP/checks.log" 2>&1 || status=$?
-          tail -n 60 "$RUNNER_TEMP/checks.log"
-          if [[ $status == 0 ]]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; fi
-      - name: An issue, the checks failed
-        if: steps.find.outputs.tag != '' && steps.checks.outputs.ok == 'false'
+        if: steps.find.outputs.tag != ''
         env:
           TAG: ${{ steps.find.outputs.tag }}
         run: |
-          set -euo pipefail
-          title="Sync to $TAG failed: cargo fmt or the tests"
+          status=0
+          (cd launcher && cargo fmt --check && cargo test --release --lib --bins) > "$RUNNER_TEMP/checks.log" 2>&1 || status=$?
+          tail -n 60 "$RUNNER_TEMP/checks.log"
+          [[ $status == 0 ]] && exit 0
+          mkdir report
+          printf '%s\n' "Sync to $TAG failed: cargo fmt or the tests" > report/title.txt
           {
             echo "Atlas's patches applied to $TAG, but \`cargo fmt --check\` or \`cargo test --release --lib --bins\` failed in \`launcher/\`. Nothing was pushed or published; main is unchanged."
             echo
@@ -137,24 +128,110 @@ jobs:
             echo '```'
             tail -n 60 "$RUNNER_TEMP/checks.log"
             echo '```'
-          } > "$RUNNER_TEMP/body.md"
+          } > report/body.md
+          exit 1
+      - name: The rebased main, as a bundle of its new commits
+        id: bundle
+        if: steps.find.outputs.tag != ''
+        env:
+          EXPECTED: ${{ steps.find.outputs.expected }}
+        run: |
+          set -euo pipefail
+          git branch -f atlas-rebased HEAD
+          git bundle create "$RUNNER_TEMP/atlas.bundle" "$EXPECTED..atlas-rebased"
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        if: steps.bundle.outputs.ok == 'true'
+        with:
+          name: bundle
+          path: ${{ runner.temp }}/atlas.bundle
+          if-no-files-found: error
+          retention-days: 3
+      - uses: actions/upload-artifact@v7
+        if: failure() && hashFiles('report/title.txt') != ''
+        with:
+          name: report
+          path: report/
+          retention-days: 3
+
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/main' && needs.build.outputs.ok == 'true'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    # The only job that holds SYNC_TOKEN. It runs no code from the repository: no cargo, no script of the checkout; it
+    # moves the bundle's commits with git and starts the release.
+    permissions:
+      contents: read
+    env:
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: bundle
+          path: bundle
+      - name: The outputs of build, checked (they are untrusted strings)
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+          TAG: ${{ needs.build.outputs.tag }}
+          EXPECTED: ${{ needs.build.outputs.expected }}
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::version must be X.Y.Z, got '$VERSION'"; exit 1; }
+          [[ "$TAG" =~ ^launcher@[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::tag must be launcher@X.Y.Z, got '$TAG'"; exit 1; }
+          [[ "$EXPECTED" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::expected must be a commit, got '$EXPECTED'"; exit 1; }
+      - name: Push main
+        env:
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+          EXPECTED: ${{ needs.build.outputs.expected }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags bundle/atlas.bundle atlas-rebased:refs/atlas/rebased
+          tip=$(git rev-parse refs/atlas/rebased)
+          basic=$(printf 'x-access-token:%s' "$SYNC_TOKEN" | base64 -w0)
+          echo "::add-mask::$basic"
+          git -c http.extraheader="AUTHORIZATION: basic $basic" push --force-with-lease="main:$EXPECTED" origin "$tip:refs/heads/main"
+          echo "### Pushed main at $tip" >> "$GITHUB_STEP_SUMMARY"
+      - name: Start the release
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
+          VERSION: ${{ needs.build.outputs.version }}
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          gh workflow run release.yml --ref main -f version="$VERSION" -f upstream_tag="$TAG" -f dry_run=false
+          echo "### Release $VERSION (on $TAG) started" >> "$GITHUB_STEP_SUMMARY"
+
+  report:
+    needs: build
+    if: always() && needs.build.result == 'failure'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - id: download
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: report
+          path: report
+      - name: An issue, unless one with this title is open
+        if: steps.download.outcome == 'success'
+        run: |
+          set -euo pipefail
+          title=$(head -n 1 report/title.txt | head -c 250)
           titles=$(gh issue list --state open --limit 200 --json title --jq '.[].title')
           if grep -Fxq -- "$title" <<<"$titles"; then
             echo "An issue titled '$title' is already open"
           else
-            gh issue create --title "$title" --body-file "$RUNNER_TEMP/body.md"
+            gh issue create --title "$title" --body-file report/body.md
           fi
-          exit 1
-      - name: Push main and start the release
-        if: steps.find.outputs.tag != '' && steps.rebase.outputs.ok == 'true' && steps.checks.outputs.ok == 'true'
-        env:
-          TAG: ${{ steps.find.outputs.tag }}
-        run: |
-          set -euo pipefail
-          version=$(python3 tools/atlas_sync.py next-version)
-          git push --force-with-lease origin HEAD:main
-          gh workflow run release.yml --ref main -f version="$version" -f upstream_tag="$TAG" -f dry_run=false
-          echo "### Pushed main on $TAG, release $version started" >> "$GITHUB_STEP_SUMMARY"
 
   main-check:
     if: github.ref == 'refs/heads/main'
@@ -162,14 +239,11 @@ jobs:
     timeout-minutes: 90
     permissions:
       contents: read
-    env:
-      GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
-      GH_REPO: ${{ github.repository }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          token: ${{ secrets.SYNC_TOKEN }}
+          persist-credentials: false
       - name: Upstream's launcher tags and main
         run: |
           git config user.name "atlas-sync"
@@ -187,7 +261,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libxkbcommon-x11-dev libwayland-dev libx11-xcb-dev libfontconfig-dev libvulkan-dev libasound2-dev
       - name: Atlas's patches on upstream's main, checked
-        id: check
         run: |
           # A throwaway branch of this runner: nothing is pushed.
           status=0
@@ -199,18 +272,9 @@ jobs:
             cargo check --manifest-path launcher/Cargo.toml --release
           } > "$RUNNER_TEMP/check.log" 2>&1 || status=$?
           tail -n 60 "$RUNNER_TEMP/check.log"
-          if [[ $status == 0 ]]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; fi
-      - name: An issue, upstream's main is ahead of the patches
-        if: steps.check.outputs.ok == 'false'
-        run: |
-          set -euo pipefail
-          # Fails the same way when the label exists already.
-          gh label create sync-main --color D93F0B --description "Atlas's patches against upstream's main" || true
-          open=$(gh issue list --state open --label sync-main --json number --jq 'length')
-          if [[ "$open" != 0 ]]; then
-            echo "A sync-main issue is already open"
-            exit 1
-          fi
+          [[ $status == 0 ]] && exit 0
+          mkdir report
+          printf '%s\n' "Atlas's patches do not apply to or build on upstream's main" > report/title.txt
           {
             echo "Rebasing Atlas's patches onto upstream's main, or \`cargo check --release\` of the result, failed. This is an early warning for the next upstream launcher release: nothing was pushed or published."
             echo
@@ -219,6 +283,41 @@ jobs:
             echo '```'
             tail -n 60 "$RUNNER_TEMP/check.log"
             echo '```'
-          } > "$RUNNER_TEMP/body.md"
-          gh issue create --label sync-main --title "Atlas's patches do not apply to or build on upstream's main" --body-file "$RUNNER_TEMP/body.md"
+          } > report/body.md
           exit 1
+      - uses: actions/upload-artifact@v7
+        if: failure() && hashFiles('report/title.txt') != ''
+        with:
+          name: report-main
+          path: report/
+          retention-days: 3
+
+  report-main:
+    needs: main-check
+    if: always() && needs.main-check.result == 'failure'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - id: download
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: report-main
+          path: report
+      - name: An issue labelled sync-main, unless one is open
+        if: steps.download.outcome == 'success'
+        run: |
+          set -euo pipefail
+          # Fails the same way when the label exists already.
+          gh label create sync-main --color D93F0B --description "Atlas's patches against upstream's main" || true
+          open=$(gh issue list --state open --label sync-main --json number --jq 'length')
+          if [[ "$open" != 0 ]]; then
+            echo "A sync-main issue is already open"
+          else
+            gh issue create --label sync-main --title "$(head -n 1 report/title.txt | head -c 250)" --body-file report/body.md
+          fi

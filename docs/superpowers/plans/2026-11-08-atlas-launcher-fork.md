@@ -96,11 +96,11 @@
 
 **Interfaces:** Consumes: `Pins` (`pins()` helper in `sources_tests.rs`), `sha1_file`. Produces: `sources::from_jar` as above; `Settings::minecraft_jar`.
 
-- [ ] **Step 1: Write the failing tests** in `sources_tests.rs`: `from_jar_refuses_a_jar_that_is_not_the_pinned_release` (a temp file of other bytes → `Err` containing `is not the Minecraft 26.3 release client jar`); `from_jar_refuses_a_missing_file` (`Err` containing `the file doesn't exist`); `from_jar_accepts_the_pinned_jar_in_a_bare_folder` (a temp file in an empty folder, `Pins { client_sha1: <sha1 of that file>, ..pins() }` → `Ok(Resolved::Folder(_))`, no panic). In `backend.rs` tests: `settings_keep_the_picked_jar` (`Settings::parse` of `{"minecraft_jar": "/x/26.3.jar"}` gives `Some("/x/26.3.jar")`).
-- [ ] **Step 2: Run to verify they fail:** `cargo test --manifest-path launcher/Cargo.toml --release --lib from_jar settings_keep_the_picked_jar`. Expected: FAIL (items not defined).
-- [ ] **Step 3: Implement** by porting the reference (function, setting, CLI key, UI row), adapting names to this tree. Do not port anything that fetches a jar from Mojang beyond what upstream's resolver already does for an owner.
-- [ ] **Step 4: Run to verify they pass:** the command above, then the full `--lib --bins` run. Expected: PASS.
-- [ ] **Step 5: Commit:** `git add launcher && git commit -m "patch: choose-jar"`.
+- [x] **Step 1: Write the failing tests** in `sources_tests.rs`: `from_jar_refuses_a_jar_that_is_not_the_pinned_release` (a temp file of other bytes → `Err` containing `is not the Minecraft 26.3 release client jar`); `from_jar_refuses_a_missing_file` (`Err` containing `the file doesn't exist`); `from_jar_accepts_the_pinned_jar_in_a_bare_folder` (a temp file in an empty folder, `Pins { client_sha1: <sha1 of that file>, ..pins() }` → `Ok(Resolved::Folder(_))`, no panic). In `backend.rs` tests: `settings_keep_the_picked_jar` (`Settings::parse` of `{"minecraft_jar": "/x/26.3.jar"}` gives `Some("/x/26.3.jar")`).
+- [x] **Step 2: Run to verify they fail:** `cargo test --manifest-path launcher/Cargo.toml --release --lib from_jar settings_keep_the_picked_jar`. Expected: FAIL (items not defined).
+- [x] **Step 3: Implement** by porting the reference (function, setting, CLI key, UI row), adapting names to this tree. Do not port anything that fetches a jar from Mojang beyond what upstream's resolver already does for an owner.
+- [x] **Step 4: Run to verify they pass:** the command above, then the full `--lib --bins` run. Expected: PASS.
+- [x] **Step 5: Commit:** `git add launcher && git commit -m "patch: choose-jar"`.
 
 ### Task 5: Patches `own-releases` and `own-keys`
 

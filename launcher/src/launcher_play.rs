@@ -224,10 +224,12 @@ impl Launcher {
         }
         self.prepare_tag = Some(tag.clone());
         horizon_launcher::mojang::CANCEL.store(false, Ordering::Relaxed);
+        // The jar the player picked comes first, then the folder they chose.
         let minecraft = self
             .settings
-            .minecraft_dir
+            .minecraft_jar
             .clone()
+            .or_else(|| self.settings.minecraft_dir.clone())
             .unwrap_or_else(|| horizon_platform::prepare::artifacts::minecraft_dir(None));
         self.prepare_log.clear();
         self.prepare_error = None;
@@ -620,6 +622,34 @@ impl Launcher {
             }
         })
         .detach();
+    }
+
+    /// Picks a Minecraft client jar to prepare from; preparing checks it is the right one.
+    pub(crate) fn choose_jar(&mut self, cx: &mut Context<Self>) {
+        let paths = cx.prompt_for_paths(PathPromptOptions {
+            files: true,
+            directories: false,
+            multiple: false,
+            prompt: Some("Choose".into()),
+        });
+        cx.spawn(async move |this, cx| {
+            if let Ok(Ok(Some(mut paths))) = paths.await {
+                if let Some(path) = paths.pop() {
+                    let _ = this.update(cx, |this, cx| {
+                        this.settings.minecraft_jar = Some(path);
+                        this.save_settings();
+                        cx.notify();
+                    });
+                }
+            }
+        })
+        .detach();
+    }
+
+    /// Goes back to finding Minecraft in the launchers' folders.
+    pub(crate) fn clear_jar(&mut self) {
+        self.settings.minecraft_jar = None;
+        self.save_settings();
     }
 }
 

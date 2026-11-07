@@ -75,6 +75,10 @@ pub struct Settings {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub instance: Option<String>,
     pub minecraft_dir: Option<PathBuf>,
+    /// A Minecraft client jar the player picked themselves: preparing uses it instead of
+    /// looking through the launchers' folders.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub minecraft_jar: Option<PathBuf>,
     pub server_dir: Option<PathBuf>,
     /// Unset means on: only a player who turned it off has `false` here. 0.1.1 wrote its
     /// `auto_install` (off by default) for everyone, so this is a new key and that one is ignored.

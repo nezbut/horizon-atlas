@@ -15,6 +15,9 @@ from pathlib import Path
 
 UPSTREAM_REFS = "refs/upstream/tags"
 TAG_RE = re.compile(r"launcher@(\d+)\.(\d+)\.(\d+)")
+WORKFLOWS_DIR = ".github/workflows"
+OWN_PREFIX = "atlas-"
+MAX_RESOLVE_ROUNDS = 50
 
 
 def parse_launcher_tag(name: str) -> tuple[int, int, int] | None:
@@ -78,6 +81,27 @@ def new_tag(repo: Path) -> str | None:
     return newest
 
 
+def _is_upstream_workflow(path: str) -> bool:
+    return path.startswith(f"{WORKFLOWS_DIR}/") and not Path(path).name.startswith(OWN_PREFIX)
+
+
+def _unmerged_paths(repo: Path) -> list[str]:
+    listing = _git(repo, "diff", "--name-only", "--diff-filter=U", "-z", check=False).stdout
+    return [path for path in listing.split("\0") if path]
+
+
+def drop_upstream_workflows(repo: Path) -> list[str]:
+    """Remove upstream's workflow files (Atlas's own are named atlas-*) in one commit."""
+    listing = _git(repo, "ls-files", "-z", "--", WORKFLOWS_DIR).stdout
+    paths = sorted(path for path in listing.split("\0") if _is_upstream_workflow(path))
+    if not paths:
+        return []
+    names = [path.removeprefix(f"{WORKFLOWS_DIR}/") for path in paths]
+    _git(repo, "rm", "-q", "--", *paths)
+    _git(repo, "commit", "-q", "-m", f"atlas: drop upstream workflows ({', '.join(names)})")
+    return names
+
+
 @dataclass
 class RebaseResult:
     ok: bool
@@ -99,6 +123,16 @@ def rebase_patches(repo: Path, new_tag: str) -> RebaseResult:
         f"{UPSTREAM_REFS}/{base}",
         check=False,
     )
+    rounds = 0
+    while done.returncode != 0 and rounds < MAX_RESOLVE_ROUNDS:
+        paths = _unmerged_paths(repo)
+        if not paths or not all(_is_upstream_workflow(path) for path in paths):
+            break
+        # Atlas deleted these files, upstream changed them: the deletion wins.
+        if _git(repo, "rm", "-q", "--", *paths, check=False).returncode != 0:
+            break
+        done = _git(repo, "rebase", "--continue", check=False)
+        rounds += 1
     if done.returncode == 0:
         return RebaseResult(ok=True, failed_patch=None, base=new_tag)
     stopped = _git(repo, "rev-parse", "--verify", "-q", "REBASE_HEAD", check=False)
@@ -132,7 +166,7 @@ def _own_release_tags(repo: Path) -> list[str]:
 
 def main(argv: list[str], repo: Path | None = None) -> int:
     repo = repo or Path(__file__).resolve().parent.parent
-    usage = "usage: atlas_sync.py new-tag | base | next-version | rebase TAG | title ATLAS UPSTREAM"
+    usage = "usage: atlas_sync.py new-tag | base | next-version | rebase TAG | drop-workflows | title ATLAS UPSTREAM"
     command, args = (argv[0], argv[1:]) if argv else ("", [])
     if command == "new-tag" and not args:
         tag = new_tag(repo)
@@ -157,6 +191,10 @@ def main(argv: list[str], repo: Path | None = None) -> int:
         if result.failed_patch is not None:
             print(f"FAILED_PATCH={result.failed_patch}")
         return 1
+    if command == "drop-workflows" and not args:
+        for name in drop_upstream_workflows(repo):
+            print(name)
+        return 0
     if command == "title" and len(args) == 2:
         print(release_title(args[0], args[1]))
         return 0

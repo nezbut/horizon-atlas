@@ -219,6 +219,32 @@ impl Launcher {
                     .into_any_element()
             },
         );
+        let jar = match self.settings.minecraft_jar.as_deref() {
+            Some(p) => div()
+                .font_family(theme::MONO)
+                .child(short(p))
+                .into_any_element(),
+            None => div()
+                .child(trf(
+                    "Found by itself in your launcher's folder. Or pick the {version}.jar file.",
+                    &[("version", &version)],
+                ))
+                .into_any_element(),
+        };
+        let mut jar_buttons = div().flex().gap(px(8.));
+        if self.settings.minecraft_jar.is_some() {
+            jar_buttons =
+                jar_buttons.child(button("auto-jar", "Automatic", Kind::Ghost, &t).on_click(
+                    cx.listener(|this, _: &ClickEvent, _, cx| {
+                        this.clear_jar();
+                        cx.notify();
+                    }),
+                ));
+        }
+        jar_buttons = jar_buttons.child(
+            button("choose-jar", "Choose jar…", Kind::Ghost, &t)
+                .on_click(cx.listener(|this, _: &ClickEvent, _, cx| this.choose_jar(cx))),
+        );
         let mut rows = div()
             .flex()
             .flex_col()
@@ -265,7 +291,14 @@ impl Launcher {
                         .into_any_element(),
                 ),
                 &t,
-            )),
+            ))
+                .child(index_row(
+                    4,
+                    tr("Minecraft jar"),
+                    Some(jar),
+                    Some(jar_buttons.into_any_element()),
+                    &t,
+                )),
         };
         // The top bar shows who plays; a row only when there is something to do about it: no
         // account that owns the game (Play needs one), or offline. The glass look's top bar has

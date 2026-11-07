@@ -2403,9 +2403,12 @@ fn launch_as(
         accounts.offline_selected.clone(),
         accounts.offline.clone(),
     );
+    let offline = crate::backend::OFFLINE_PLAY;
     let pass = accounts
-        .play_as(store, who.clone())
-        .and_then(|()| launch(ep, client_id, store, accounts).map_err(|e| e.to_string()));
+        .play_as_with(store, who.clone(), offline)
+        .and_then(|()| {
+            launch_for_game(ep, client_id, store, accounts, offline).map_err(|e| e.to_string())
+        });
     (
         accounts.selected,
         accounts.offline_selected,

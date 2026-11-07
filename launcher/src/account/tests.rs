@@ -2451,6 +2451,25 @@ fn a_launch_as_another_account_leaves_the_selected_one() {
 }
 
 #[test]
+fn a_launch_as_an_offline_name_needs_no_owner_in_atlas() {
+    let store = MemoryStore::default();
+    let (m, ep) = mock(|_| {});
+    let mut accounts = Accounts::default();
+    let pass = launch_as(
+        &ep,
+        Some("test-client"),
+        &store,
+        &mut accounts,
+        &Player::Offline("Builder_1".into()),
+    )
+    .unwrap();
+    // Offline: no session, no request, and the launcher's own choice of player is untouched.
+    assert!(pass.session.is_none() && pass.owner.is_none());
+    assert!(m.lock().unwrap().log.is_empty());
+    assert_eq!(accounts.player(), Player::GameName);
+}
+
+#[test]
 fn splitscreen_stops_renewing_other_accounts_once_out_of_time() {
     // A sign-in service that never answers: any request would hang the test.
     let silent = TcpListener::bind("127.0.0.1:0").unwrap();

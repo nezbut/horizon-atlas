@@ -1,5 +1,5 @@
-//! The owner gate from the outside: with no account that owns Minecraft: Java Edition in the
-//! launcher, neither `horizon-launcher play` nor the MCP server's play starts the game.
+//! Atlas's offline play from the outside: with no account that owns Minecraft: Java Edition in
+//! the launcher, `horizon-launcher play` and the MCP server's play are not refused for want of one.
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
@@ -44,22 +44,20 @@ fn text(out: &Output) -> String {
 }
 
 #[test]
-fn the_cli_refuses_to_play_without_an_owner() {
+fn the_cli_plays_offline_without_an_owner() {
     let root = home("cli");
     let out = launcher(&root, &["play"]).output().unwrap();
     let said = text(&out);
-    assert!(!out.status.success(), "{said}");
-    assert!(said.contains(REFUSED), "{said}");
-    assert!(said.contains("horizon-launcher account sign-in"), "{said}");
-    // Nothing of the game ran, and the offline name is still there.
-    assert!(!root.join("game/sessions").exists());
+    // The version is installed but not prepared, so the run stops there: past the owner gate.
+    assert!(!said.contains(REFUSED), "{said}");
+    assert!(!said.contains("account sign-in"), "{said}");
     let accounts = std::fs::read_to_string(root.join("launcher/accounts.json")).unwrap();
     assert!(accounts.contains("Builder_1"), "{accounts}");
     let _ = std::fs::remove_dir_all(&root);
 }
 
 #[test]
-fn the_mcp_server_refuses_to_play_without_an_owner() {
+fn the_mcp_server_plays_offline_without_an_owner() {
     let root = home("mcp");
     let mut child = launcher(&root, &["mcp"])
         .stdin(Stdio::piped())
@@ -82,8 +80,12 @@ fn the_mcp_server_refuses_to_play_without_an_owner() {
         .map(|l| serde_json::from_str::<serde_json::Value>(l).unwrap())
         .find(|v| v["id"] == 2)
         .expect("a reply to play");
-    assert_eq!(reply["result"]["isError"], true, "{reply}");
-    let said = reply["result"]["content"][0]["text"].as_str().unwrap();
-    assert!(said.contains(REFUSED), "{said}");
+    let said = reply["result"]["content"][0]["text"]
+        .as_str()
+        .unwrap_or_default();
+    assert!(!said.contains(REFUSED), "{reply}");
+    assert!(!said.contains("account sign-in"), "{reply}");
+    let accounts = std::fs::read_to_string(root.join("launcher/accounts.json")).unwrap();
+    assert!(accounts.contains("Builder_1"), "{accounts}");
     let _ = std::fs::remove_dir_all(&root);
 }

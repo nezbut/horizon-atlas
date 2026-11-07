@@ -1,4 +1,4 @@
-name: ci
+name: atlas-ci
 # Formatting and the launcher's tests (library and binary targets) on Linux, for every push and pull request.
 
 on:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: atlas-ci-${{ github.ref }}
   cancel-in-progress: true
 
 env:

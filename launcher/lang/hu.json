@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Teljesítmény mód tömör paneleket rajzol, üveg és elmosás nélkül.",
   "This theme's night draws solid panels, without glass or blur.": "Ezen téma éjszakája tömör paneleket rajzol, üveg és elmosás nélkül.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "A launcher automatikus frissítése",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Ki: Az Atlas jelzi, ha új verzió jelent meg, és a „Frissítés” gombra kattintva frissít.",
+  "Quit Horizon Atlas Launcher": "Kilépés a Horizon Atlas Launcherből"
 }

@@ -9,7 +9,7 @@ Atlas changes the launcher only. Minecraft: Java Edition is a product of Mojang 
 ## What it is for
 
 - **Offline play without a Microsoft account.** Play starts the game under an offline name of your choice. There is no Microsoft sign-in in Atlas.
-- **Choose your own `26.3.jar`.** Point the launcher at the client jar from your own copy of Minecraft: Java Edition, wherever it is on disk.
+- **Choose your own `26.3.jar`.** Point the launcher at the client jar from your own copy of Minecraft: Java Edition. The jar needs the `libraries` and `assets` folders of that copy: they must be next to it (as in a launcher's own folder) or in another launcher on this computer that has 26.3.
 - **Releases that follow Horizon's launcher releases.** A daily check turns each new Horizon launcher release into an Atlas release, with Atlas's changes replayed on top.
 - **Signed with Atlas's own key.** The launcher updates itself from this repository and checks the signature before it installs anything. Game builds are still Horizon's, signed by Horizon's key.
 
@@ -30,10 +30,10 @@ Download from the [releases page](https://github.com/nezbut/horizon-atlas/releas
 ## First run
 
 1. Have Minecraft: Java Edition 26.3 installed once, in any launcher (the official one, Prism, Modrinth App and others work).
-2. Open Atlas and press **Prepare**. It finds your copy of 26.3 and prepares the game from it. If it cannot find it, press **Choose jar…** and pick the jar yourself.
+2. Open Atlas and press **Prepare**. It finds your copy of 26.3 and prepares the game from it. If it cannot find it, press **Choose jar…** and pick the jar yourself, from the folder of the launcher that downloaded 26.3 (`versions/26.3/26.3.jar` there), so that its `libraries` and `assets` are found too.
 3. Press **Play**.
 
-The jar must be the **26.3 release** jar: Horizon reproduces 26.3 only, and the launcher refuses any other jar. The only way Atlas gets Minecraft is from your own copy of Minecraft: Java Edition.
+The jar must be the **26.3 release** jar: Horizon reproduces 26.3 only, and the launcher refuses any other jar. A jar on its own is not enough: preparing also needs the `libraries` and `assets` that a launcher downloads next to it, and a folder holding only the jar fails with a "Missing …/libraries/…" error. The only way Atlas gets Minecraft is from your own copy of Minecraft: Java Edition.
 
 ## Limits
 

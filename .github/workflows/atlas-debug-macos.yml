@@ -1,0 +1,63 @@
+name: atlas-debug-macos
+# TEMPORARY. Delete this file once the question below is answered.
+# Why does backend::tests::an_app_bundle_updates_in_place fail on GitHub's macOS arm64 runner ("still executable")
+# while it passes on the Intel job under Rosetta? Two hypotheses:
+#  H1: the test's stand-in executable (a copy of /usr/bin/true, an arm64e system binary on Apple Silicon, re-signed
+#      ad hoc) is not runnable there: a problem of the test, not of the launcher.
+#  H2: replace_bundle (or the zip round trip) breaks the app's signature, which Apple Silicon enforces: a real bug.
+# Steps 2 and 3 separate H1 from the rest; step 4 runs the whole app-bundle scenario with a binary built here.
+# Run by hand only. Nothing is built, pushed or published.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - name: 1. The system
+        run: |
+          sw_vers
+          uname -m
+          echo "architectures of /usr/bin/true: $(lipo -archs /usr/bin/true)"
+          file /usr/bin/true
+          codesign -dvv /usr/bin/true 2>&1 | head -12
+      - name: 2. A copy of /usr/bin/true, re-signed ad hoc (what the test does)
+        run: |
+          set +e
+          cp /usr/bin/true "$RUNNER_TEMP/true-copy"
+          chmod 755 "$RUNNER_TEMP/true-copy"
+          codesign --force --sign - "$RUNNER_TEMP/true-copy"
+          "$RUNNER_TEMP/true-copy"
+          echo "RESULT step 2, copy of /usr/bin/true: exit code $?"
+      - name: 3. Control, a binary built here and signed ad hoc
+        run: |
+          set +e
+          printf 'int main(void){return 0;}\n' > "$RUNNER_TEMP/ctl.c"
+          cc -o "$RUNNER_TEMP/ctl" "$RUNNER_TEMP/ctl.c"
+          codesign --force --sign - "$RUNNER_TEMP/ctl"
+          "$RUNNER_TEMP/ctl"
+          echo "RESULT step 3, binary built here: exit code $?"
+      - name: 4. The test's app-bundle scenario with the control binary (sign, ditto zip, unzip, run, verify)
+        run: |
+          set +e
+          work="$RUNNER_TEMP/bundle"
+          app="$work/src/Horizon.app"
+          mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
+          cp "$RUNNER_TEMP/ctl" "$app/Contents/MacOS/horizon-launcher"
+          chmod 755 "$app/Contents/MacOS/horizon-launcher"
+          printf '2.0.0' > "$app/Contents/Resources/version"
+          printf '<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0"><dict><key>CFBundleExecutable</key><string>horizon-launcher</string><key>CFBundleIdentifier</key><string>dev.horizon.test</string><key>CFBundlePackageType</key><string>APPL</string></dict></plist>\n' > "$app/Contents/Info.plist"
+          codesign --force --sign - "$app"
+          echo "RESULT step 4a, signed bundle runs: $("$app/Contents/MacOS/horizon-launcher"; echo $?)"
+          ditto -c -k --norsrc --noextattr --keepParent "$app" "$work/release.zip"
+          mkdir -p "$work/unpacked"
+          ditto -x -k "$work/release.zip" "$work/unpacked"
+          "$work/unpacked/Horizon.app/Contents/MacOS/horizon-launcher"
+          echo "RESULT step 4b, unpacked bundle runs: exit code $?"
+          codesign --verify --strict --verbose=2 "$work/unpacked/Horizon.app"
+          echo "RESULT step 4c, unpacked bundle signature verifies: exit code $?"

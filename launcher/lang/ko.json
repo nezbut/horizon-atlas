@@ -1,4 +1,5 @@
 {
+  "Horizon Atlas": "Horizon Atlas",
   "\"I'm playing\" ping": "\"플레이 중\" 핑",
   ", {count} listed by their Modrinth download": ", Modrinth 다운로드 기준 {count}개 나열됨",
   ".mrpack (Modrinth), .zip (CurseForge), or a Prism, MultiMC or CurseForge instance. Horizon ports what it can on this computer, from your own downloads, and plays the pack as its own profile. Nothing is uploaded or shared.": ".mrpack(Modrinth), .zip(CurseForge) 또는 Prism, MultiMC, CurseForge 인스턴스 파일입니다. Horizon은 다운로드한 파일을 바탕으로 이 컴퓨터에서 가능한 부분을 포팅하여 독립된 프로필로 팩을 실행합니다. 파일은 업로드되거나 공유되지 않습니다.",

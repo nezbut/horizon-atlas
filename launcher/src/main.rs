@@ -5737,8 +5737,8 @@ fn page_after_startup(page: Page, data_folder_failed: bool) -> Page {
 fn menus() -> Vec<Menu> {
     vec![
         Menu {
-            name: "Horizon Launcher".into(),
-            items: vec![MenuItem::action("Quit Horizon Launcher", Quit)],
+            name: "Horizon Atlas Launcher".into(),
+            items: vec![MenuItem::action("Quit Horizon Atlas Launcher", Quit)],
             disabled: false,
         },
         Menu {
@@ -6031,10 +6031,10 @@ mod tests {
     #[test]
     fn the_app_menu_has_quit() {
         let menus = super::menus();
-        assert_eq!(menus[0].name, "Horizon Launcher");
+        assert_eq!(menus[0].name, "Horizon Atlas Launcher");
         assert!(matches!(
             &menus[0].items[0],
-            gpui::MenuItem::Action { name, .. } if name == "Quit Horizon Launcher"
+            gpui::MenuItem::Action { name, .. } if name == "Quit Horizon Atlas Launcher"
         ));
     }
 

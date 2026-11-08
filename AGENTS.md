@@ -1,3 +1,36 @@
+# Horizon Atlas: a map for agents
+
+## This repository is a fork
+
+This is **Horizon Atlas** (`nezbut/horizon-atlas`), an unofficial fork of
+[Horizon](https://github.com/horizon-rust/horizon). It changes the launcher (`launcher/`) only; the
+game, its crates and its harnesses are upstream's, unmodified. Atlas is a patch queue: small named
+commits on top of an upstream `launcher@X.Y.Z` tag, which `tools/atlas_sync.py` and the daily
+`atlas-sync` workflow replay onto each newer upstream launcher tag.
+
+- The patch commits, by exact subject: `patch: offline-play` (`backend::OFFLINE_PLAY`: play without a
+  Microsoft account that owns the game; the Microsoft sign-in plates are hidden), `patch: choose-jar`
+  (pick your own 26.3 client jar), `patch: own-releases` (`backend::LAUNCHER_REPO`: the launcher updates
+  from this repository, with an Atom-feed fallback and a visible error when it cannot check),
+  `patch: own-keys` (Atlas's public release key in `crates/horizon-release-sign/release-keys.txt`, beside
+  upstream's: signature checks stay on), `patch: branding` (a sidebar link to this repository).
+- Every other commit starts with `atlas:` (the sync tool, the workflows, `install.sh`, the README, docs).
+  Keep a patch small and confined to its own purpose: a patch that touches much of upstream's code
+  conflicts with its next release and stops the sync.
+- Workflows: `.github/workflows/atlas-ci.yml`, `atlas-release.yml` (a copy of upstream's `launcher.yml`,
+  compared by hand when upstream changes it) and `atlas-sync.yml`. Upstream's other workflows are deleted
+  on sync, not kept. Atlas's version is its own `0.x`; the owner's one-time setup is in
+  `docs/superpowers/owner-checklist.md`, the plan and design in `docs/superpowers/`.
+- Commits and PRs carry no agent attribution (no `Co-Authored-By:` or "Generated with" lines). Changes
+  are checked with `cargo fmt --check` and `cargo test --release --lib --bins` in `launcher/`, plus
+  `uv run python -m unittest discover -s tests -p 'test_atlas*.py'` for the sync tool.
+- Never fetch Minecraft's client or server jar from Mojang for a player without an owner: downloading from
+  Mojang stays gated on an account that owns the game, exactly as upstream has it.
+
+Upstream's process rules below (Ludovic's attribution lines, claims, PR labels, release batches, the
+parity harnesses) are about upstream's repository, not this one. The rest of this page still describes
+the code accurately.
+
 # Horizon: a map for agents
 
 Minecraft: Java Edition 26.3 rewritten in Rust (wgpu). Vanilla is the specification wherever it has the

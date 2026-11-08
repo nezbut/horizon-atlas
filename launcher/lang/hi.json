@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "प्रदर्शन मोड बिना ग्लास या ब्लर के ठोस पैनल बनाता है।",
   "This theme's night draws solid panels, without glass or blur.": "इस थीम की रात बिना ग्लास या ब्लर के ठोस पैनल बनाती है।",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "लॉन्चर को स्वचालित रूप से अपडेट करें",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "बंद: नया संस्करण आने पर Atlas दिखाता है, और “अपडेट करें” दबाने पर अपडेट होता है।",
+  "Quit Horizon Atlas Launcher": "Horizon Atlas Launcher बंद करें"
 }

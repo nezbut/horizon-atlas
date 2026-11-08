@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Prestasiemodus teken soliede panele, sonder glas of vervaging.",
   "This theme's night draws solid panels, without glass or blur.": "Hierdie tema se nag teken soliede panele, sonder glas of vervaging.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Werk die launcher outomaties op",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Uit: Atlas wys wanneer 'n nuwe weergawe beskikbaar is en werk op wanneer jy „Dateer op“ druk.",
+  "Quit Horizon Atlas Launcher": "Sluit Horizon Atlas Launcher af"
 }

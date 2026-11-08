@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Өндүрүмдүүлүк режими айнексиз жана бүдөмүксүз катуу панелдерди тартат.",
   "This theme's night draws solid panels, without glass or blur.": "Бул теманын түнү айнексиз жана бүдөмүксүз катуу панелдерди тартат.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Launcher'ди автоматтык түрдө жаңыртуу",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Өчүк: Atlas жаңы версия чыкканда көрсөтөт жана «Жаңыртуу» баскычын басканда жаңыртат.",
+  "Quit Horizon Atlas Launcher": "Horizon Atlas Launcher'ден чыгуу"
 }

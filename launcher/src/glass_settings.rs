@@ -629,6 +629,7 @@ impl Launcher {
                 Some(b.install.into_any_element()),
                 &t,
             ))
+            .child(self.atlas_auto_update_row(cx))
             .child(index_row(
                 0,
                 tr("Delete old versions automatically"),

@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Mode performa menggambar panel solid, tanpa kaca atau blur.",
   "This theme's night draws solid panels, without glass or blur.": "Malam pada tema ini menggambar panel solid, tanpa kaca atau blur.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Perbarui launcher secara otomatis",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Mati: Atlas menampilkan saat versi baru tersedia dan memperbarui saat Anda menekan “Perbarui”.",
+  "Quit Horizon Atlas Launcher": "Keluar dari Horizon Atlas Launcher"
 }

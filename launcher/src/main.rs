@@ -15,6 +15,7 @@ mod launcher_setup;
 mod widgets;
 pub(crate) use widgets::*;
 mod agents_page;
+mod atlas_updates;
 mod blocks;
 mod build_mode;
 mod cli;

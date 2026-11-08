@@ -673,7 +673,7 @@ impl Launcher {
         let updating = match self.self_update {
             SelfUpdate::Downloading(..) | SelfUpdate::Ready(_) => true,
             SelfUpdate::Stuck(_) => !self.self_update_hidden,
-            _ => false,
+            _ => self.atlas_offers_update(),
         };
         if open {
             foot = foot.children(self.rail_update_card(soft, cx));
@@ -966,7 +966,7 @@ impl Launcher {
                         ),
                 )
             }
-            _ => None,
+            _ => self.atlas_rail_offer(card, cx),
         }
     }
 

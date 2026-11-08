@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Gumagamit ang Mode ng performance ng solid na panel, walang glass o blur.",
   "This theme's night draws solid panels, without glass or blur.": "Solid na panel ang gabi ng temang ito, walang glass o blur.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Awtomatikong i-update ang launcher",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Naka-off: Ipinapakita ng Atlas kapag may bagong bersyon, at nag-a-update kapag pinindot mo ang “I-update”.",
+  "Quit Horizon Atlas Launcher": "Lumabas sa Horizon Atlas Launcher"
 }

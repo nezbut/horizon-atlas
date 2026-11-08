@@ -159,8 +159,8 @@
 **Files:** none created; produces a verification note in the reply.
 
 - [x] **Step 1: Full local checks:** `uv run python -m unittest discover -s tests -p 'test_atlas*.py'` (expected: all `ok`), `cargo fmt --manifest-path launcher/Cargo.toml --check` (no output), `cargo test --manifest-path launcher/Cargo.toml --release --lib --bins` (PASS), `cargo test -p horizon-release-sign` (PASS).
-- [ ] **Step 2: Rebase rehearsal on the real history:** create a scratch branch at the previous upstream launcher tag, replay the patch commits onto it with `rebase_patches`, then onto the newest tag, and confirm `ok=True` for both. Report which tags were used.
-- [ ] **Step 3: Hand over** the owner checklist (Task 8) and say plainly what was not verified locally: the GitHub Actions runs, macOS and Windows builds, the signing job, and the GUI (the owner opens the built launcher once, offline, picks a jar, and checks the sidebar link).
+- [x] **Step 2: Rebase rehearsal on the real history:** create a scratch branch at the previous upstream launcher tag, replay the patch commits onto it with `rebase_patches`, then onto the newest tag, and confirm `ok=True` for both. Report which tags were used.
+- [x] **Step 3: Hand over** the owner checklist (Task 8) and say plainly what was not verified locally: the GitHub Actions runs, macOS and Windows builds, the signing job, and the GUI (the owner opens the built launcher once, offline, picks a jar, and checks the sidebar link).
 
 ---
 

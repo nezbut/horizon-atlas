@@ -750,6 +750,12 @@ impl Launcher {
         }
         let links = [
             (
+                "atlas",
+                tr("Horizon Atlas"),
+                "globe-02",
+                "https://github.com/nezbut/horizon-atlas".to_string(),
+            ),
+            (
                 "sponsor",
                 tr("Sponsor"),
                 "favourite",

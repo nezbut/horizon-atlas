@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Modo rendimiento dibuja paneles sólidos, sin cristal ni desenfoque.",
   "This theme's night draws solid panels, without glass or blur.": "La noche de este tema dibuja paneles sólidos, sin cristal ni desenfoque.",
   "The server gets a copy: your single-player world stays as it is.": "El servidor recibe una copia: tu mundo de un jugador se queda como está.",
-  "You have no single-player world yet: play one first, or choose New world.": "Aún no tienes un mundo de un jugador: juega uno primero o elige Nuevo mundo."
+  "You have no single-player world yet: play one first, or choose New world.": "Aún no tienes un mundo de un jugador: juega uno primero o elige Nuevo mundo.",
+  "Update the launcher automatically": "Actualizar el launcher automáticamente",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Desactivado: Atlas muestra cuándo hay una nueva versión y se actualiza cuando pulsas «Actualizar».",
+  "Quit Horizon Atlas Launcher": "Salir de Horizon Atlas Launcher"
 }

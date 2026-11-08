@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Η λειτουργία Performance σχεδιάζει συμπαγή πάνελ, χωρίς γυαλί ή θόλωμα.",
   "This theme's night draws solid panels, without glass or blur.": "Η νύχτα αυτού του θέματος σχεδιάζει συμπαγή πάνελ, χωρίς γυαλί ή θόλωμα.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Ενημερώστε αυτόματα το launcher",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Ανενεργό: Το Atlas εμφανίζει πότε κυκλοφορεί νέα έκδοση και ενημερώνεται όταν πατήσετε «Ενημέρωση».",
+  "Quit Horizon Atlas Launcher": "Έξοδος από το Horizon Atlas Launcher"
 }

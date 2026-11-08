@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Modaliteti i performancës vizaton panele të ngurta, pa xhami as mjegullim.",
   "This theme's night draws solid panels, without glass or blur.": "Nata e kësaj teme vizaton panele të ngurta, pa xhami as mjegullim.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Përditësoni automatikisht launcher-in",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Joaktiv: Atlas shfaq kur del një version i ri dhe përditësohet kur shtypni «Përditëso».",
+  "Quit Horizon Atlas Launcher": "Dil nga Horizon Atlas Launcher"
 }

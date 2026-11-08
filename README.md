@@ -1,3 +1,60 @@
+# Horizon Atlas
+
+> **Unofficial.** Horizon Atlas is a fork made by a player. It is not affiliated with, endorsed by or supported by
+> Horizon's authors, Mojang or Microsoft. Do not ask them for help with it; open an issue here.
+
+Horizon Atlas is a fork of the [Horizon](https://github.com/horizon-rust/horizon) **launcher**. The game is Horizon's, unmodified;
+Atlas changes the launcher only. Minecraft: Java Edition is a product of Mojang and Microsoft, and you need your own copy of it.
+
+## What it is for
+
+- **Offline play without a Microsoft account.** Play starts the game under an offline name of your choice. There is no Microsoft sign-in in Atlas.
+- **Choose your own `26.3.jar`.** Point the launcher at the client jar from your own copy of Minecraft: Java Edition, wherever it is on disk.
+- **Releases that follow Horizon's launcher releases.** A daily check turns each new Horizon launcher release into an Atlas release, with Atlas's changes replayed on top.
+- **Signed with Atlas's own key.** The launcher updates itself from this repository and checks the signature before it installs anything. Game builds are still Horizon's, signed by Horizon's key.
+
+## Install
+
+Download from the [releases page](https://github.com/nezbut/horizon-atlas/releases/latest).
+
+- **Windows:** run `horizon-launcher-setup.exe` (`horizon-launcher-setup-arm64.exe` on ARM). It is not code-signed, so SmartScreen may say "Windows protected your PC": choose **More info**, then **Run anyway**.
+- **Linux (x86-64) and macOS (Apple Silicon):**
+
+  ```sh
+  curl -fsSL https://raw.githubusercontent.com/nezbut/horizon-atlas/main/install.sh | sh
+  ```
+
+  It installs for your user only and puts `horizon-atlas` in `~/.local/bin`. Linux also has an AppImage on the releases page, and Intel Macs have `horizon-launcher-macos-x64.zip`.
+- **macOS:** the app is not notarized, so macOS may refuse to open it the first time. Right-click it and choose **Open**, or run `xattr -dr com.apple.quarantine "<path to the app>"` (`install.sh` already does this).
+
+## First run
+
+1. Have Minecraft: Java Edition 26.3 installed once, in any launcher (the official one, Prism, Modrinth App and others work).
+2. Open Atlas and press **Prepare**. It finds your copy of 26.3 and prepares the game from it. If it cannot find it, press **Choose jar…** and pick the jar yourself.
+3. Press **Play**.
+
+The jar must be the **26.3 release** jar: Horizon reproduces 26.3 only, and the launcher refuses any other jar. The only way Atlas gets Minecraft is from your own copy of Minecraft: Java Edition.
+
+## Limits
+
+- **Online-mode servers are not supported.** They need a Microsoft sign-in, and Atlas has none. Atlas is for offline play.
+- The game itself is Horizon's, unmodified. Atlas changes the launcher only.
+- Atlas builds the launcher for Windows (x64, ARM64), Linux (x86-64) and macOS (Apple Silicon and Intel).
+
+## How it stays in sync
+
+Atlas is a short list of small commits (patches: `offline-play`, `choose-jar`, `own-releases`, `own-keys`, `branding`) on top of one of Horizon's `launcher@X.Y.Z` tags.
+Every day a workflow checks for a newer Horizon launcher tag, replays the patches onto it, tests, and publishes a release. If a patch no longer applies, nothing is published and an issue names the patch.
+Atlas's versions are its own (`0.x`); each release title says which Horizon launcher it is based on.
+
+## License
+
+MIT, like Horizon (see [LICENSE](LICENSE)). Horizon is by Ludovic Marie and the Horizon contributors; Atlas is built on their work. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for other credits.
+
+---
+
+*Below is Horizon's own README, unchanged.*
+
 <p align="center">
   <img src="docs/media/banner.webp" alt="Horizon: the game you know, rebuilt in Rust" width="100%">
 </p>

@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Режимот за перформанси црта полни панели, без стакло и замаглување.",
   "This theme's night draws solid panels, without glass or blur.": "Ноќта на оваа тема црта полни панели, без стакло и замаглување.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Ажурирајте го лаунчерот автоматски",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Исклучено: Atlas покажува кога има нова верзија и се ажурира кога ќе притиснете „Ажурирај“.",
+  "Quit Horizon Atlas Launcher": "Излези од Horizon Atlas Launcher"
 }

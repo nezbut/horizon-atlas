@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Ụdị arụmọrụ na-ese ogwe uzu siri ike, na-enweghị ugegbe ma ọ bụ nchafu.",
   "This theme's night draws solid panels, without glass or blur.": "Abalị isiokwu a na-ese ogwe uzu siri ike, na-enweghị ugegbe ma ọ bụ nchafu.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Melite launcher na-akpaghị aka",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Akpọchiri: Atlas na-egosi mgbe ụdị ọhụrụ pụtara ma na-emelite mgbe ị pịrị “Mmelite”.",
+  "Quit Horizon Atlas Launcher": "Pụọ na Horizon Atlas Launcher"
 }

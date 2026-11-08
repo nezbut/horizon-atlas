@@ -4,12 +4,18 @@
 //! with the SHA-256 pinned for it in legacy-releases.txt (a rollback). Anything else is refused
 //! with a message saying why.
 
-use crate::backend::REPO;
+use crate::backend::{launcher_version, LAUNCHER_REPO, REPO};
 use horizon_release_sign::{PublicKey, SIGNATURE, SIGNATURE_V2, SUMS};
 
-/// Where a release's attached file downloads from (GitHub's fixed address for it).
+/// Where a release's attached file downloads from (GitHub's fixed address for it). A launcher
+/// release is Atlas's own; every other tag is upstream's game build.
 pub fn asset_url(tag: &str, name: &str) -> String {
-    format!("https://github.com/{REPO}/releases/download/{tag}/{name}")
+    let repo = if launcher_version(tag).is_some() {
+        LAUNCHER_REPO
+    } else {
+        REPO
+    };
+    format!("https://github.com/{repo}/releases/download/{tag}/{name}")
 }
 
 /// The signed SHA-256 of `asset` in release `tag`, fetching its SHA256SUMS and SHA256SUMS.sig
@@ -58,6 +64,23 @@ pub fn nightly_digest(
 mod tests {
     use super::*;
     use horizon_release_sign::{sha256_hex, sums_file, SigningKey};
+
+    /// A launcher release's checksums are read where the launcher archive is (Atlas's repository),
+    /// a game build's where the game is (upstream's): the signature is checked either way.
+    #[test]
+    fn launcher_checksums_come_from_the_launcher_repository() {
+        assert_eq!(
+            asset_url("launcher@0.1.1", SUMS),
+            format!(
+                "https://github.com/nezbut/horizon-atlas/releases/download/launcher@0.1.1/{SUMS}"
+            )
+        );
+        assert_eq!(
+            asset_url("v0.2.97", SUMS),
+            format!("https://github.com/horizon-rust/horizon/releases/download/v0.2.97/{SUMS}")
+        );
+        assert!(asset_url("nightly", SUMS).contains("/horizon-rust/horizon/"));
+    }
 
     #[test]
     fn the_launcher_ships_with_a_release_key() {

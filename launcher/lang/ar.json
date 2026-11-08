@@ -1,4 +1,5 @@
 {
+  "Horizon Atlas": "Horizon Atlas",
   "\"I'm playing\" ping": "إرسال إشارة \"أنا ألعِب\"",
   ", {count} listed by their Modrinth download": "، {count} مدرجة حسب تنزيل Modrinth الخاص بها",
   ".mrpack (Modrinth), .zip (CurseForge), or a Prism, MultiMC or CurseForge instance. Horizon ports what it can on this computer, from your own downloads, and plays the pack as its own profile. Nothing is uploaded or shared.": ".mrpack (Modrinth) أو .zip (CurseForge) أو نسخة Prism أو MultiMC أو CurseForge. يقوم هورايزون بنقل ما يمكنه على هذا الكمبيوتر من تنزيلاتك الخاصة، ويشغل الحزمة كملف تعريفي خاص بها. لا يتم رفع أو مشاركة أي شيء.",

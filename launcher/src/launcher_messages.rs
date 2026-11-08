@@ -276,8 +276,12 @@ impl Launcher {
                     if self.settings.auto_install() {
                         self.install_update();
                     }
+                    // Atlas: by itself only with "Update the launcher automatically" on; off, the
+                    // sidebar and Settings offer it (`atlas_updates.rs`).
                     if let Some(release) = self.updates.launcher.clone() {
-                        self.update_launcher(release);
+                        if self.atlas_update_goes_on() {
+                            self.update_launcher(release);
+                        }
                     }
                 }
                 Msg::Updates(Err(e)) => self.update_error = Some(e),

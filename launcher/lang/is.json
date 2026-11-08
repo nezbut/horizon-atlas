@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Afkastastilling teiknar gegnsæi spjöld, án glers og móðu.",
   "This theme's night draws solid panels, without glass or blur.": "Nótt þessa þema teiknar gegnsæi spjöld, án glers og móðu.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Uppfærðu ræsinn sjálfkrafa",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Slökkt: Atlas sýnir þegar ný útgáfa er komin út og uppfærir þegar þú ýtir á „Uppfærsla“.",
+  "Quit Horizon Atlas Launcher": "Hætta í Horizon Atlas Launcher"
 }

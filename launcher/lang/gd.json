@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Tarraingidh modh coileanaidh panail fhìor, as aonais glainne no blur.",
   "This theme's night draws solid panels, without glass or blur.": "Tarraingidh oidhche an ùrlair seo panail fhìor, as aonais glainne no blur.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Ùraich an launcher gu fèin-obrachail",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Dheth: Sheallaidh Atlas nuair a thig tionndadh ùr a-mach, agus ùraichidh e nuair a bhrùthas tu “Ùraich”.",
+  "Quit Horizon Atlas Launcher": "Fàg Horizon Atlas Launcher"
 }

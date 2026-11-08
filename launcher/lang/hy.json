@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Կատարողական ռեժիմը գծում է անընդմեջ վահանակներ՝ առանց ապակու և լղոզման։",
   "This theme's night draws solid panels, without glass or blur.": "Այս թեմայի գիշերը գծում է անընդմեջ վահանակներ՝ առանց ապակու և լղոզման։",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Թարմացնել գործարկիչն ավտոմատ կերպով",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Անջատված: Atlas-ը ցույց է տալիս, երբ նոր տարբերակ է թողարկվել, և թարմացվում է, երբ սեղմում եք «Թարմացնել»։",
+  "Quit Horizon Atlas Launcher": "Դուրս գալ Horizon Atlas Launcher-ից"
 }

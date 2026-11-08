@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Imodi yokusebenza idweba amaphaneli aqinile, ngaphandle kwezingilazi noma ukufiphala.",
   "This theme's night draws solid panels, without glass or blur.": "Usuku lokubala kwale thimu idweba amaphaneli aqinile, ngaphandle kwezingilazi noma ukufiphala.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Buyekeza isiqalisi ngokuzenzakalelayo",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Valiwe: I-Atlas ibonisa lapho kukhishwe inguqulo entsha futhi ibuyekeza lapho ucindezela “Buyekeza”.",
+  "Quit Horizon Atlas Launcher": "Phuma ku-Horizon Atlas Launcher"
 }

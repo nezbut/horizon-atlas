@@ -418,6 +418,21 @@ mod tests {
     }
 
     #[test]
+    fn release_keys_hold_upstream_and_atlas() {
+        let decode = |text: &str| -> PublicKey {
+            let bytes = STANDARD.decode(text).unwrap();
+            assert_eq!(bytes.len(), 32, "{text}");
+            PublicKey::try_from(bytes.as_slice()).unwrap()
+        };
+        let upstream = decode("MU4oiIQcCxkZvbwSjjXs7SySCuM6ywRQ3nGaJYZG0gw=");
+        let atlas = decode("OAIgGOxMjzfWZG8VPh1NN5tCKXV54/MmdJBoo/hWfMs=");
+        let keys = trusted_keys();
+        assert_eq!(keys.len(), 2);
+        assert!(keys.contains(&upstream), "upstream's key must stay");
+        assert!(keys.contains(&atlas), "Atlas's key is missing");
+    }
+
+    #[test]
     fn releases_from_before_signing_keep_their_pinned_digests() {
         let mut seen = std::collections::HashSet::new();
         for line in LEGACY.lines().map(str::trim) {

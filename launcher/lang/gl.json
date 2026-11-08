@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Modo rendemento debuxa paneis sólidos, sen vidro nin desenfoque.",
   "This theme's night draws solid panels, without glass or blur.": "A noite deste tema debuxa paneis sólidos, sen vidro nin desenfoque.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Actualizar o launcher automaticamente",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Desactivado: Atlas mostra cando sae unha versión nova e actualízase cando premes en «Actualizar».",
+  "Quit Horizon Atlas Launcher": "Saír de Horizon Atlas Launcher"
 }

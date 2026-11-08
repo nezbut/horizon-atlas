@@ -304,7 +304,7 @@ impl Launcher {
                         ),
                 )
             }
-            _ => {}
+            _ => foot = foot.children(self.atlas_sidebar_offer(update, cx)),
         }
         // Sculk's card above the links: seen without scrolling, on every page but Servers, which shows
         // its wide banner. Tall where the sidebar has the height for it besides the wordmark, its rows

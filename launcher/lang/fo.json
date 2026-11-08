@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Avrikshátturin tekna reinføst panel, uttan glas ella sløring.",
   "This theme's night draws solid panels, without glass or blur.": "Náttin í hesum tema tekna reinføst panel, uttan glas ella sløring.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Dagfør launcharan sjálvvirkandi",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Av: Atlas vísir, tá ein nýggj útgáva er komin út, og dagførir, tá tú trýstir á „Dagfør“.",
+  "Quit Horizon Atlas Launcher": "Far úr Horizon Atlas Launcher"
 }

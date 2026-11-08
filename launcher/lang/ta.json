@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "செயல்திறன் பயன்முறை கண்ணாடி அல்லது மங்கல் இன்றி திட பேனல்களை வரையும்.",
   "This theme's night draws solid panels, without glass or blur.": "இந்தக் கருப்பொருளின் இரவு கண்ணாடி அல்லது மங்கல் இன்றி திட பேனல்களை வரையும்.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "லான்சரை தானாக புதுப்பிக்கவும்",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "முடக்கத்தில்: புதிய பதிப்பு வெளிவரும்போது Atlas காட்டும்; “புதுப்பிக்கவும்” அழுத்தும்போது புதுப்பிக்கும்.",
+  "Quit Horizon Atlas Launcher": "Horizon Atlas Launcher-ஐ விட்டு வெளியேறு"
 }

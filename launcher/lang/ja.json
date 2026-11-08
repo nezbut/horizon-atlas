@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "パフォーマンスモードは、ガラスやぼかしのない無地のパネルを描きます。",
   "This theme's night draws solid panels, without glass or blur.": "このテーマの夜は、ガラスやぼかしのない無地のパネルを描きます。",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "ランチャーを自動的に更新する",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "オフ：新しいバージョンが出ると Atlas が表示し、「更新」を押すと更新されます。",
+  "Quit Horizon Atlas Launcher": "Horizon Atlas Launcher を終了"
 }

@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "ಕಾರ್ಯಕ್ಷಮತೆ ಮೋಡ್ ಗಾಜು ಅಥವಾ ಮಸುಕಿಲ್ಲದೆ ಘನ ಪ್ಯಾನೆಲ್‌ಗಳನ್ನು ಚಿತ್ರಿಸುತ್ತದೆ.",
   "This theme's night draws solid panels, without glass or blur.": "ಈ ಥೀಮ್‌ನ ರಾತ್ರಿ ಗಾಜು ಅಥವಾ ಮಸುಕಿಲ್ಲದೆ ಘನ ಪ್ಯಾನೆಲ್‌ಗಳನ್ನು ಚಿತ್ರಿಸುತ್ತದೆ.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "ಲಾಂಚರ್ ಅನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ನವೀಕರಿಸಿ",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "ಆಫ್: ಹೊಸ ಆವೃತ್ತಿ ಬಿಡುಗಡೆಯಾದಾಗ Atlas ತೋರಿಸುತ್ತದೆ ಮತ್ತು “ನವೀಕರಿಸಿ” ಒತ್ತಿದಾಗ ನವೀಕರಿಸುತ್ತದೆ.",
+  "Quit Horizon Atlas Launcher": "Horizon Atlas Launcher ನಿಂದ ನಿರ್ಗಮಿಸಿ"
 }

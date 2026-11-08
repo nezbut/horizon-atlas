@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Performans modu cam veya bulanıklık olmadan düz paneller çizer.",
   "This theme's night draws solid panels, without glass or blur.": "Bu temanın gecesi cam veya bulanıklık olmadan düz paneller çizer.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Başlatıcıyı otomatik olarak güncelle",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Kapalı: Atlas yeni bir sürüm çıktığında gösterir ve “Güncelle” düğmesine basınca günceller.",
+  "Quit Horizon Atlas Launcher": "Horizon Atlas Launcher'dan çık"
 }

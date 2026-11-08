@@ -568,6 +568,12 @@ impl Launcher {
             )
         };
         let mut links = div().flex().flex_col().mt(px(8.));
+        links = links.child(link(
+            "atlas",
+            tr("Horizon Atlas"),
+            "globe-02",
+            "https://github.com/nezbut/horizon-atlas".to_string(),
+        ));
         if !self.links.sponsor.is_empty() {
             links = links.child(link(
                 "sponsor",

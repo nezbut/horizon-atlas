@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Chế độ hiệu suất vẽ bảng đặc, không kính, không độ mờ.",
   "This theme's night draws solid panels, without glass or blur.": "Ban đêm của chủ đề này vẽ bảng đặc, không kính, không độ mờ.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Tự động cập nhật trình khởi chạy",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Tắt: Atlas sẽ hiển thị khi có phiên bản mới và cập nhật khi bạn nhấn “cập nhật”.",
+  "Quit Horizon Atlas Launcher": "Thoát Horizon Atlas Launcher"
 }

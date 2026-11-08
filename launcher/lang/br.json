@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Mod ar perzhded a dres paneloù start, hep gwer na zamwel.",
   "This theme's night draws solid panels, without glass or blur.": "Noz an tema-mañ a dres paneloù start, hep gwer na zamwel.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Hizivaat ar lañser ent emgefre",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Diweredekaet: Atlas a ziskouez pa vez ur stumm nevez ha hizivaat a ra pa wascit war « Hizivaat ».",
+  "Quit Horizon Atlas Launcher": "Kuitaat Horizon Atlas Launcher"
 }

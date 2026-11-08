@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Режим производительности рисует сплошные панели, без стекла и размытия.",
   "This theme's night draws solid panels, without glass or blur.": "Ночь этой темы рисует сплошные панели, без стекла и размытия.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Обновлять лаунчер автоматически",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Выключено: Atlas показывает, что вышла новая версия, и обновляется, когда вы нажмёте «Обновить».",
+  "Quit Horizon Atlas Launcher": "Выйти из Horizon Atlas Launcher"
 }

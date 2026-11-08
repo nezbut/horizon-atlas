@@ -1372,5 +1372,8 @@
   "Performance mode draws solid panels, without glass or blur.": "Qaabka waxqabadka wuxuu sawiraa baalas adag, oo aan muraayad ama khafiifyeyn lahayn.",
   "This theme's night draws solid panels, without glass or blur.": "Habeenka mowduucan wuxuu sawiraa baalas adag, oo aan muraayad ama khafiifyeyn lahayn.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
-  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
+  "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world.",
+  "Update the launcher automatically": "Si otomaatig ah u cusbooneysii launcher-ka",
+  "Off: Atlas shows when a new version is out and updates when you press Update.": "Damiso: Atlas wuxuu muujiyaa marka nooc cusub la soo saaro, wuuna cusboonaysiinayaa markaad riixdo “Cusbooneysii”.",
+  "Quit Horizon Atlas Launcher": "Ka bax Horizon Atlas Launcher"
 }

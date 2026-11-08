@@ -88,7 +88,7 @@ The workflows exist on GitHub only once this work is on the repository's `main`;
 step. Then, in Actions:
 
 1. Run **atlas-sync** by hand, leaving `dry_run` ticked (the default).
-2. Run **atlas-release** by hand with `version` = `0.1.0`, `upstream_tag` = `launcher@0.2.50` and
+2. Run **atlas-release** by hand with `version` = `0.1.0`, `upstream_tag` = `launcher@0.2.54` and
    `dry_run` left ticked.
 
 Why: they do everything except publish, so a mistake costs nothing. Open each run's **Summary**.
@@ -100,16 +100,16 @@ A healthy `atlas-sync` run:
 - ends green; no issue was opened.
 
 A healthy `atlas-release` run:
-- starts with `launcher@0.1.0 (based on launcher@0.2.50) … dry run: true`;
+- starts with `launcher@0.1.0 (based on launcher@0.2.54) … dry run: true`;
 - builds the launcher on Linux, macOS (Apple Silicon and Intel) and Windows (x64 and ARM64) and ends green. The
   Windows ARM64 build may fail without failing the run (a warning says that file is left out);
-- ends with the release title and notes in the summary (`Atlas 0.1.0 · based on Horizon launcher 0.2.50`)
+- ends with the release title and notes in the summary (`Atlas 0.1.0 · based on Horizon launcher 0.2.54`)
   and publishes nothing. A dry run signs with a throwaway key, so it works before step 3 is done.
 
 ## 7. First real release
 
-Run **atlas-release** from `main` with `version` = `0.1.0`, `upstream_tag` = `launcher@0.2.50` and
-`dry_run` **unticked**. (Or wait: once Horizon publishes a launcher tag newer than `launcher@0.2.50`, the
+Run **atlas-release** from `main` with `version` = `0.1.0`, `upstream_tag` = `launcher@0.2.54` and
+`dry_run` **unticked**. (Or wait: once Horizon publishes a launcher tag newer than `launcher@0.2.54`, the
 daily sync does this for you.) A run from any branch other than `main` is always a dry run.
 
 Needs steps 2 and 3 done, and the public key from step 3 already in `release-keys.txt`.

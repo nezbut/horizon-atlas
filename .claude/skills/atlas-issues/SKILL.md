@@ -7,7 +7,7 @@ description: >-
 # Atlas issues
 
 Horizon Atlas keeps its changes to the Horizon launcher as a stack of small commits ("patches") on top of an
-upstream release tag. A daily workflow replays that stack onto each new upstream tag. When that cannot be done
+upstream release tag. A scheduled workflow (four times a day) replays that stack onto each new upstream tag. When that cannot be done
 automatically it opens a GitHub issue. This skill is how to deal with such an issue, or with any other red run,
 in a session that knows nothing about the project.
 

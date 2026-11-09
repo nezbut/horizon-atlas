@@ -35,8 +35,11 @@ and opens an issue that names the cause.
 - `tools/atlas_sync.py` (tests: `tests/test_atlas_sync.py`, run with `uv run python -m unittest discover -s tests
   -p 'test_atlas*.py'`): `new-tag` (newest upstream `launcher@N.N.N` newer than the base, else prints nothing),
   `base` (the newest upstream tag that is an ancestor of HEAD), `next-version` (Atlas's next version: the highest
-  own `launcher@*` tag, patch +1, first `0.1.0`), `rebase TAG` (`git rebase --onto`; auto-resolves conflicts that
-  are only upstream workflow files; any other conflict aborts cleanly and prints `FAILED_PATCH=<subject>`),
+  own `launcher@*` tag, patch +1, first `0.1.0`), `rebase TAG` (`git rebase --onto`; resolves by itself the
+  conflicts that need no human: an upstream workflow file gets the Atlas commit's version when both sides
+  changed it and is deleted when either side deleted it, and a `launcher/lang/*.json` where the patch only adds keys gets upstream's file plus those keys; any other
+  conflict aborts cleanly and prints `FAILED_PATCH=<subject>`), `rebase-onto REF` (the same onto any ref, e.g.
+  `upstream/main`, used by `main-check`), `resolve` (that resolution for the commit a hand-run rebase stopped on),
   `drop-workflows`, `title ATLAS UPSTREAM`.
 - `.github/workflows/atlas-sync.yml`: four times a day (04:17, 10:17, 16:17 and 22:17 UTC) and by hand (input `dry_run`, default true); `main-check` runs only on the 04:17 run and by hand.
   Jobs: `build` (no secrets; fetch, find tag, rebase, fmt, tests, bundle), `publish` (the only job with

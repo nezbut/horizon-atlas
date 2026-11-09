@@ -18,6 +18,24 @@ TAG_RE = re.compile(r"launcher@(\d+)\.(\d+)\.(\d+)")
 WORKFLOWS_DIR = ".github/workflows"
 OWN_PREFIX = "atlas-"
 MAX_RESOLVE_ROUNDS = 50
+REPORT_CHARS = 50_000
+REPORT_FILES = 6
+REPORT_COMMITS = 8
+REPORT_BLOCKS = 3
+REPORT_BLOCK_LINES = 80
+REPORT_PATCH_LINES = 120
+REPORT_CONTEXT = 3
+TRUNCATED = (
+    f"(truncated) The report was cut at {REPORT_CHARS:,} characters; "
+    "reproduce the rest in a scratch clone with the atlas-issues skill."
+)
+GUIDANCE = """\
+### How to fix
+
+- Keep upstream's new code and re-apply only Atlas's seam (a constant, a condition, a key); a wide patch conflicts again at the next tag.
+- Verify with `cargo fmt --check` and `cargo test --release --lib --bins` in `launcher/`.
+- The step-by-step handling of this issue is in `.claude/skills/atlas-issues`.
+"""
 
 
 def parse_launcher_tag(name: str) -> tuple[int, int, int] | None:
@@ -102,6 +120,137 @@ def drop_upstream_workflows(repo: Path) -> list[str]:
     return names
 
 
+def _fenced(text: str, language: str = "") -> str:
+    # A fence longer than any backtick run inside, so a Markdown file in a conflict cannot close it.
+    longest = max((len(run) for run in re.findall(r"`+", text)), default=0)
+    fence = "`" * max(3, longest + 1)
+    return f"{fence}{language}\n{text.rstrip(chr(10))}\n{fence}"
+
+
+def _conflict_blocks(text: str) -> list[tuple[int, int, list[str]]]:
+    """(first line number, last line number, lines) of each conflict block, with its context."""
+    lines = text.split("\n")
+    if lines and lines[-1] == "":
+        lines.pop()
+    blocks = []
+    index = 0
+    while index < len(lines):
+        if not lines[index].startswith("<<<<<<<"):
+            index += 1
+            continue
+        end = next((n for n in range(index + 1, len(lines)) if lines[n].startswith(">>>>>>>")), None)
+        if end is None:
+            break
+        first = max(0, index - REPORT_CONTEXT)
+        last = min(len(lines), end + 1 + REPORT_CONTEXT)
+        blocks.append((first + 1, last, lines[first:last]))
+        index = end + 1
+    return blocks
+
+
+def _capped(lines: list[str], limit: int) -> str:
+    text = "\n".join(lines[:limit])
+    if len(lines) > limit:
+        text += f"\n... ({len(lines) - limit} more lines)"
+    return text
+
+
+def _file_report(repo: Path, path: str, old_ref: str, new_ref: str) -> list[str]:
+    out = [f"### `{path}`", ""]
+    log = _git(repo, "log", "--format=%h %s", f"{old_ref}..{new_ref}", "--", path, check=False)
+    commits = log.stdout.splitlines()
+    out.append(f"Upstream commits that changed it between the old base and `{_short_ref(new_ref)}`:")
+    out.append("")
+    if commits:
+        shown = commits[:REPORT_COMMITS]
+        if len(commits) > REPORT_COMMITS:
+            shown.append(f"... ({len(commits) - REPORT_COMMITS} more commits)")
+        out += [_fenced("\n".join(shown)), ""]
+    else:
+        out += ["(none: the path was not changed upstream under this name)", ""]
+
+    try:
+        text = (repo / path).read_text(errors="replace")
+    except OSError:
+        text = ""
+    blocks = _conflict_blocks(text)
+    if blocks:
+        out.append(
+            "The conflict as it stands in the working tree: `<<<<<<<` is upstream's new code, `|||||||` the original, "
+            "`=======` to `>>>>>>>` the Atlas patch's version."
+        )
+        out.append("")
+        for number, (first, last, lines) in enumerate(blocks[:REPORT_BLOCKS], start=1):
+            out += [f"Block {number} of {len(blocks)} (lines {first}-{last}):", ""]
+            out += [_fenced(_capped(lines, REPORT_BLOCK_LINES)), ""]
+        if len(blocks) > REPORT_BLOCKS:
+            out += [f"({len(blocks) - REPORT_BLOCKS} more blocks)", ""]
+    else:
+        out += ["No conflict markers in the file: it was deleted, renamed or is binary on one side.", ""]
+
+    shown_patch = _git(repo, "show", "REBASE_HEAD", "--format=", "--", path, check=False).stdout
+    out.append("What the Atlas patch changes in this file:")
+    out.append("")
+    if shown_patch.strip():
+        out += [_fenced(_capped(shown_patch.splitlines(), REPORT_PATCH_LINES), "diff"), ""]
+    else:
+        out += ["(the patch does not change this file)", ""]
+    return out
+
+
+def _short_ref(ref: str) -> str:
+    return ref.removeprefix(f"{UPSTREAM_REFS}/")
+
+
+def _cut_report(body: str, tail: str, limit: int) -> str:
+    if len(body) + len(tail) <= limit:
+        return body + tail
+    notice = f"\n\n{TRUNCATED}\n\n"
+    room = limit - len(tail) - len(notice) - 200
+    cut = body[:room]
+    cut = cut[: cut.rfind("\n")] if "\n" in cut else cut
+    opener = None
+    for line in cut.splitlines():
+        if opener is None:
+            match = re.match(r"`{3,}", line)
+            opener = match.group() if match else None
+        elif line.strip() == opener:
+            opener = None
+    closing = f"\n{opener}" if opener else ""
+    return cut + closing + notice + tail
+
+
+def conflict_report(repo: Path, old_base: str, new_ref: str) -> str:
+    """Markdown for an issue: where the rebase stopped, what upstream changed there and what the patch changes.
+
+    Call it while the rebase is stopped on a conflict (the commit being replayed is REBASE_HEAD).
+    """
+    stopped = _git(repo, "rev-parse", "--verify", "-q", "REBASE_HEAD", check=False)
+    if stopped.returncode != 0:
+        raise ValueError("no rebase is stopped on a conflict in this repository")
+    commit = stopped.stdout.strip()
+    subject = _git(repo, "log", "-1", "--format=%s", commit).stdout.strip()
+    short = _git(repo, "rev-parse", "--short", commit).stdout.strip()
+    old_ref = f"{UPSTREAM_REFS}/{old_base}"
+    if _git(repo, "rev-parse", "--verify", "-q", f"{old_ref}^{{commit}}", check=False).returncode != 0:
+        old_ref = old_base
+    paths = sorted(_unmerged_paths(repo), key=lambda path: (_is_upstream_workflow(path), path))
+
+    body = [
+        f"## Conflict in the patch `{subject}` (`{short}`)",
+        "",
+        f"- Atlas is based on `{old_base}`; the rebase onto `{_short_ref(new_ref)}` stopped on this patch.",
+        f"- Conflicting files ({len(paths)}):",
+    ]
+    body += [f"  - `{path}`" for path in paths]
+    body.append("")
+    for path in paths[:REPORT_FILES]:
+        body += _file_report(repo, path, old_ref, new_ref)
+    if len(paths) > REPORT_FILES:
+        body += [f"({len(paths) - REPORT_FILES} more conflicting files are not shown.)", ""]
+    return _cut_report("\n".join(body), "\n" + GUIDANCE, REPORT_CHARS)
+
+
 @dataclass
 class RebaseResult:
     ok: bool
@@ -109,20 +258,18 @@ class RebaseResult:
     base: str
 
 
-def rebase_patches(repo: Path, new_tag: str) -> RebaseResult:
+def _rebase(repo: Path, *args: str) -> subprocess.CompletedProcess:
+    # diff3: a conflict block also shows the original code, between upstream's and the patch's.
+    return _git(repo, "-c", "merge.conflictStyle=diff3", "rebase", *args, check=False)
+
+
+def rebase_patches(repo: Path, new_tag: str, report: Path | None = None) -> RebaseResult:
     if parse_launcher_tag(new_tag) is None:
         raise ValueError(f"not an upstream launcher tag: {new_tag!r}")
     base = current_base(repo)
     if base is None:
         raise ValueError(f"HEAD has no upstream launcher tag in {UPSTREAM_REFS}/ as an ancestor")
-    done = _git(
-        repo,
-        "rebase",
-        "--onto",
-        f"{UPSTREAM_REFS}/{new_tag}",
-        f"{UPSTREAM_REFS}/{base}",
-        check=False,
-    )
+    done = _rebase(repo, "--onto", f"{UPSTREAM_REFS}/{new_tag}", f"{UPSTREAM_REFS}/{base}")
     rounds = 0
     while done.returncode != 0 and rounds < MAX_RESOLVE_ROUNDS:
         paths = _unmerged_paths(repo)
@@ -131,7 +278,7 @@ def rebase_patches(repo: Path, new_tag: str) -> RebaseResult:
         # Atlas deleted these files, upstream changed them: the deletion wins.
         if _git(repo, "rm", "-q", "--", *paths, check=False).returncode != 0:
             break
-        done = _git(repo, "rebase", "--continue", check=False)
+        done = _rebase(repo, "--continue")
         rounds += 1
     if done.returncode == 0:
         return RebaseResult(ok=True, failed_patch=None, base=new_tag)
@@ -139,6 +286,11 @@ def rebase_patches(repo: Path, new_tag: str) -> RebaseResult:
     failed_patch = None
     if stopped.returncode == 0:
         failed_patch = _git(repo, "log", "-1", "--format=%s", stopped.stdout.strip()).stdout.strip()
+        if report is not None:
+            try:
+                report.write_text(conflict_report(repo, base, f"{UPSTREAM_REFS}/{new_tag}"))
+            except Exception as error:  # the abort and the patch's name matter more than the report
+                sys.stderr.write(f"could not write the conflict report: {error}\n")
     _git(repo, "rebase", "--abort", check=False)
     if failed_patch is None:
         sys.stderr.write(done.stderr)
@@ -165,8 +317,19 @@ def _own_release_tags(repo: Path) -> list[str]:
 
 
 def main(argv: list[str], repo: Path | None = None) -> int:
+    usage = (
+        "usage: atlas_sync.py [--repo PATH] new-tag | base | next-version | rebase TAG [--report FILE] | "
+        "conflict-report OLD_BASE_TAG NEW_REF | drop-workflows | title ATLAS UPSTREAM"
+    )
+    argv = list(argv)
+    if "--repo" in argv:
+        at = argv.index("--repo")
+        if at + 1 >= len(argv):
+            print(usage, file=sys.stderr)
+            return 2
+        repo = Path(argv[at + 1])
+        del argv[at : at + 2]
     repo = repo or Path(__file__).resolve().parent.parent
-    usage = "usage: atlas_sync.py new-tag | base | next-version | rebase TAG | drop-workflows | title ATLAS UPSTREAM"
     command, args = (argv[0], argv[1:]) if argv else ("", [])
     if command == "new-tag" and not args:
         tag = new_tag(repo)
@@ -183,14 +346,22 @@ def main(argv: list[str], repo: Path | None = None) -> int:
     if command == "next-version" and not args:
         print(next_atlas_version(_own_release_tags(repo)))
         return 0
-    if command == "rebase" and len(args) == 1:
-        result = rebase_patches(repo, args[0])
+    if command == "rebase" and (len(args) == 1 or (len(args) == 3 and args[1] == "--report")):
+        report = Path(args[2]) if len(args) == 3 else None
+        result = rebase_patches(repo, args[0], report)
         if result.ok:
             print(result.base)
             return 0
         if result.failed_patch is not None:
             print(f"FAILED_PATCH={result.failed_patch}")
         return 1
+    if command == "conflict-report" and len(args) == 2:
+        try:
+            print(conflict_report(repo, args[0], args[1]))
+        except ValueError as error:
+            print(error, file=sys.stderr)
+            return 1
+        return 0
     if command == "drop-workflows" and not args:
         for name in drop_upstream_workflows(repo):
             print(name)

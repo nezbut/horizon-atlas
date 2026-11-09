@@ -1,7 +1,7 @@
 ---
 name: atlas-issues
 description: >-
-  Horizon Atlas (nezbut/horizon-atlas, an unofficial fork of the Horizon launcher kept as a patch queue on upstream `launcher@X.Y.Z` tags) - explains how the project and its automation work, and how to handle anything that goes red or opens an issue. Use whenever someone pastes the text or a screenshot of a GitHub issue or an Actions run of this repository (titles like "Sync to launcher@0.2.56 failed: patch: choose-jar", the label sync-main, "Upstream changed the launcher's build in ..."), mentions atlas-sync / atlas-release / atlas-ci failing or a failed release, a new upstream launcher tag, a rebase conflict in one of Atlas's patches, an expired SYNC_TOKEN, or asks what happened with the daily sync - even if they never say "issue" or "skill".
+  Horizon Atlas (nezbut/horizon-atlas, an unofficial fork of the Horizon launcher kept as a patch queue on upstream `launcher@X.Y.Z` tags) - explains how the project and its automation work, and how to handle anything that goes red or opens an issue. Use whenever someone pastes the text or a screenshot of a GitHub issue or an Actions run of this repository (titles like "Sync to launcher@0.2.56 failed: patch: choose-jar", the label sync-main, "Upstream changed the launcher's build in ..."), mentions atlas-sync / atlas-release / atlas-ci failing or a failed release, a new upstream launcher tag, a rebase conflict in one of Atlas's patches, an expired SYNC_TOKEN, or asks what happened with the scheduled sync - even if they never say "issue" or "skill".
 ---
 
 # Atlas issues

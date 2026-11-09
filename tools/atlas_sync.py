@@ -11,7 +11,7 @@ import os
 import re
 import subprocess
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
 UPSTREAM_REFS = "refs/upstream/tags"
@@ -353,6 +353,8 @@ class RebaseResult:
     ok: bool
     failed_patch: str | None
     base: str
+    # On success: each conflict resolved on the way, as (the commit's subject, the path, how).
+    resolved: list[tuple[str, str, str]] = field(default_factory=list)
 
 
 def _rebase(repo: Path, *args: str) -> subprocess.CompletedProcess:
@@ -380,46 +382,57 @@ def _stage_text(repo: Path, path: str, stage: int) -> str | None:
         return None
 
 
-def _resolve_workflow(repo: Path, path: str) -> bool:
+def _resolve_workflow(repo: Path, path: str) -> str | None:
     # Both changed it: the Atlas commit's version wins (a later commit renames it to atlas-*, and drop-workflows
     # removes upstream-named files anyway). Either side deleted it: the deletion wins.
     atlas = _stage_bytes(repo, path, 3)
     if atlas is None or _stage_bytes(repo, path, 2) is None:
-        return _git(repo, "rm", "-q", "--", path, check=False).returncode == 0
+        if _git(repo, "rm", "-q", "--", path, check=False).returncode != 0:
+            return None
+        return "an upstream workflow: deleted"
     (repo / path).write_bytes(atlas)
-    return _git(repo, "add", "--", path, check=False).returncode == 0
+    if _git(repo, "add", "--", path, check=False).returncode != 0:
+        return None
+    return "an upstream workflow: the Atlas commit's version kept"
 
 
-def _resolve_lang(repo: Path, path: str) -> bool:
+def _resolve_lang(repo: Path, path: str) -> str | None:
     # Index stages of a stopped rebase: 1 the merge base, 2 upstream's code (HEAD), 3 the patch being replayed.
     texts = [_stage_text(repo, path, stage) for stage in (1, 2, 3)]
     if None in texts:
-        return False
+        return None
     merged = merge_added_keys(*texts)
     if merged is None:
-        return False
+        return None
     (repo / path).write_bytes(merged.encode("utf-8"))
-    return _git(repo, "add", "--", path, check=False).returncode == 0
+    if _git(repo, "add", "--", path, check=False).returncode != 0:
+        return None
+    return "upstream's translations plus the keys the patch adds"
 
 
-def _resolve_stop(repo: Path) -> tuple[list[str], list[str]]:
-    """Resolve, in a stopped rebase, the conflicts that need no human: (paths resolved, paths still unmerged)."""
+def _resolve_stop(repo: Path) -> tuple[list[tuple[str, str]], list[str]]:
+    """Resolve, in a stopped rebase, the conflicts that need no human: ((path, how) resolved, paths left unmerged)."""
     resolved, left = [], []
     for path in _unmerged_paths(repo):
         if _is_upstream_workflow(path):
-            done = _resolve_workflow(repo, path)
+            how = _resolve_workflow(repo, path)
         elif _is_lang_file(path):
-            # Keys the patch adds beside lines upstream translated: upstream's file plus those keys.
-            done = _resolve_lang(repo, path)
+            how = _resolve_lang(repo, path)
         else:
-            done = False
-        (resolved if done else left).append(path)
+            how = None
+        if how is None:
+            left.append(path)
+        else:
+            resolved.append((path, how))
     return resolved, left
 
 
-def _auto_resolve(repo: Path) -> bool:
-    resolved, left = _resolve_stop(repo)
-    return bool(resolved) and not left
+def _stopped_subject(repo: Path) -> str | None:
+    """The subject of the commit a rebase stopped on, or None when none is stopped."""
+    stopped = _git(repo, "rev-parse", "--verify", "-q", "REBASE_HEAD", check=False)
+    if stopped.returncode != 0:
+        return None
+    return _git(repo, "log", "-1", "--format=%s", stopped.stdout.strip()).stdout.strip()
 
 
 def rebase_onto(repo: Path, new_ref: str, report: Path | None = None) -> RebaseResult:
@@ -433,17 +446,19 @@ def rebase_onto(repo: Path, new_ref: str, report: Path | None = None) -> RebaseR
         raise ValueError(f"HEAD has no upstream launcher tag in {UPSTREAM_REFS}/ as an ancestor")
     done = _rebase(repo, "--onto", new_ref, f"{UPSTREAM_REFS}/{base}")
     rounds = 0
+    resolved = []
     while done.returncode != 0 and rounds < MAX_RESOLVE_ROUNDS:
-        if not _auto_resolve(repo):
+        subject = _stopped_subject(repo) or "(unknown commit)"
+        settled, left = _resolve_stop(repo)
+        if not settled or left:
             break
+        resolved += [(subject, path, how) for path, how in settled]
         done = _rebase(repo, "--continue")
         rounds += 1
     if done.returncode == 0:
-        return RebaseResult(ok=True, failed_patch=None, base=new_ref)
-    stopped = _git(repo, "rev-parse", "--verify", "-q", "REBASE_HEAD", check=False)
-    failed_patch = None
-    if stopped.returncode == 0:
-        failed_patch = _git(repo, "log", "-1", "--format=%s", stopped.stdout.strip()).stdout.strip()
+        return RebaseResult(ok=True, failed_patch=None, base=new_ref, resolved=resolved)
+    failed_patch = _stopped_subject(repo)
+    if failed_patch is not None:
         if report is not None:
             try:
                 report.write_text(conflict_report(repo, base, new_ref))
@@ -519,6 +534,9 @@ def main(argv: list[str], repo: Path | None = None) -> int:
         rebase = rebase_patches if command == "rebase" else rebase_onto
         result = rebase(repo, args[0], report)
         if result.ok:
+            # stderr, so stdout stays the new base alone; atlas-sync.yml puts these lines in the run's summary.
+            for subject, path, how in result.resolved:
+                print(f'resolved: {path} in "{subject}" ({how})', file=sys.stderr)
             print(result.base)
             return 0
         if result.failed_patch is not None:
@@ -529,7 +547,7 @@ def main(argv: list[str], repo: Path | None = None) -> int:
             print("no rebase is stopped on a conflict in this repository", file=sys.stderr)
             return 2
         resolved, left = _resolve_stop(repo)
-        for path in resolved:
+        for path, _ in resolved:
             print(f"resolved: {path}")
         for path in left:
             print(f"unmerged: {path}")

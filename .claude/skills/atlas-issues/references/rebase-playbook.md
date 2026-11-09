@@ -20,12 +20,16 @@ produced from GitHub's `main`; say so, and base your work on GitHub's `main`.
 ```
 uv run python $S/atlas/tools/atlas_sync.py rebase launcher@<new>     # exit 0 = no conflict; exit 1 + FAILED_PATCH=<subject> = conflict
 ```
-The tool aborts and leaves the clone clean on a conflict. To resolve by hand run the same rebase directly:
+The tool aborts and leaves the clone clean on a conflict. To resolve by hand run the same rebase directly.
+Copy the tool out first: once the rebase stops, the working tree holds an older `atlas_sync.py`.
 ```
-git -C $S/atlas rebase --onto refs/upstream/tags/launcher@<new> refs/upstream/tags/launcher@<old base>
-git -C $S/atlas diff --name-only --diff-filter=U      # the conflicting files of the commit it stopped at
+cp $S/atlas/tools/atlas_sync.py $S/atlas_sync.py
+git -C $S/atlas -c merge.conflictStyle=diff3 rebase --onto refs/upstream/tags/launcher@<new> refs/upstream/tags/launcher@<old base>
+uv run python $S/atlas_sync.py --repo $S/atlas resolve    # at every stop: resolves what the sync resolves by itself
+git -C $S/atlas diff --name-only --diff-filter=U      # what is left for you in the commit it stopped at
 ```
-For the early-warning issue use `refs/remotes/upstream/main` as the new base.
+For the early-warning issue use `refs/remotes/upstream/main` as the new base
+(`uv run python $S/atlas/tools/atlas_sync.py rebase-onto upstream/main` reproduces it).
 
 ## 3. Resolve a conflict
 - Markers: `grep -n '^<<<<<<<\|^=======\|^>>>>>>>' <file>`. During a rebase the part after `<<<<<<< HEAD` is

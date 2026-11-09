@@ -38,7 +38,8 @@ and opens an issue that names the cause.
   own `launcher@*` tag, patch +1, first `0.1.0`), `rebase TAG` (`git rebase --onto`; resolves by itself the
   conflicts that need no human: an upstream workflow file gets the Atlas commit's version when both sides
   changed it and is deleted when either side deleted it, and a `launcher/lang/*.json` where the patch only adds keys gets upstream's file plus those keys; any other
-  conflict aborts cleanly and prints `FAILED_PATCH=<subject>`), `rebase-onto REF` (the same onto any ref, e.g.
+  conflict aborts cleanly and prints `FAILED_PATCH=<subject>`; on success each resolved file goes to stderr as
+  `resolved: <path> in "<commit>" (<how>)`, which the sync run's summary lists), `rebase-onto REF` (the same onto any ref, e.g.
   `upstream/main`, used by `main-check`), `resolve` (that resolution for the commit a hand-run rebase stopped on),
   `drop-workflows`, `title ATLAS UPSTREAM`.
 - `.github/workflows/atlas-sync.yml`: four times a day (04:17, 10:17, 16:17 and 22:17 UTC) and by hand (input `dry_run`, default true); `main-check` runs only on the 04:17 run and by hand.

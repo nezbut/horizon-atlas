@@ -62,6 +62,8 @@ and opens an issue that names the cause.
 - Nothing stores the "current base": it is computed from the commit graph (the highest upstream tag that is an
   ancestor of `main`). After a rebase and a push the next run knows the new base by itself.
 - Rebasing rewrites the commits of the stack, so pushing the result to `main` needs `--force-with-lease`.
+- For the same reason, after every successful sync a clone's `main` is both ahead of and behind `origin/main`.
+  That is expected; `references/rebase-playbook.md` section 9 brings the clone up to date (never a plain `git pull`).
 
 ## Secrets and who reads them
 - `RELEASE_SIGNING_KEY`: Ed25519 private key (base64 PKCS#8), in the environment `release`, read only by the

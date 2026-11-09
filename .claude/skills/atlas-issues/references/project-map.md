@@ -38,7 +38,7 @@ and opens an issue that names the cause.
   own `launcher@*` tag, patch +1, first `0.1.0`), `rebase TAG` (`git rebase --onto`; auto-resolves conflicts that
   are only upstream workflow files; any other conflict aborts cleanly and prints `FAILED_PATCH=<subject>`),
   `drop-workflows`, `title ATLAS UPSTREAM`.
-- `.github/workflows/atlas-sync.yml`: daily at 04:17 UTC and by hand (input `dry_run`, default true).
+- `.github/workflows/atlas-sync.yml`: four times a day (04:17, 10:17, 16:17 and 22:17 UTC) and by hand (input `dry_run`, default true); `main-check` runs only on the 04:17 run and by hand.
   Jobs: `build` (no secrets; fetch, find tag, rebase, fmt, tests, bundle), `publish` (the only job with
   `SYNC_TOKEN`; pushes `main` with a lease and starts `atlas-release`; skipped on dry run), `report` (opens the
   issue with the default token), `main-check` (rebases onto upstream `main` and runs `cargo check`, never

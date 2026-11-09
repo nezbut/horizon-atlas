@@ -85,8 +85,9 @@ jobs:
           TAG: ${{ steps.find.outputs.tag }}
         run: |
           # Exit 1 with FAILED_PATCH=<subject> is a conflict; exit 1 without it, another reason (stderr says which).
+          # On a conflict the tool also writes conflict.md: where it conflicts, what upstream changed, what the patch changes.
           status=0
-          python3 tools/atlas_sync.py rebase "$TAG" > "$RUNNER_TEMP/rebase.out" 2> "$RUNNER_TEMP/rebase.err" || status=$?
+          python3 tools/atlas_sync.py rebase "$TAG" --report "$RUNNER_TEMP/conflict.md" > "$RUNNER_TEMP/rebase.out" 2> "$RUNNER_TEMP/rebase.err" || status=$?
           cat "$RUNNER_TEMP/rebase.out" "$RUNNER_TEMP/rebase.err"
           [[ $status == 0 ]] && exit 0
           failed_patch=$(sed -n 's/^FAILED_PATCH=//p' "$RUNNER_TEMP/rebase.out" | head -n 1)
@@ -104,10 +105,17 @@ jobs:
             echo
             echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
             echo
-            echo '```'
-            tail -n 40 "$RUNNER_TEMP/rebase.err"
-            echo '```'
-          } > report/body.md
+            if [[ -n "$failed_patch" ]]; then
+              echo 'To fix this with an agent, use the `atlas-issues` skill (.claude/skills/atlas-issues)'
+              echo
+              if [[ -s "$RUNNER_TEMP/conflict.md" ]]; then cat "$RUNNER_TEMP/conflict.md"; fi
+            else
+              echo '````'
+              tail -n 80 "$RUNNER_TEMP/rebase.err"
+              echo '````'
+            fi
+          } > "$RUNNER_TEMP/body.md"
+          head -c 60000 "$RUNNER_TEMP/body.md" > report/body.md
           exit 1
       - name: Upstream's workflows, dropped (Atlas's own are atlas-*)
         if: steps.find.outputs.tag != ''
@@ -161,21 +169,54 @@ jobs:
         env:
           TAG: ${{ steps.find.outputs.tag }}
         run: |
-          status=0
-          (cd launcher && cargo fmt --check && cargo test --release --lib --bins) > "$RUNNER_TEMP/checks.log" 2>&1 || status=$?
-          tail -n 60 "$RUNNER_TEMP/checks.log"
-          [[ $status == 0 ]] && exit 0
+          # Both run, so the report says which failed (or that both did).
+          fmt=0
+          tests=0
+          (cd launcher && cargo fmt --check) > "$RUNNER_TEMP/fmt.log" 2>&1 || fmt=$?
+          (cd launcher && cargo test --release --lib --bins) > "$RUNNER_TEMP/tests.log" 2>&1 || tests=$?
+          tail -n 60 "$RUNNER_TEMP/fmt.log" "$RUNNER_TEMP/tests.log"
+          [[ $fmt == 0 && $tests == 0 ]] && exit 0
+          # The useful part of a log: the test failures, else the compiler errors, else the end.
+          excerpt() {
+            if grep -q '^failures:' "$1"; then
+              sed -n '/^failures:/,$p' "$1" | head -n 150
+            elif grep -q '^error' "$1"; then
+              grep -A12 '^error' "$1" | head -n 150
+            else
+              tail -n 60 "$1"
+            fi
+          }
+          if [[ $fmt != 0 && $tests != 0 ]]; then
+            what='both `cargo fmt --check` and `cargo test --release --lib --bins`'
+          elif [[ $fmt != 0 ]]; then
+            what='`cargo fmt --check`'
+          else
+            what='`cargo test --release --lib --bins`'
+          fi
           mkdir -p report
           printf '%s\n' "Sync to $TAG failed: cargo fmt or the tests" > report/title.txt
           {
-            echo "Atlas's patches applied to $TAG, but \`cargo fmt --check\` or \`cargo test --release --lib --bins\` failed in \`launcher/\`. Nothing was pushed or published; main is unchanged."
+            echo "Atlas's patches applied to $TAG, but $what failed in \`launcher/\`. Nothing was pushed or published; main is unchanged."
             echo
             echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-            echo
-            echo '```'
-            tail -n 60 "$RUNNER_TEMP/checks.log"
-            echo '```'
-          } > report/body.md
+            if [[ $fmt != 0 ]]; then
+              echo
+              echo 'Output of `cargo fmt --check` (the first 150 lines):'
+              echo
+              echo '````'
+              head -n 150 "$RUNNER_TEMP/fmt.log"
+              echo '````'
+            fi
+            if [[ $tests != 0 ]]; then
+              echo
+              echo 'Output of `cargo test --release --lib --bins` (the failures, else the compiler errors, else the last lines):'
+              echo
+              echo '````'
+              excerpt "$RUNNER_TEMP/tests.log"
+              echo '````'
+            fi
+          } > "$RUNNER_TEMP/body.md"
+          head -c 60000 "$RUNNER_TEMP/body.md" > report/body.md
           exit 1
       - name: The rebased main, as a bundle of its new commits
         id: bundle
@@ -327,14 +368,27 @@ jobs:
         run: |
           # A throwaway branch of this runner: nothing is pushed.
           status=0
+          rebase_failed=false
+          # The tool is copied first: a rebase stopped on a conflict may not have it in the working tree.
+          cp tools/atlas_sync.py "$RUNNER_TEMP/atlas_sync.py"
           # Chained with &&: set -e does not apply inside a group that is followed by ||.
+          # diff3: a conflict block also shows the original code.
           {
             base=$(python3 tools/atlas_sync.py base) &&
             git checkout -q -b atlas-main-check &&
-            git rebase --onto upstream/main "refs/upstream/tags/$base" &&
-            cargo check --manifest-path launcher/Cargo.toml --release
+            git -c merge.conflictStyle=diff3 rebase --onto upstream/main "refs/upstream/tags/$base"
           } > "$RUNNER_TEMP/check.log" 2>&1 || status=$?
+          if [[ $status != 0 ]]; then
+            rebase_failed=true
+            # Stopped on a conflict: say where, what upstream changed and what the patch changes, then abort.
+            if python3 "$RUNNER_TEMP/atlas_sync.py" --repo "$PWD" conflict-report "$base" upstream/main > "$RUNNER_TEMP/conflict.md" 2>> "$RUNNER_TEMP/check.log"; then
+              git rebase --abort || true
+            fi
+          else
+            cargo check --manifest-path launcher/Cargo.toml --release > "$RUNNER_TEMP/cargo.log" 2>&1 || status=$?
+          fi
           tail -n 60 "$RUNNER_TEMP/check.log"
+          if [[ -f "$RUNNER_TEMP/cargo.log" ]]; then tail -n 60 "$RUNNER_TEMP/cargo.log"; fi
           [[ $status == 0 ]] && exit 0
           mkdir report
           printf '%s\n' "Atlas's patches do not apply to or build on upstream's main" > report/title.txt
@@ -343,10 +397,25 @@ jobs:
             echo
             echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
             echo
-            echo '```'
-            tail -n 60 "$RUNNER_TEMP/check.log"
-            echo '```'
-          } > report/body.md
+            if [[ $rebase_failed == true && -s "$RUNNER_TEMP/conflict.md" ]]; then
+              cat "$RUNNER_TEMP/conflict.md"
+            elif [[ $rebase_failed == true ]]; then
+              echo '````'
+              tail -n 60 "$RUNNER_TEMP/check.log"
+              echo '````'
+            else
+              echo 'The first 150 error lines of `cargo check --release`:'
+              echo
+              echo '````'
+              if grep -q '^error' "$RUNNER_TEMP/cargo.log"; then
+                grep -A12 '^error' "$RUNNER_TEMP/cargo.log" | head -n 150
+              else
+                tail -n 60 "$RUNNER_TEMP/cargo.log"
+              fi
+              echo '````'
+            fi
+          } > "$RUNNER_TEMP/body.md"
+          head -c 60000 "$RUNNER_TEMP/body.md" > report/body.md
           exit 1
       - uses: actions/upload-artifact@v7
         if: failure() && hashFiles('report/title.txt') != ''

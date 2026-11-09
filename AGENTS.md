@@ -5,8 +5,8 @@
 This is **Horizon Atlas** (`nezbut/horizon-atlas`), an unofficial fork of
 [Horizon](https://github.com/horizon-rust/horizon). It changes the launcher (`launcher/`) only; the
 game, its crates and its harnesses are upstream's, unmodified. Atlas is a patch queue: small named
-commits on top of an upstream `launcher@X.Y.Z` tag, which `tools/atlas_sync.py` and the daily
-`atlas-sync` workflow replay onto each newer upstream launcher tag.
+commits on top of an upstream `launcher@X.Y.Z` tag, which `tools/atlas_sync.py` and the
+`atlas-sync` workflow (four times a day) replay onto each newer upstream launcher tag.
 
 - The patch commits, by exact subject: `patch: offline-play` (`backend::OFFLINE_PLAY`: play without a
   Microsoft account that owns the game; the Microsoft sign-in plates are hidden), `patch: choose-jar`

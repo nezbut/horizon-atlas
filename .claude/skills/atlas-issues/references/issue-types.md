@@ -67,7 +67,7 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
 - **atlas-release, `sign` fails:** the secret `RELEASE_SIGNING_KEY` is missing from the environment `release`, the
   environment is not restricted correctly, or the run is not on `main` (then it is a dry run with a throwaway
   key and should not fail). The `release` job fails if the signature does not verify.
-- **atlas-release failed after `publish` pushed `main`:** the next daily run finds no newer tag and does not
+- **atlas-release failed after `publish` pushed `main`:** the next scheduled run finds no newer tag and does not
   retry. The user re-runs `atlas-release` with the version and tag shown in the sync run's summary.
 - **`publish` fails on the push (`stale info` / lease):** `main` on GitHub changed while the run was in
   progress. Nothing was lost; the user re-runs `atlas-sync`.

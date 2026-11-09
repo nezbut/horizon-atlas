@@ -10,7 +10,7 @@ Atlas changes the launcher only. Minecraft: Java Edition is a product of Mojang 
 
 - **Offline play without a Microsoft account.** Play starts the game under an offline name of your choice. There is no Microsoft sign-in in Atlas.
 - **Choose your own `26.3.jar`.** Point the launcher at the client jar from your own copy of Minecraft: Java Edition. The jar needs the `libraries` and `assets` folders of that copy: they must be next to it (as in a launcher's own folder) or in another launcher on this computer that has 26.3.
-- **Releases that follow Horizon's launcher releases.** A daily check turns each new Horizon launcher release into an Atlas release, with Atlas's changes replayed on top.
+- **Releases that follow Horizon's launcher releases.** A check twice a day turns each new Horizon launcher release into an Atlas release, with Atlas's changes replayed on top.
 - **Signed with Atlas's own key.** The launcher updates itself from this repository and checks the signature before it installs anything. Game builds are still Horizon's, signed by Horizon's key.
 
 ## Install
@@ -44,7 +44,7 @@ The jar must be the **26.3 release** jar: Horizon reproduces 26.3 only, and the 
 ## How it stays in sync
 
 Atlas is a short list of small commits (patches: `offline-play`, `choose-jar`, `own-releases`, `own-keys`, `branding`) on top of one of Horizon's `launcher@X.Y.Z` tags.
-Every day a workflow checks for a newer Horizon launcher tag, replays the patches onto it, tests, and publishes a release. If a patch no longer applies, nothing is published and an issue names the patch.
+Twice a day a workflow checks for a newer Horizon launcher tag, replays the patches onto it, tests, and publishes a release. If a patch no longer applies, nothing is published and an issue names the patch.
 Atlas's versions are its own (`0.x`); each release title says which Horizon launcher it is based on.
 
 ## License

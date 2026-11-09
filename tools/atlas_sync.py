@@ -6,17 +6,22 @@ Upstream tags live in refs/upstream/tags/ (fetched with
 so they never mix with this repository's own launcher@X.Y.Z release tags.
 """
 
+import json
 import os
 import re
 import subprocess
 import sys
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 UPSTREAM_REFS = "refs/upstream/tags"
 TAG_RE = re.compile(r"launcher@(\d+)\.(\d+)\.(\d+)")
 WORKFLOWS_DIR = ".github/workflows"
 OWN_PREFIX = "atlas-"
+LANG_DIR = "launcher/lang"
+LANG_ENTRY_RE = re.compile(
+    r'[ \t]*(?P<key>"(?:[^"\\]|\\.)*")[ \t]*:[ \t]*(?P<value>"(?:[^"\\]|\\.)*")(?P<comma>[ \t]*,)?(?P<trail>[ \t\r]*)'
+)
 MAX_RESOLVE_ROUNDS = 50
 REPORT_CHARS = 50_000
 REPORT_FILES = 6
@@ -66,12 +71,12 @@ def release_title(atlas_version: str, upstream_tag: str) -> str:
     return f"Atlas {atlas_version} · based on Horizon launcher {upstream_version}"
 
 
-def _git(repo: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess:
+def _git(repo: Path, *args: str, check: bool = True, text: bool = True) -> subprocess.CompletedProcess:
     return subprocess.run(
         ["git", "-C", str(repo), *args],
         check=check,
         capture_output=True,
-        text=True,
+        text=text,
         env={**os.environ, "LC_ALL": "C", "GIT_EDITOR": "true"},
     )
 
@@ -252,6 +257,98 @@ def conflict_report(repo: Path, old_base: str, new_ref: str) -> str:
 
 
 @dataclass
+class _LangFile:
+    lines: list[str]
+    entries: list[tuple[str, str, int]]  # key, value, line index
+    brace: int  # the line index of `{`
+
+
+def _lang_file(text: str) -> _LangFile | None:
+    """A JSON object of strings written one `"key": "value"` entry per line, or None."""
+    lines = text.split("\n")
+    entries = []
+    braces = []
+    for index, line in enumerate(lines):
+        bare = line.strip(" \t\r")
+        if bare in ("", "{", "}"):
+            if bare == "{":
+                braces.append(index)
+            continue
+        match = LANG_ENTRY_RE.fullmatch(line)
+        if match is None:
+            return None
+        try:
+            entries.append((json.loads(match["key"]), json.loads(match["value"]), index))
+        except ValueError:
+            return None
+    try:
+        pairs = json.loads(text, object_pairs_hook=list)
+    except ValueError:
+        return None
+    keys = [key for key, _, _ in entries]
+    if len(braces) != 1 or len(set(keys)) != len(keys):
+        return None
+    if pairs != [(key, value) for key, value, _ in entries]:
+        return None
+    return _LangFile(lines, entries, braces[0])
+
+
+def _with_comma(line: str, wanted: bool) -> str:
+    match = LANG_ENTRY_RE.fullmatch(line)
+    if (match["comma"] is not None) == wanted:
+        return line
+    return line[: match.end("value")] + ("," if wanted else "") + match["trail"]
+
+
+def merge_added_keys(base_text: str, upstream_text: str, patch_text: str) -> str | None:
+    """Upstream's translation file plus the keys the patch adds, or None when the patch does anything else.
+
+    The three texts are one launcher/lang/*.json file at the merge base, in upstream's new version and in
+    the patch. Each added line is copied from the patch, after the key that precedes it there (or the
+    nearest earlier one upstream still has, or `{`); upstream's lines stay as they are, except a comma.
+    """
+    base, upstream, patch = (_lang_file(text) for text in (base_text, upstream_text, patch_text))
+    if base is None or upstream is None or patch is None:
+        return None
+    base_values = {key: value for key, value, _ in base.entries}
+    patch_values = {key: value for key, value, _ in patch.entries}
+    kept = [key for key, _, _ in patch.entries if key in base_values]
+    if kept != list(base_values) or any(patch_values[key] != value for key, value in base_values.items()):
+        return None
+    upstream_lines = {key: index for key, _, index in upstream.entries}
+    added = [key for key, _, _ in patch.entries if key not in base_values]
+    if not added or any(key in upstream_lines for key in added):
+        return None
+
+    inserts: dict[int, list[str]] = {}
+    anchor = upstream.brace
+    for key, _, index in patch.entries:
+        if key in base_values:
+            anchor = upstream_lines.get(key, anchor)
+        else:
+            inserts.setdefault(anchor, []).append(patch.lines[index])
+    entry_lines = set(upstream_lines.values())
+    merged = []  # (line, is an entry)
+    for index, line in enumerate(upstream.lines):
+        merged.append((line, index in entry_lines))
+        merged += [(patch_line, True) for patch_line in inserts.get(index, [])]
+    last_entry = max(at for at, (_, entry) in enumerate(merged) if entry)
+    text = "\n".join(
+        _with_comma(line, at != last_entry) if entry else line for at, (line, entry) in enumerate(merged)
+    )
+
+    try:
+        pairs = json.loads(text, object_pairs_hook=list)
+    except ValueError:
+        return None
+    expected = {key: value for key, value, _ in upstream.entries}
+    expected.update((key, patch_values[key]) for key in added)
+    if len(pairs) != len(expected) or dict(pairs) != expected:
+        return None
+    return text
+
+
+@dataclass
 class RebaseResult:
     ok: bool
     failed_patch: str | None
@@ -263,38 +360,108 @@ def _rebase(repo: Path, *args: str) -> subprocess.CompletedProcess:
     return _git(repo, "-c", "merge.conflictStyle=diff3", "rebase", *args, check=False)
 
 
-def rebase_patches(repo: Path, new_tag: str, report: Path | None = None) -> RebaseResult:
-    if parse_launcher_tag(new_tag) is None:
-        raise ValueError(f"not an upstream launcher tag: {new_tag!r}")
+def _is_lang_file(path: str) -> bool:
+    pure = PurePosixPath(path)
+    return str(pure.parent) == LANG_DIR and pure.suffix == ".json"
+
+
+def _stage_bytes(repo: Path, path: str, stage: int) -> bytes | None:
+    shown = _git(repo, "show", f":{stage}:{path}", check=False, text=False)
+    return shown.stdout if shown.returncode == 0 else None
+
+
+def _stage_text(repo: Path, path: str, stage: int) -> str | None:
+    data = _stage_bytes(repo, path, stage)
+    if data is None:
+        return None
+    try:
+        return data.decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+
+
+def _resolve_workflow(repo: Path, path: str) -> bool:
+    # Both changed it: the Atlas commit's version wins (a later commit renames it to atlas-*, and drop-workflows
+    # removes upstream-named files anyway). Either side deleted it: the deletion wins.
+    atlas = _stage_bytes(repo, path, 3)
+    if atlas is None or _stage_bytes(repo, path, 2) is None:
+        return _git(repo, "rm", "-q", "--", path, check=False).returncode == 0
+    (repo / path).write_bytes(atlas)
+    return _git(repo, "add", "--", path, check=False).returncode == 0
+
+
+def _resolve_lang(repo: Path, path: str) -> bool:
+    # Index stages of a stopped rebase: 1 the merge base, 2 upstream's code (HEAD), 3 the patch being replayed.
+    texts = [_stage_text(repo, path, stage) for stage in (1, 2, 3)]
+    if None in texts:
+        return False
+    merged = merge_added_keys(*texts)
+    if merged is None:
+        return False
+    (repo / path).write_bytes(merged.encode("utf-8"))
+    return _git(repo, "add", "--", path, check=False).returncode == 0
+
+
+def _resolve_stop(repo: Path) -> tuple[list[str], list[str]]:
+    """Resolve, in a stopped rebase, the conflicts that need no human: (paths resolved, paths still unmerged)."""
+    resolved, left = [], []
+    for path in _unmerged_paths(repo):
+        if _is_upstream_workflow(path):
+            done = _resolve_workflow(repo, path)
+        elif _is_lang_file(path):
+            # Keys the patch adds beside lines upstream translated: upstream's file plus those keys.
+            done = _resolve_lang(repo, path)
+        else:
+            done = False
+        (resolved if done else left).append(path)
+    return resolved, left
+
+
+def _auto_resolve(repo: Path) -> bool:
+    resolved, left = _resolve_stop(repo)
+    return bool(resolved) and not left
+
+
+def rebase_onto(repo: Path, new_ref: str, report: Path | None = None) -> RebaseResult:
+    """Replay Atlas's commits after its upstream base onto `new_ref` (a tag's ref, or a branch like upstream/main).
+
+    Conflicts that need no human are resolved on the way; on any other the rebase is aborted and the
+    patch it stopped on named. On success `base` is `new_ref`, otherwise the unchanged old base tag.
+    """
     base = current_base(repo)
     if base is None:
         raise ValueError(f"HEAD has no upstream launcher tag in {UPSTREAM_REFS}/ as an ancestor")
-    done = _rebase(repo, "--onto", f"{UPSTREAM_REFS}/{new_tag}", f"{UPSTREAM_REFS}/{base}")
+    done = _rebase(repo, "--onto", new_ref, f"{UPSTREAM_REFS}/{base}")
     rounds = 0
     while done.returncode != 0 and rounds < MAX_RESOLVE_ROUNDS:
-        paths = _unmerged_paths(repo)
-        if not paths or not all(_is_upstream_workflow(path) for path in paths):
-            break
-        # Atlas deleted these files, upstream changed them: the deletion wins.
-        if _git(repo, "rm", "-q", "--", *paths, check=False).returncode != 0:
+        if not _auto_resolve(repo):
             break
         done = _rebase(repo, "--continue")
         rounds += 1
     if done.returncode == 0:
-        return RebaseResult(ok=True, failed_patch=None, base=new_tag)
+        return RebaseResult(ok=True, failed_patch=None, base=new_ref)
     stopped = _git(repo, "rev-parse", "--verify", "-q", "REBASE_HEAD", check=False)
     failed_patch = None
     if stopped.returncode == 0:
         failed_patch = _git(repo, "log", "-1", "--format=%s", stopped.stdout.strip()).stdout.strip()
         if report is not None:
             try:
-                report.write_text(conflict_report(repo, base, f"{UPSTREAM_REFS}/{new_tag}"))
+                report.write_text(conflict_report(repo, base, new_ref))
             except Exception as error:  # the abort and the patch's name matter more than the report
                 sys.stderr.write(f"could not write the conflict report: {error}\n")
     _git(repo, "rebase", "--abort", check=False)
     if failed_patch is None:
         sys.stderr.write(done.stderr)
     return RebaseResult(ok=False, failed_patch=failed_patch, base=base)
+
+
+def rebase_patches(repo: Path, new_tag: str, report: Path | None = None) -> RebaseResult:
+    if parse_launcher_tag(new_tag) is None:
+        raise ValueError(f"not an upstream launcher tag: {new_tag!r}")
+    result = rebase_onto(repo, f"{UPSTREAM_REFS}/{new_tag}", report)
+    if result.ok:
+        result.base = new_tag
+    return result
 
 
 def _tag_objects(repo: Path, prefix: str) -> dict[str, str]:
@@ -319,7 +486,8 @@ def _own_release_tags(repo: Path) -> list[str]:
 def main(argv: list[str], repo: Path | None = None) -> int:
     usage = (
         "usage: atlas_sync.py [--repo PATH] new-tag | base | next-version | rebase TAG [--report FILE] | "
-        "conflict-report OLD_BASE_TAG NEW_REF | drop-workflows | title ATLAS UPSTREAM"
+        "rebase-onto REF [--report FILE] | resolve | conflict-report OLD_BASE_TAG NEW_REF | drop-workflows | "
+        "title ATLAS UPSTREAM"
     )
     argv = list(argv)
     if "--repo" in argv:
@@ -346,15 +514,26 @@ def main(argv: list[str], repo: Path | None = None) -> int:
     if command == "next-version" and not args:
         print(next_atlas_version(_own_release_tags(repo)))
         return 0
-    if command == "rebase" and (len(args) == 1 or (len(args) == 3 and args[1] == "--report")):
+    if command in ("rebase", "rebase-onto") and (len(args) == 1 or (len(args) == 3 and args[1] == "--report")):
         report = Path(args[2]) if len(args) == 3 else None
-        result = rebase_patches(repo, args[0], report)
+        rebase = rebase_patches if command == "rebase" else rebase_onto
+        result = rebase(repo, args[0], report)
         if result.ok:
             print(result.base)
             return 0
         if result.failed_patch is not None:
             print(f"FAILED_PATCH={result.failed_patch}")
         return 1
+    if command == "resolve" and not args:
+        if _git(repo, "rev-parse", "--verify", "-q", "REBASE_HEAD", check=False).returncode != 0:
+            print("no rebase is stopped on a conflict in this repository", file=sys.stderr)
+            return 2
+        resolved, left = _resolve_stop(repo)
+        for path in resolved:
+            print(f"resolved: {path}")
+        for path in left:
+            print(f"unmerged: {path}")
+        return 1 if left else 0
     if command == "conflict-report" and len(args) == 2:
         try:
             print(conflict_report(repo, args[0], args[1]))

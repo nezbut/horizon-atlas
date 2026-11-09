@@ -28,7 +28,8 @@ the result afterwards; commits inside your own scratch clone are your workspace 
 2. **Get oriented** (read `references/project-map.md` once if you do not know the project): `git status`,
    `git fetch origin`, compare `main` with `origin/main`, and check the newest upstream tag with
    `git ls-remote --tags https://github.com/horizon-rust/horizon 'refs/tags/launcher@*'`. If the owner's `main`
-   differs from `origin/main`, say so before doing anything.
+   differs from `origin/main`, say so before doing anything. Ahead and behind at once is normal after a
+   successful sync (it rewrote `main` on GitHub): playbook section 9.
 3. **Reproduce in a scratch clone** with the commands in `references/rebase-playbook.md`. Reproduce the failure
    first; a fix you have not seen fail and then pass is a guess.
 4. **Fix with the smallest change that keeps Atlas's behaviour.** Take upstream's new code as the base and
@@ -71,4 +72,5 @@ the result afterwards; commits inside your own scratch clone are your workspace 
   boundaries, what runs on the player's machine. Read it first in a new session.
 - `references/issue-types.md` - every issue the automation opens and every known red run: title, cause, what to do.
 - `references/rebase-playbook.md` - the exact commands: scratch clone, rebase onto a new tag, resolving
-  conflicts, verification, applying to the repository, publishing, releasing by hand, checking a release.
+  conflicts, verification, applying to the repository, publishing, releasing by hand, checking a release,
+  bringing the owner's clone up to date after a sync.

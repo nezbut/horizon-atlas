@@ -97,3 +97,21 @@ Then locally: `git branch -f main sync-<tag>`, `git switch main`, `git branch -d
   scratch directory, then run from the repository (never from inside the download directory)
   `cargo run --manifest-path REPO/Cargo.toml --locked --quiet -p horizon-release-sign -- verify --tag launcher@<version> <dir>`
   (exit 0 = signature valid and every file matches `SHA256SUMS`), and `( cd <dir> && sha256sum -c SHA256SUMS )`.
+
+## 9. Bring the owner's clone up to date after a sync
+Every successful sync (and every push from step 7) replaces `main` on GitHub with the same Atlas commits replayed
+onto the new upstream tag, under new ids. A clone that still has the old stack then shows `main` both ahead and
+behind (`git status -sb`: `[ahead 33, behind 788]`). Nothing is lost; the clone holds the old copies. Ask the owner
+before running the commands that change the branch.
+```
+git -C REPO fetch origin
+git -C REPO status --short                                                  # must print nothing
+git -C REPO range-diff --no-color -s main...origin/main | grep -F ' < '      # commits only this clone has
+```
+- Nothing listed (the usual case): `git -C REPO reset --keep origin/main`. `--keep` refuses rather than drop
+  uncommitted changes.
+- Commits listed (the owner's local work on top of the old stack): `git -C REPO rebase --onto origin/main <first listed>^ main`
+  moves exactly those commits onto the new `main`.
+
+Never run a plain `git pull` here: it merges the old stack with the new one, every Atlas commit then exists twice,
+and once pushed the next sync conflicts with the duplicates.

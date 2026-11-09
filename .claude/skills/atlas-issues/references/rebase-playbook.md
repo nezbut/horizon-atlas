@@ -106,7 +106,7 @@ before running the commands that change the branch.
 ```
 git -C REPO fetch origin
 git -C REPO status --short                                                  # must print nothing
-git -C REPO range-diff --no-color -s main...origin/main | grep -F ' < '      # commits only this clone has
+git -C REPO range-diff --no-color -s main...origin/main | grep -E '^ *[0-9]+: +[0-9a-f]+ < '   # commits only this clone has
 ```
 - Nothing listed (the usual case): `git -C REPO reset --keep origin/main`. `--keep` refuses rather than drop
   uncommitted changes.

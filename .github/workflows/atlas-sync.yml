@@ -1,5 +1,5 @@
 name: atlas-sync
-# Follows Horizon's launcher releases (tools/atlas_sync.py). Twice a day (04:17 and 16:17 UTC), and by hand:
+# Follows Horizon's launcher releases (tools/atlas_sync.py). Four times a day (04:17, 10:17, 16:17 and 22:17 UTC), and by hand:
 #  - build: when upstream has a launcher@X.Y.Z newer than the one main is based on, replay Atlas's patches onto it,
 #    drop the upstream workflows that came with it (Atlas's own are named atlas-*), and run the formatting check and the
 #    launcher's tests. Success hands a git bundle of the rebased main to `publish`. A failure hands an issue's title and
@@ -18,9 +18,11 @@ name: atlas-sync
 
 on:
   schedule:
-    # The launcher tags are checked on both runs; main-check only on the first (see its `if`).
+    # The launcher tags are checked on every run; main-check only on the first (see its `if`).
     - cron: '17 4 * * *'
+    - cron: '17 10 * * *'
     - cron: '17 16 * * *'
+    - cron: '17 22 * * *'
   workflow_dispatch:
     inputs:
       dry_run:

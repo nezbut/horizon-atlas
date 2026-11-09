@@ -84,7 +84,7 @@ Then locally: `git branch -f main sync-<tag>`, `git switch main`, `git branch -d
 
 ## 8. After the push
 - `atlas-ci` (started by the push) must go green.
-- The daily sync will not release this base, because it no longer sees a newer tag. Release by hand: Actions ->
+- The scheduled sync will not release this base, because it no longer sees a newer tag. Release by hand: Actions ->
   `atlas-release` -> Run workflow with `version` = the output of `uv run python tools/atlas_sync.py next-version`,
   `upstream_tag` = the tag, `dry_run` unticked (do a dry run first if anything in the workflow changed).
 - Close the issue by hand.

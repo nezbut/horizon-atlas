@@ -8,10 +8,10 @@ from pathlib import Path
 from tools import atlas_sync
 
 
-def git(repo, *args):
-    done = subprocess.run(
+def try_git(repo, *args, check=True):
+    return subprocess.run(
         ["git", "-C", str(repo), *args],
-        check=True,
+        check=check,
         capture_output=True,
         text=True,
         env={
@@ -19,10 +19,14 @@ def git(repo, *args):
             "HOME": str(repo),
             "GIT_CONFIG_GLOBAL": "/dev/null",
             "GIT_CONFIG_SYSTEM": "/dev/null",
+            "GIT_EDITOR": "true",
             "LC_ALL": "C",
         },
     )
-    return done.stdout
+
+
+def git(repo, *args):
+    return try_git(repo, *args).stdout
 
 
 def init_repo(path):
@@ -52,13 +56,13 @@ class SyncFixture(unittest.TestCase):
         commit_file(self.upstream, "c.txt", "new\n", "c2")
         git(self.upstream, "tag", "launcher@0.2.51")
 
-    def conflict_upstream(self):
+    def conflict_upstream(self, subject="c2"):
         git(self.upstream, "tag", "-d", "launcher@0.2.51")
         git(self.upstream, "reset", "-q", "--hard", "launcher@0.2.50")
         (self.upstream / "c.txt").write_text("new\n")
         (self.upstream / "a.txt").write_text("line upstream\n")
         git(self.upstream, "add", ".")
-        git(self.upstream, "commit", "-q", "-m", "c2")
+        git(self.upstream, "commit", "-q", "-m", subject)
         git(self.upstream, "tag", "launcher@0.2.51")
 
     def atlas_on_first_tag(self):
@@ -390,6 +394,192 @@ class CliTests(SyncFixture):
             self.cli("title", "0.1.0", "launcher@0.2.50"),
             (0, "Atlas 0.1.0 · based on Horizon launcher 0.2.50\n"),
         )
+
+
+OLD_BASE = "launcher@0.2.50"
+NEW_REF = "refs/upstream/tags/launcher@0.2.51"
+
+
+class ConflictReportTests(WorkflowFixture):
+    def cli(self, *args):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = atlas_sync.main(list(args), repo=self.atlas)
+        return code, out.getvalue()
+
+    def stop_in_conflict(self):
+        self.conflict_upstream("upstream: rewrite a.txt")
+        self.atlas_on_first_tag()
+        done = try_git(
+            self.atlas, "-c", "merge.conflictStyle=diff3", "rebase", "--onto", NEW_REF,
+            f"refs/upstream/tags/{OLD_BASE}", check=False,
+        )
+        self.assertNotEqual(done.returncode, 0)
+
+    def sectioned(self, prefix, sections=4):
+        parts = []
+        for section in range(sections):
+            parts.append(f"{prefix} {section} 0\n")
+            parts += [f"filler {section} {n}\n" for n in range(10)]
+        return "".join(parts)
+
+    def test_a_conflict_report_has_what_is_needed_to_resolve_it(self):
+        self.stop_in_conflict()
+
+        report = atlas_sync.conflict_report(self.atlas, OLD_BASE, NEW_REF)
+
+        self.assertIn("patch: one", report)
+        self.assertIn(OLD_BASE, report)
+        self.assertIn("launcher@0.2.51", report)
+        self.assertIn("a.txt", report)
+        self.assertIn("|||||||", report)
+        self.assertIn("line upstream", report)
+        self.assertIn("line patched", report)
+        self.assertRegex(report, r"(?m)^line$")
+        self.assertIn("upstream: rewrite a.txt", report)
+        self.assertIn("+line patched", report)
+        self.assertIn("cargo fmt --check", report)
+        self.assertIn(".claude/skills/atlas-issues", report)
+        self.assertNotIn("b.txt", report)
+
+    def test_a_huge_conflict_is_cut_at_the_cap_with_a_notice(self):
+        def text(prefix):
+            return "".join(f"{prefix} {n} {'x' * 800}\n" for n in range(100))
+
+        self.build({"a.txt": text("base")}, {"a.txt": text("up")})
+        self.atlas_commit("patch: huge", {"a.txt": text("mine")})
+        try_git(
+            self.atlas, "-c", "merge.conflictStyle=diff3", "rebase", "--onto", NEW_REF,
+            f"refs/upstream/tags/{OLD_BASE}", check=False,
+        )
+
+        report = atlas_sync.conflict_report(self.atlas, OLD_BASE, NEW_REF)
+
+        self.assertLessEqual(len(report), 50_000)
+        self.assertIn("(truncated)", report)
+        self.assertIn("cargo test --release --lib --bins", report)
+        fences = [line for line in report.splitlines() if line.startswith("```")]
+        self.assertEqual(len(fences) % 2, 0)
+
+    def test_blocks_are_limited_to_three_per_file_and_eighty_lines(self):
+        self.build(
+            {"a.txt": self.sectioned("base")}, {"a.txt": self.sectioned("up")}
+        )
+        self.atlas_commit("patch: many", {"a.txt": self.sectioned("mine")})
+        try_git(
+            self.atlas, "-c", "merge.conflictStyle=diff3", "rebase", "--onto", NEW_REF,
+            f"refs/upstream/tags/{OLD_BASE}", check=False,
+        )
+
+        report = atlas_sync.conflict_report(self.atlas, OLD_BASE, NEW_REF)
+
+        self.assertEqual(report.count("<<<<<<< "), 3)
+        self.assertIn("(1 more blocks)", report)
+        self.assertIn("up 2 0", report)
+        self.assertNotIn("up 3 0", report)
+
+    def test_a_long_block_is_cut_at_eighty_lines(self):
+        def text(prefix):
+            return "".join(f"{prefix} {n}\n" for n in range(200))
+
+        self.build({"a.txt": text("base")}, {"a.txt": text("up")})
+        self.atlas_commit("patch: long", {"a.txt": text("mine")})
+        try_git(
+            self.atlas, "-c", "merge.conflictStyle=diff3", "rebase", "--onto", NEW_REF,
+            f"refs/upstream/tags/{OLD_BASE}", check=False,
+        )
+
+        report = atlas_sync.conflict_report(self.atlas, OLD_BASE, NEW_REF)
+
+        self.assertIn("up 0", report)
+        self.assertNotIn("up 199", report)
+        self.assertNotIn("mine 199", report)
+        self.assertRegex(report, r"\(\d+ more lines\)")
+
+    def test_at_most_six_files_and_eight_upstream_commits(self):
+        names = [f"f{n}.txt" for n in range(8)]
+        self.build({name: "x\n" for name in names}, {name: "up\n" for name in names})
+        for number in range(10):
+            self.write(self.upstream, {"f0.txt": f"up {number}\n"})
+            git(self.upstream, "commit", "-q", "-am", f"upstream change {number}")
+        git(self.upstream, "tag", "-f", "launcher@0.2.51")
+        git(
+            self.atlas, "fetch", "-q", str(self.upstream),
+            "+refs/tags/launcher@*:refs/upstream/tags/launcher@*",
+        )
+        self.atlas_commit("patch: wide", {name: "mine\n" for name in names})
+        try_git(
+            self.atlas, "-c", "merge.conflictStyle=diff3", "rebase", "--onto", NEW_REF,
+            f"refs/upstream/tags/{OLD_BASE}", check=False,
+        )
+
+        report = atlas_sync.conflict_report(self.atlas, OLD_BASE, NEW_REF)
+
+        self.assertEqual(report.count("<<<<<<< "), 6)
+        self.assertEqual(report.count("upstream change"), 8)
+        self.assertIn("f7.txt", report)
+
+    def test_rebase_report_writes_the_file_and_leaves_the_repo_clean(self):
+        self.conflict_upstream("upstream: rewrite a.txt")
+        self.atlas_on_first_tag()
+        head = git(self.atlas, "rev-parse", "HEAD")
+        target = Path(self._tmp.name) / "conflict.md"
+
+        code, out = self.cli("rebase", "launcher@0.2.51", "--report", str(target))
+
+        self.assertEqual(code, 1)
+        self.assertIn("FAILED_PATCH=patch: one", out)
+        text = target.read_text()
+        self.assertIn("|||||||", text)
+        self.assertIn("upstream: rewrite a.txt", text)
+        self.assert_clean()
+        self.assertEqual(git(self.atlas, "rev-parse", "HEAD"), head)
+
+    def test_no_report_is_written_when_the_rebase_succeeds(self):
+        self.atlas_on_first_tag()
+        target = Path(self._tmp.name) / "conflict.md"
+
+        code, _ = self.cli("rebase", "launcher@0.2.51", "--report", str(target))
+
+        self.assertEqual(code, 0)
+        self.assertFalse(target.exists())
+
+    def test_no_report_is_written_for_auto_resolved_workflow_conflicts(self):
+        ci = f"{WORKFLOWS}/ci.yml"
+        self.build({"a.txt": "line\n", ci: "ci\n"}, {ci: "ci changed\n"})
+        self.atlas_commit("atlas: workflows", {ci: None})
+        target = Path(self._tmp.name) / "conflict.md"
+
+        code, _ = self.cli("rebase", "launcher@0.2.51", "--report", str(target))
+
+        self.assertEqual(code, 0)
+        self.assertFalse(target.exists())
+        self.assert_clean()
+
+    def test_conflict_report_command_reads_a_repo_stopped_mid_rebase(self):
+        self.stop_in_conflict()
+
+        code, out = self.cli("conflict-report", OLD_BASE, NEW_REF)
+
+        self.assertEqual(code, 0)
+        self.assertIn("patch: one", out)
+        self.assertIn("|||||||", out)
+        self.assertIn("upstream: rewrite a.txt", out)
+
+    def test_conflict_report_command_fails_without_a_stopped_rebase(self):
+        self.atlas_on_first_tag()
+
+        code, out = self.cli("conflict-report", OLD_BASE, NEW_REF)
+
+        self.assertEqual(code, 1)
+        self.assertEqual(out, "")
+
+    def test_the_repo_option_selects_the_repository(self):
+        self.atlas_on_first_tag()
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = atlas_sync.main(["--repo", str(self.atlas), "base"])
+        self.assertEqual((code, out.getvalue()), (0, "launcher@0.2.50\n"))
 
 
 if __name__ == "__main__":

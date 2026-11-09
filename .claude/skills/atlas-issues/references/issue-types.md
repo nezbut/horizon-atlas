@@ -6,17 +6,19 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
 
 ### `Sync to launcher@X.Y.Z failed: <patch subject>`  (e.g. `... failed: patch: choose-jar`)
 - **Cause:** a rebase conflict. Upstream changed the same lines that the named patch touches. The run published
-  nothing and `main` is unchanged; Atlas stays on its previous base until this is fixed. (The auto-resolve in
-  `atlas_sync.py` only covers upstream workflow files, so this is always a real conflict.)
+  nothing and `main` is unchanged; Atlas stays on its previous base until this is fixed. (`atlas_sync.py` already
+  resolved what needs no human: upstream workflow files, and `launcher/lang/*.json` where the patch only adds
+  keys. What the issue lists is a real conflict.)
 - **Do:** reproduce with `references/rebase-playbook.md` (scratch clone, rebase onto the tag in the title). The named
   patch is the first to conflict; later ones may too. Resolve each by keeping upstream's new code and re-applying
   only Atlas's seam. Typical hot spots: `launcher/src/backend.rs`, `cli.rs`, `main.rs`, `frame.rs`,
-  `glass_account.rs`, `sources.rs`, `launcher/lang/*.json` (upstream translates strings that Atlas's commit
-  touches nearby: keep upstream's lines and add only Atlas's key), `THIRD_PARTY_NOTICES.md`, `README.md`
+  `glass_account.rs`, `sources.rs`, `launcher/lang/*.json` (only when the patch does more than add keys:
+  keep upstream's lines and re-apply only Atlas's change), `THIRD_PARTY_NOTICES.md`, `README.md`
   (keep both sides).
 - **Known resolutions:** `launcher@0.2.54` conflicted in `offline-play` (upstream turned the refusal into a
   structured error; the fix was to keep upstream's code and replace the literal `false` with `OFFLINE_PLAY`),
-  `branding` (lang files) and the notices file. `launcher@0.2.56` conflicted in `choose-jar`.
+  `branding` (lang files) and the notices file. `launcher@0.2.56` conflicted in `choose-jar` only in
+  `launcher/lang/cs.json`; that kind is now merged automatically.
 
 ### `Sync to launcher@X.Y.Z failed: the rebase did not start or finish`
 - **Cause:** the rebase failed without naming a conflicting patch (a missing ref, a dirty tree, a git error).
@@ -36,8 +38,9 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
   named patch); if that is not possible in this environment, add one `atlas: ...` fix commit and say so.
 
 ### `Atlas's patches do not apply to or build on upstream's main`  (label `sync-main`)
-- **Cause:** the daily early-warning job rebased the patches onto upstream's current `main` and either the
-  rebase conflicted or `cargo check --release` failed. Nothing is broken today: it will bite at the next
+- **Cause:** the daily early-warning job rebased the patches onto upstream's current `main` (with the same
+  automatic resolution as the sync: `atlas_sync.py rebase-onto upstream/main`) and either the rebase conflicted
+  or `cargo check --release` failed. Nothing is broken today: it will bite at the next
   upstream launcher tag.
 - **Do:** reproduce (rebase onto `refs/remotes/upstream/main`), tell the user what will conflict and why, and
   whether a cheap fix exists now. Usually the right move is to wait for the next tag and resolve then; do not

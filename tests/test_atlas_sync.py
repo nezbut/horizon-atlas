@@ -374,7 +374,7 @@ class UpstreamWorkflowTests(WorkflowFixture):
 class CliTests(SyncFixture):
     def cli(self, *args):
         out = io.StringIO()
-        with contextlib.redirect_stdout(out):
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
             code = atlas_sync.main(list(args), repo=self.atlas)
         return code, out.getvalue()
 
@@ -807,6 +807,23 @@ class LangConflictTests(WorkflowFixture):
         self.assertEqual(self.subjects(2), ["patch: choose-jar", "c2"])
         self.assert_clean()
 
+    def test_the_result_names_each_resolved_file_and_its_patch(self):
+        ci = f"{WORKFLOWS}/ci.yml"
+        self.build(
+            {LANG_CS: lang_text(CS_BASE), ci: "ci\n", "a.txt": "line\n"},
+            {LANG_CS: lang_text(CS_UPSTREAM), ci: "ci changed\n"},
+        )
+        self.atlas_commit("atlas: workflows", {ci: None})
+        self.atlas_commit("patch: choose-jar", {LANG_CS: lang_text(CS_PATCH)})
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertTrue(result.ok)
+        self.assertEqual(
+            [(subject, path) for subject, path, _ in result.resolved],
+            [("atlas: workflows", ci), ("patch: choose-jar", LANG_CS)],
+        )
+
     def test_the_report_lists_only_what_a_human_must_resolve(self):
         self.build(
             {LANG_CS: lang_text(CS_BASE), "a.txt": "line\n"},
@@ -828,10 +845,14 @@ class LangConflictTests(WorkflowFixture):
 
 class CliFixture(WorkflowFixture):
     def cli(self, *args):
-        out = io.StringIO()
-        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+        code, out, _ = self.cli_streams(*args)
+        return code, out
+
+    def cli_streams(self, *args):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             code = atlas_sync.main(list(args), repo=self.atlas)
-        return code, out.getvalue()
+        return code, out.getvalue(), err.getvalue()
 
 
 class RebaseOntoTests(CliFixture):
@@ -853,6 +874,28 @@ class RebaseOntoTests(CliFixture):
         self.assertEqual(self.subjects(3), ["patch: choose-jar", "main: translations", "c2"])
         self.assertEqual((self.atlas / LANG_CS).read_text(encoding="utf-8"), CS_MERGED)
         self.assert_clean()
+
+    def test_a_successful_rebase_lists_what_it_resolved_on_stderr(self):
+        self.build({LANG_CS: lang_text(CS_BASE)}, {"c.txt": "new\n"})
+        self.atlas_commit("patch: choose-jar", {LANG_CS: lang_text(CS_PATCH)})
+        self.upstream_main({LANG_CS: lang_text(CS_UPSTREAM)}, "main: translations")
+
+        code, out, err = self.cli_streams("rebase-onto", "upstream/main")
+
+        self.assertEqual((code, out), (0, "upstream/main\n"))
+        lines = err.splitlines()
+        self.assertEqual(len(lines), 1)
+        self.assertTrue(lines[0].startswith(f'resolved: {LANG_CS} in "patch: choose-jar" ('), lines[0])
+
+    def test_an_aborted_rebase_lists_nothing_as_resolved(self):
+        self.build({LANG_CS: lang_text(CS_BASE), "a.txt": "line\n"}, {"c.txt": "new\n"})
+        self.atlas_commit("patch: choose-jar", {LANG_CS: lang_text(CS_PATCH), "a.txt": "line patched\n"})
+        self.upstream_main({LANG_CS: lang_text(CS_UPSTREAM), "a.txt": "line upstream\n"}, "main: both")
+
+        code, out, err = self.cli_streams("rebase-onto", "upstream/main")
+
+        self.assertEqual((code, out), (1, "FAILED_PATCH=patch: choose-jar\n"))
+        self.assertNotIn("resolved:", err)
 
     def test_rebase_onto_names_the_conflicting_patch_and_writes_the_report(self):
         self.build({"a.txt": "line\n"}, {"c.txt": "new\n"})

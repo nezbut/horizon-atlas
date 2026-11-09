@@ -1,9 +1,9 @@
 name: atlas-release
 # Horizon Atlas (an unofficial fork of the Horizon launcher): builds the launcher on Linux, macOS, Windows x64 and ARM64,
 # signs the checksums and publishes launcher@X.Y.Z, marked latest (install.sh reads releases/latest/download/...).
-# A derived copy of upstream's launcher.yml: the daily sync workflow (atlas-sync.yml) says when the launcher's build
+# A derived copy of upstream's launcher.yml: the sync workflow (atlas-sync.yml) says when the launcher's build
 # changed upstream, and this file is then compared with upstream's by hand.
-# Started by hand or by the daily sync workflow (atlas-sync.yml), never by a push:
+# Started by hand or by the sync workflow (atlas-sync.yml), never by a push:
 #   gh workflow run atlas-release.yml -f version=0.1.0 -f upstream_tag=launcher@0.2.50                  # dry run: builds everything, publishes nothing
 #   gh workflow run atlas-release.yml -f version=0.1.0 -f upstream_tag=launcher@0.2.50 -f dry_run=false
 # The version is Atlas's own (tools/atlas_sync.py next-version) and `upstream_tag` the Horizon launcher tag it is based

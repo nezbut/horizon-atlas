@@ -94,7 +94,16 @@ jobs:
           status=0
           python3 tools/atlas_sync.py rebase "$TAG" --report "$RUNNER_TEMP/conflict.md" > "$RUNNER_TEMP/rebase.out" 2> "$RUNNER_TEMP/rebase.err" || status=$?
           cat "$RUNNER_TEMP/rebase.out" "$RUNNER_TEMP/rebase.err"
-          [[ $status == 0 ]] && exit 0
+          if [[ $status == 0 ]]; then
+            # The conflicts the tool resolved on the way, one `resolved: <path> in "<commit>" (<how>)` line each.
+            resolved=$(sed -n 's/^resolved: \([^ ]*\) \(.*\)$/- `\1` \2/p' "$RUNNER_TEMP/rebase.err")
+            if [[ -n "$resolved" ]]; then
+              printf '### Conflicts resolved by the sync tool\n\n%s\n' "$resolved" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "### Conflicts resolved by the sync tool: none" >> "$GITHUB_STEP_SUMMARY"
+            fi
+            exit 0
+          fi
           failed_patch=$(sed -n 's/^FAILED_PATCH=//p' "$RUNNER_TEMP/rebase.out" | head -n 1)
           if [[ -n "$failed_patch" ]]; then
             title="Sync to $TAG failed: $failed_patch"
@@ -383,6 +392,10 @@ jobs:
             git checkout -q -b atlas-main-check &&
             python3 tools/atlas_sync.py rebase-onto upstream/main --report "$RUNNER_TEMP/conflict.md"
           } > "$RUNNER_TEMP/check.log" 2>&1 || status=$?
+          resolved=$(sed -n 's/^resolved: \([^ ]*\) \(.*\)$/- `\1` \2/p' "$RUNNER_TEMP/check.log")
+          if [[ -n "$resolved" ]]; then
+            printf '### main-check: conflicts resolved by the sync tool\n\n%s\n' "$resolved" >> "$GITHUB_STEP_SUMMARY"
+          fi
           if [[ $status != 0 ]]; then
             rebase_failed=true
           else

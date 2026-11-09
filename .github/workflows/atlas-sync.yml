@@ -375,21 +375,16 @@ jobs:
           # A throwaway branch of this runner: nothing is pushed.
           status=0
           rebase_failed=false
-          # The tool is copied first: a rebase stopped on a conflict may not have it in the working tree.
-          cp tools/atlas_sync.py "$RUNNER_TEMP/atlas_sync.py"
+          # The same rebase as the sync's: what needs no human (upstream's workflows, keys added beside lines
+          # upstream translated) is resolved on the way. On another conflict the tool writes conflict.md (where,
+          # what upstream changed, what the patch changes), aborts the rebase and exits 1.
           # Chained with &&: set -e does not apply inside a group that is followed by ||.
-          # diff3: a conflict block also shows the original code.
           {
-            base=$(python3 tools/atlas_sync.py base) &&
             git checkout -q -b atlas-main-check &&
-            git -c merge.conflictStyle=diff3 rebase --onto upstream/main "refs/upstream/tags/$base"
+            python3 tools/atlas_sync.py rebase-onto upstream/main --report "$RUNNER_TEMP/conflict.md"
           } > "$RUNNER_TEMP/check.log" 2>&1 || status=$?
           if [[ $status != 0 ]]; then
             rebase_failed=true
-            # Stopped on a conflict: say where, what upstream changed and what the patch changes, then abort.
-            if python3 "$RUNNER_TEMP/atlas_sync.py" --repo "$PWD" conflict-report "$base" upstream/main > "$RUNNER_TEMP/conflict.md" 2>> "$RUNNER_TEMP/check.log"; then
-              git rebase --abort || true
-            fi
           else
             cargo check --manifest-path launcher/Cargo.toml --release > "$RUNNER_TEMP/cargo.log" 2>&1 || status=$?
           fi

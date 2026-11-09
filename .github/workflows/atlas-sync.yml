@@ -1,5 +1,5 @@
 name: atlas-sync
-# Follows Horizon's launcher releases (tools/atlas_sync.py). Every day, and by hand:
+# Follows Horizon's launcher releases (tools/atlas_sync.py). Twice a day (04:17 and 16:17 UTC), and by hand:
 #  - build: when upstream has a launcher@X.Y.Z newer than the one main is based on, replay Atlas's patches onto it,
 #    drop the upstream workflows that came with it (Atlas's own are named atlas-*), and run the formatting check and the
 #    launcher's tests. Success hands a git bundle of the rebased main to `publish`. A failure hands an issue's title and
@@ -7,7 +7,8 @@ name: atlas-sync
 #    (atlas-release.yml is a derived copy of upstream's launcher.yml and has to be compared by hand).
 #  - publish: pushes the rebased main and starts atlas-release.yml. Nothing is pushed or published unless build
 #    succeeded, and not in a dry run (a by-hand run with dry_run on, the default; scheduled runs are not dry runs).
-#  - main-check: do the patches still apply to, and build on, upstream's main? It never pushes or publishes. A failure
+#  - main-check: once a day (the 04:17 UTC run, and by hand): do the patches still apply to, and build on, upstream's
+#    main? It never pushes or publishes. A failure
 #    hands an issue to `report-main`, which opens one labelled sync-main (only one at a time).
 # Needs the repository secret SYNC_TOKEN, a fine-grained personal access token (contents, workflows, actions, issues:
 # read and write): the workflow's own token can neither push commits that change .github/workflows nor start another
@@ -17,7 +18,9 @@ name: atlas-sync
 
 on:
   schedule:
+    # The launcher tags are checked on both runs; main-check only on the first (see its `if`).
     - cron: '17 4 * * *'
+    - cron: '17 16 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -338,7 +341,8 @@ jobs:
           done
 
   main-check:
-    if: github.ref == 'refs/heads/main'
+    # Once a day: on the 04:17 UTC schedule (github.event.schedule is the cron text that fired) and on a by-hand run.
+    if: github.ref == 'refs/heads/main' && (github.event_name != 'schedule' || github.event.schedule == '17 4 * * *')
     runs-on: ubuntu-22.04
     timeout-minutes: 90
     permissions:

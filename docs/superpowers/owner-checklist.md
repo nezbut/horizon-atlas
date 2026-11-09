@@ -5,7 +5,7 @@ Nothing here is done by the workflows themselves: they only use what you set up.
 
 ## 1. Issues, Pull requests and Actions are enabled
 
-Done. Why it matters: the daily sync reports a patch that no longer applies as an **issue**, and every
+Done. Why it matters: the scheduled sync reports a patch that no longer applies as an **issue**, and every
 workflow is an **Action**; with either off, a failure would go unnoticed or nothing would run.
 
 ## 2. Environment `release`, restricted to `main`
@@ -58,7 +58,7 @@ Generate new token.
 
 - Name: `atlas-sync`.
 - Expiration: up to one year; put a calendar reminder a few weeks before it ends (a lapsed token stops
-  the daily sync with an authentication error).
+  the scheduled sync with an authentication error).
 - Repository access: *Only select repositories* → `nezbut/horizon-atlas`.
 - Repository permissions: **Contents**, **Workflows**, **Actions**, **Issues**, each *Read and write*.
 
@@ -110,7 +110,7 @@ A healthy `atlas-release` run:
 
 Run **atlas-release** from `main` with `version` = `0.1.0`, `upstream_tag` = `launcher@0.2.54` and
 `dry_run` **unticked**. (Or wait: once Horizon publishes a launcher tag newer than `launcher@0.2.54`, the
-daily sync does this for you.) A run from any branch other than `main` is always a dry run.
+scheduled sync does this for you.) A run from any branch other than `main` is always a dry run.
 
 Needs steps 2 and 3 done, and the public key from step 3 already in `release-keys.txt`.
 
@@ -128,7 +128,7 @@ install it, open the launcher **offline** (no Microsoft account), press **Choose
 - **Issue `Upstream changed the launcher's build in <tag>: compare atlas-release.yml`**: Horizon changed
   `launcher.yml`, `packaging/` or the signing script. `atlas-release.yml` is a copy of Horizon's
   `launcher.yml`, so compare the two by hand and bring over what matters. It does not block the sync.
-- **`atlas-release` failed after `atlas-sync` had already pushed `main`**: the next daily run sees no new
+- **`atlas-release` failed after `atlas-sync` had already pushed `main`**: the next scheduled run sees no new
   tag and does not retry. Run `atlas-release` by hand with the version and tag shown in the sync run's
   summary.
 

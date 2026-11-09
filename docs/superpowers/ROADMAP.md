@@ -15,4 +15,7 @@ Later:
   pointing at a deleted program). Give Atlas its own names, as a small patch (constants only, so it rarely conflicts).
   Check macOS too: the `.dmg` and the zip hold a `Horizon.app` that may share upstream's name and bundle identifier.
   The data folders stay shared on purpose.
+- Linting and code quality for Atlas's Python (`tools/atlas_sync.py`, `tests/test_atlas_sync.py`): ruff (lint and
+  format) and ty/pyright (type check), through `uvx`, run by `atlas-ci.yml` on every push. The tool stays standard-library
+  only.
 - More of the owner's own features.

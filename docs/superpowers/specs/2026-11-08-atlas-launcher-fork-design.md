@@ -99,11 +99,11 @@ the fork has nothing of its own yet to lose (my call).
 
 ### Sync pipeline (GitHub Actions)
 
-- **Daily, on a new upstream tag `launcher@*`:** fetch the tag, rebase the patches onto it, run
+- **Twice a day, on a new upstream tag `launcher@*`:** fetch the tag, rebase the patches onto it, run
   `cargo fmt`, `cargo check` and `cargo test --lib --bins` in `launcher/`, bump the Atlas version,
   build all platforms, sign, publish. If a patch does not apply or tests fail, publish nothing and
   open an issue naming the patch.
-- **Daily, on upstream `main`:** same rebase and `cargo check` only, no publishing; opens an issue on
+- **Once a day, on upstream `main`:** same rebase and `cargo check` only, no publishing; opens an issue on
   failure, as an early warning.
 - Upstream's own workflows are removed; Atlas keeps its own: launcher build/release, sync, and a
   trimmed CI for `launcher/` (fmt, clippy, tests).

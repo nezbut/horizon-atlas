@@ -1,5 +1,6 @@
 import contextlib
 import io
+import json
 import subprocess
 import tempfile
 import unittest
@@ -114,7 +115,7 @@ class WorkflowFixture(SyncFixture):
                 path.unlink()
                 continue
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(text)
+            path.write_text(text, encoding="utf-8")
 
     def atlas_commit(self, subject, files):
         self.write(self.atlas, files)
@@ -292,6 +293,29 @@ class UpstreamWorkflowTests(WorkflowFixture):
         self.assertTrue(result.ok)
         self.assertFalse((self.atlas / self.ci).exists())
         self.assertEqual(self.subjects(2), ["patch: one", "c2"])
+        self.assert_clean()
+
+    def test_an_upstream_workflow_atlas_rewrote_and_later_renamed_keeps_atlas_content(self):
+        steps = "".join(f"      - run: step {n}\n" for n in range(20))
+        own = f"{WORKFLOWS}/atlas-ci.yml"
+        self.build(
+            {"a.txt": "line\n", self.ci: "name: ci\n" + steps},
+            {self.ci: "name: CI (upstream)\n" + steps},
+        )
+        self.atlas_commit("atlas: workflows", {self.ci: "name: atlas-ci\n" + steps})
+        self.atlas_commit(
+            "atlas: unique workflow names",
+            {self.ci: None, own: "name: atlas-ci\n" + steps + "      - run: atlas\n"},
+        )
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertTrue(result.ok, result.failed_patch)
+        self.assertFalse((self.atlas / self.ci).exists())
+        self.assertEqual((self.atlas / own).read_text(), "name: atlas-ci\n" + steps + "      - run: atlas\n")
+        self.assertEqual(
+            self.subjects(3), ["atlas: unique workflow names", "atlas: workflows", "c2"]
+        )
         self.assert_clean()
 
     def test_atlas_own_workflows_are_never_resolved_by_deleting(self):
@@ -580,6 +604,324 @@ class ConflictReportTests(WorkflowFixture):
         with contextlib.redirect_stdout(out):
             code = atlas_sync.main(["--repo", str(self.atlas), "base"])
         self.assertEqual((code, out.getvalue()), (0, "launcher@0.2.50\n"))
+
+
+def lang_text(pairs):
+    """A launcher/lang/*.json file: one `"key": "value"` entry per line, as upstream writes them."""
+    lines = [
+        f"  {json.dumps(key, ensure_ascii=False)}: {json.dumps(value, ensure_ascii=False)}"
+        for key, value in pairs
+    ]
+    return "{\n" + ",\n".join(lines) + "\n}\n"
+
+
+def inserted(pairs, after, added):
+    keys = [key for key, _ in pairs]
+    at = keys.index(after) + 1 if after is not None else 0
+    return pairs[:at] + added + pairs[at:]
+
+
+INSTALLED = (
+    "This version has a {installed} game build, but Settings selects {selected}. "
+    "Install the selected build from Versions before launching."
+)
+FOUND = "Found by itself in your launcher's folder. Or pick the {version}.jar file."
+JAR_KEYS = [("Minecraft jar", "Minecraft jar"), (FOUND, FOUND), ("Choose jar…", "Choose jar…")]
+CS_BASE = [
+    ("Play", "Hrát"),
+    (INSTALLED, INSTALLED),
+    ("Automatic", "Automatic"),
+    ("Unknown", "Unknown"),
+    ("Claim for free", "Získat zdarma"),
+]
+CS_UPSTREAM = [
+    ("Play", "Hrát"),
+    (INSTALLED, "Tato verze má sestavení hry {installed}, ale Nastavení vybírá {selected}."),
+    ("Automatic", "„Automaticky“"),
+    ("Unknown", "Neznámé"),
+    ("Claim for free", "Získat zdarma"),
+]
+CS_PATCH = inserted(CS_BASE, INSTALLED, JAR_KEYS)
+
+
+class MergeAddedKeysTests(unittest.TestCase):
+    def merge(self, base, upstream, patch):
+        return atlas_sync.merge_added_keys(lang_text(base), lang_text(upstream), lang_text(patch))
+
+    def test_keys_added_between_lines_upstream_translated_follow_their_anchor(self):
+        merged = self.merge(CS_BASE, CS_UPSTREAM, CS_PATCH)
+
+        self.assertEqual(merged, lang_text(inserted(CS_UPSTREAM, INSTALLED, JAR_KEYS)))
+
+    def test_keys_added_at_the_end_of_the_object_get_their_commas(self):
+        base = [("A", "a"), ("B", "b")]
+        upstream = [("A", "á"), ("B", "bé")]
+        added = [("X", "x"), ("Y", "y")]
+
+        merged = self.merge(base, upstream, base + added)
+
+        self.assertEqual(merged, lang_text(upstream + added))
+        self.assertEqual(list(json.loads(merged)), ["A", "B", "X", "Y"])
+
+    def test_an_added_last_line_gets_a_comma_when_upstream_appended_after_it(self):
+        base = [("A", "a"), ("B", "b")]
+        upstream = [("A", "a"), ("B", "bé"), ("C", "c")]
+
+        merged = self.merge(base, upstream, base + [("X", "x")])
+
+        self.assertEqual(merged, lang_text(inserted(upstream, "B", [("X", "x")])))
+
+    def test_an_anchor_deleted_upstream_falls_back_to_an_earlier_key(self):
+        base = [("A", "a"), ("B", "b"), ("C", "c")]
+        upstream = [("A", "á"), ("C", "cé")]
+        patch = [("A", "a"), ("X", "x"), ("B", "b"), ("Y", "y"), ("C", "c")]
+
+        merged = self.merge(base, upstream, patch)
+
+        self.assertEqual(merged, lang_text(inserted(upstream, "A", [("X", "x"), ("Y", "y")])))
+
+    def test_without_an_anchor_left_the_keys_go_right_after_the_brace(self):
+        base = [("A", "a"), ("B", "b")]
+        upstream = [("B", "bé")]
+
+        merged = self.merge(base, upstream, [("A", "a"), ("X", "x"), ("B", "b")])
+
+        self.assertEqual(merged, lang_text([("X", "x"), ("B", "bé")]))
+
+    def test_non_ascii_and_escapes_are_kept_byte_for_byte(self):
+        base = '{\n  "Automatic": "Automatic",\n  "Say \\"hi\\"": "Say \\"hi\\""\n}\n'
+        upstream = '{\n  "Automatic": "„Automaticky“",\n  "Say \\"hi\\"": "\\u00c9\\"ahoj\\""\n}\n'
+        patch = (
+            '{\n  "Automatic": "Automatic",\n  "Choose jar…": "Choose jar…",\n'
+            '  "Say \\"hi\\"": "Say \\"hi\\""\n}\n'
+        )
+
+        merged = atlas_sync.merge_added_keys(base, upstream, patch)
+
+        expected = (
+            '{\n  "Automatic": "„Automaticky“",\n  "Choose jar…": "Choose jar…",\n'
+            '  "Say \\"hi\\"": "\\u00c9\\"ahoj\\""\n}\n'
+        )
+        self.assertEqual(merged.encode("utf-8"), expected.encode("utf-8"))
+
+    def test_text_that_is_not_one_entry_per_line_json_is_left_to_a_human(self):
+        good = lang_text(CS_BASE)
+        bad_texts = {
+            "invalid json": good.replace('"Hrát",', '"Hrát"'),
+            "trailing comma": good.replace('"Získat zdarma"\n', '"Získat zdarma",\n'),
+            "two entries on a line": '{\n  "Play": "Hrát", "Unknown": "Unknown"\n}\n',
+            "compact": json.dumps(dict(CS_BASE), ensure_ascii=False),
+            "nested value": '{\n  "Play": {\n  "x": "y"\n  }\n}\n',
+            "number value": '{\n  "Play": 1\n}\n',
+            "duplicate keys": '{\n  "Play": "Hrát",\n  "Play": "Play"\n}\n',
+        }
+        patch = lang_text(CS_PATCH)
+        upstream = lang_text(CS_UPSTREAM)
+        for name, bad in bad_texts.items():
+            with self.subTest(name, side="base"):
+                self.assertIsNone(atlas_sync.merge_added_keys(bad, upstream, patch))
+            with self.subTest(name, side="upstream"):
+                self.assertIsNone(atlas_sync.merge_added_keys(good, bad, patch))
+            with self.subTest(name, side="patch"):
+                self.assertIsNone(atlas_sync.merge_added_keys(good, upstream, bad))
+
+    def test_a_patch_that_does_more_than_add_keys_is_left_to_a_human(self):
+        patches = {
+            "changes a value": inserted(
+                [("Play", "Hrát"), (INSTALLED, "changed")] + CS_BASE[2:], INSTALLED, JAR_KEYS
+            ),
+            "removes a key": inserted(
+                [pair for pair in CS_BASE if pair[0] != "Unknown"], INSTALLED, JAR_KEYS
+            ),
+            "reorders keys": inserted([CS_BASE[2], CS_BASE[1], CS_BASE[0]] + CS_BASE[3:], INSTALLED, JAR_KEYS),
+            "adds nothing": CS_BASE,
+        }
+        for name, patch in patches.items():
+            with self.subTest(name):
+                self.assertIsNone(self.merge(CS_BASE, CS_UPSTREAM, patch))
+
+    def test_a_key_upstream_added_too_is_left_to_a_human(self):
+        upstream = CS_UPSTREAM + [("Choose jar…", "Vybrat jar…")]
+
+        self.assertIsNone(self.merge(CS_BASE, upstream, CS_PATCH))
+
+
+LANG_CS = "launcher/lang/cs.json"
+CS_MERGED = lang_text(inserted(CS_UPSTREAM, INSTALLED, JAR_KEYS))
+
+
+class LangConflictTests(WorkflowFixture):
+    def lang(self, path=LANG_CS):
+        return (self.atlas / path).read_text(encoding="utf-8")
+
+    def test_keys_added_beside_lines_upstream_translated_are_merged(self):
+        self.build({LANG_CS: lang_text(CS_BASE)}, {LANG_CS: lang_text(CS_UPSTREAM)})
+        self.atlas_commit("patch: choose-jar", {LANG_CS: lang_text(CS_PATCH), "jar.txt": "jar\n"})
+        self.atlas_commit("patch: branding", {"b.txt": "mine\n"})
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.base, "launcher@0.2.51")
+        self.assertEqual(self.subjects(3), ["patch: branding", "patch: choose-jar", "c2"])
+        self.assertEqual(self.lang(), CS_MERGED)
+        self.assertEqual((self.atlas / "jar.txt").read_text(), "jar\n")
+        self.assert_clean()
+
+    def test_a_patch_that_changes_a_translated_line_is_named_and_aborted(self):
+        self.build({LANG_CS: lang_text(CS_BASE)}, {LANG_CS: lang_text(CS_UPSTREAM)})
+        reworded = [("Play", "Hrát"), (INSTALLED, "Atlas's wording")] + CS_BASE[2:]
+        self.atlas_commit("patch: wording", {LANG_CS: lang_text(inserted(reworded, INSTALLED, JAR_KEYS))})
+        head = git(self.atlas, "rev-parse", "HEAD")
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.failed_patch, "patch: wording")
+        self.assert_clean()
+        self.assertEqual(git(self.atlas, "rev-parse", "HEAD"), head)
+
+    def test_a_lang_file_upstream_deleted_is_left_to_a_human(self):
+        self.build({LANG_CS: lang_text(CS_BASE), "a.txt": "line\n"}, {LANG_CS: None})
+        self.atlas_commit("patch: choose-jar", {LANG_CS: lang_text(CS_PATCH)})
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.failed_patch, "patch: choose-jar")
+        self.assert_clean()
+
+    def test_a_workflow_and_a_lang_conflict_in_one_stop_are_both_resolved(self):
+        ci = f"{WORKFLOWS}/ci.yml"
+        self.build(
+            {LANG_CS: lang_text(CS_BASE), ci: "ci\n"},
+            {LANG_CS: lang_text(CS_UPSTREAM), ci: "ci changed\n"},
+        )
+        self.atlas_commit("patch: choose-jar", {LANG_CS: lang_text(CS_PATCH), ci: None})
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertTrue(result.ok)
+        self.assertFalse((self.atlas / ci).exists())
+        self.assertEqual(self.lang(), CS_MERGED)
+        self.assertEqual(self.subjects(2), ["patch: choose-jar", "c2"])
+        self.assert_clean()
+
+    def test_the_report_lists_only_what_a_human_must_resolve(self):
+        self.build(
+            {LANG_CS: lang_text(CS_BASE), "a.txt": "line\n"},
+            {LANG_CS: lang_text(CS_UPSTREAM), "a.txt": "line upstream\n"},
+        )
+        self.atlas_commit("patch: choose-jar", {LANG_CS: lang_text(CS_PATCH), "a.txt": "line patched\n"})
+        target = Path(self._tmp.name) / "conflict.md"
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51", target)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.failed_patch, "patch: choose-jar")
+        report = target.read_text()
+        self.assertIn("Conflicting files (1):", report)
+        self.assertIn("`a.txt`", report)
+        self.assertNotIn("cs.json", report)
+        self.assert_clean()
+
+
+class CliFixture(WorkflowFixture):
+    def cli(self, *args):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            code = atlas_sync.main(list(args), repo=self.atlas)
+        return code, out.getvalue()
+
+
+class RebaseOntoTests(CliFixture):
+    def upstream_main(self, files, subject):
+        """A commit on upstream's main after its newest tag, fetched as upstream/main."""
+        self.write(self.upstream, files)
+        git(self.upstream, "add", "-A")
+        git(self.upstream, "commit", "-q", "-m", subject)
+        git(self.atlas, "fetch", "-q", str(self.upstream), "+refs/heads/main:refs/remotes/upstream/main")
+
+    def test_rebase_onto_a_branch_resolves_lang_conflicts(self):
+        self.build({LANG_CS: lang_text(CS_BASE)}, {"c.txt": "new\n"})
+        self.atlas_commit("patch: choose-jar", {LANG_CS: lang_text(CS_PATCH)})
+        self.upstream_main({LANG_CS: lang_text(CS_UPSTREAM)}, "main: translations")
+
+        code, out = self.cli("rebase-onto", "upstream/main")
+
+        self.assertEqual((code, out), (0, "upstream/main\n"))
+        self.assertEqual(self.subjects(3), ["patch: choose-jar", "main: translations", "c2"])
+        self.assertEqual((self.atlas / LANG_CS).read_text(encoding="utf-8"), CS_MERGED)
+        self.assert_clean()
+
+    def test_rebase_onto_names_the_conflicting_patch_and_writes_the_report(self):
+        self.build({"a.txt": "line\n"}, {"c.txt": "new\n"})
+        self.atlas_commit("patch: one", {"a.txt": "line patched\n"})
+        self.upstream_main({"a.txt": "line upstream\n"}, "main: rewrite a.txt")
+        head = git(self.atlas, "rev-parse", "HEAD")
+        target = Path(self._tmp.name) / "conflict.md"
+
+        code, out = self.cli("rebase-onto", "upstream/main", "--report", str(target))
+
+        self.assertEqual((code, out), (1, "FAILED_PATCH=patch: one\n"))
+        report = target.read_text()
+        self.assertIn("the rebase onto `upstream/main` stopped", report)
+        self.assertIn("main: rewrite a.txt", report)
+        self.assert_clean()
+        self.assertEqual(git(self.atlas, "rev-parse", "HEAD"), head)
+
+    def test_rebase_onto_a_missing_ref_fails_without_a_patch_name(self):
+        self.build({"a.txt": "line\n"}, {"c.txt": "new\n"})
+        self.atlas_commit("patch: one", {"a.txt": "line patched\n"})
+
+        self.assertEqual(self.cli("rebase-onto", "upstream/nope"), (1, ""))
+        self.assert_clean()
+
+
+class ResolveTests(CliFixture):
+    def stop_in_conflict(self):
+        done = try_git(
+            self.atlas, "-c", "merge.conflictStyle=diff3", "rebase", "--onto", NEW_REF,
+            f"refs/upstream/tags/{OLD_BASE}", check=False,
+        )
+        self.assertNotEqual(done.returncode, 0)
+
+    def unmerged(self):
+        return git(self.atlas, "diff", "--name-only", "--diff-filter=U").split()
+
+    def test_resolve_without_a_stopped_rebase_exits_2(self):
+        self.build({"a.txt": "line\n"}, {"c.txt": "new\n"})
+
+        self.assertEqual(self.cli("resolve"), (2, ""))
+
+    def test_resolve_settles_a_lang_conflict_and_leaves_the_rebase_stopped(self):
+        self.build({LANG_CS: lang_text(CS_BASE)}, {LANG_CS: lang_text(CS_UPSTREAM)})
+        self.atlas_commit("patch: choose-jar", {LANG_CS: lang_text(CS_PATCH)})
+        self.stop_in_conflict()
+
+        code, out = self.cli("resolve")
+
+        self.assertEqual((code, out), (0, f"resolved: {LANG_CS}\n"))
+        self.assertEqual((self.atlas / LANG_CS).read_text(encoding="utf-8"), CS_MERGED)
+        self.assertEqual(self.unmerged(), [])
+        self.assertTrue((self.atlas / ".git" / "rebase-merge").exists())
+        try_git(self.atlas, "rebase", "--continue")
+        self.assertEqual(self.subjects(2), ["patch: choose-jar", "c2"])
+        self.assert_clean()
+
+    def test_resolve_lists_what_is_left_and_exits_1(self):
+        self.build(
+            {LANG_CS: lang_text(CS_BASE), "a.txt": "line\n"},
+            {LANG_CS: lang_text(CS_UPSTREAM), "a.txt": "line upstream\n"},
+        )
+        self.atlas_commit("patch: choose-jar", {LANG_CS: lang_text(CS_PATCH), "a.txt": "line patched\n"})
+        self.stop_in_conflict()
+
+        code, out = self.cli("resolve")
+
+        self.assertEqual((code, out), (1, f"resolved: {LANG_CS}\nunmerged: a.txt\n"))
+        self.assertEqual(self.unmerged(), ["a.txt"])
+        self.assertEqual((self.atlas / LANG_CS).read_text(encoding="utf-8"), CS_MERGED)
 
 
 if __name__ == "__main__":

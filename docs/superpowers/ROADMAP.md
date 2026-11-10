@@ -2,12 +2,34 @@
 
 Now: the launcher fork, see `specs/2026-11-08-atlas-launcher-fork-design.md`.
 
+Next, Atlas 0.2.0: upstream removed offline names from its launcher (commit `1e789800af`, "play only as an account
+that owns the game"; the game itself still plays offline under `--name` / `HORIZON_PLAYER_NAME` and still reads
+`HORIZON_OFFLINE_SKIN`, `HORIZON_OFFLINE_SKIN_MODEL` and `HORIZON_OFFLINE_CAPE`). Atlas stops being "upstream with
+offline switched on" and keeps offline play in its own module:
+
+- `launcher/src/offline/`: several offline names (one selected), each with its own skin and cape, kept in Atlas's own
+  files under the launcher's data folder (`atlas/`); the game gets them through the session's environment. Thin seams
+  in upstream files (the session, who plays, the owner gate, the account menu). Strings through `tr()` with keys in
+  every `launcher/lang/*.json`, translated into each language (the sync's auto-merge handles keys a patch only adds;
+  if upstream ever adds a key with the same English text, the sync opens an issue and Atlas renames its key). Room in the model for a
+  Microsoft account later, no sign-in button until Atlas has its own client ID.
+- The window title says "Horizon Atlas".
+- Install beside the official launcher (the item below).
+- Built on upstream's `main` in a branch, swapped in when the first upstream tag without offline names arrives, and
+  released by hand as 0.2.0.
+
 Later:
 
 - Landing page on GitHub Pages: easy access to the fork's downloads and a short explanation.
-- Check offline skins and capes: upstream already has them (`launcher/src/skins.rs`, `horizon-client-render/src/skins.rs`: `offline_skin()`, `offline_cape()`). Patch the game only if something does not work (Horizon-Offline-Launcher noted capes were not drawn), and only then build the game ourselves.
-- Optional Microsoft sign-in with Atlas's own Azure app (for owners who want online-mode servers).
-- Install Atlas beside the official launcher, not over it. Windows: `horizon-launcher-setup.exe` uses the official
+- 3D preview of offline skins and capes (upstream's `horizon_cosmetics::preview` / `viewer::Stage` draw a 3D player;
+  0.2.0 starts with the flat front views).
+- Check offline skins and capes in the game: upstream's game reads them (`horizon-client-render/src/skins.rs`:
+  `offline_skin()`, `offline_cape()`, used for the local player only, so others see the default skin). Patch the game
+  only if something does not work (Horizon-Offline-Launcher noted capes were not drawn), and only then build the game
+  ourselves.
+- Optional Microsoft sign-in with Atlas's own Azure app (for owners who want online-mode servers). Horizon's client
+  ID is Horizon's alone (`docs/forking.md`): Atlas needs its own Azure app and Mojang's approval.
+- Install Atlas beside the official launcher, not over it (part of 0.2.0). Windows: `horizon-launcher-setup.exe` uses the official
   launcher's name, folder (`%LOCALAPPDATA%\Programs\Horizon Launcher`) and HKCU registry keys (`launcher/src/installer.rs`:
   `APP_NAME`, `UNINSTALL_KEY`, `OWN_KEY`), so for one Windows user each replaces the other. Linux: the applications-menu
   entry has the official launcher's file name (`launcher/src/desktop.rs`: `LAUNCHER_ENTRY = "horizon-launcher.desktop"`),

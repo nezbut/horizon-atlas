@@ -18,4 +18,9 @@ Later:
 - Linting and code quality for Atlas's Python (`tools/atlas_sync.py`, `tests/test_atlas_sync.py`): ruff (lint and
   format) and ty/pyright (type check), through `uvx`, run by `atlas-ci.yml` on every push. The tool stays standard-library
   only.
+- Servers tab integration with the owner's server projects, which live in their own repositories: first a
+  friendly server (an easy Horizon server for a group of friends or a public one, on this machine or a VPS: Velocity
+  with an auth plugin in front of `horizon-server`), later a native one in Rust without Java. Set one up and manage it
+  from the launcher. Keep the patch a thin seam (new files, one entry in the Servers tab) and talk to the server
+  through a stable interface (CLI with JSON output, or the panel's API).
 - More of the owner's own features.

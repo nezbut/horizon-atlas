@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Is-skin ta' {name}",
   "{name}'s skin is kept.": "Is-skin ta' {name} tinżamm.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: isem irid ikun ta' 3 sa 16 ittra, ċifri jew _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas għadu ma jappoġġjax id-dħul ma' Microsoft.",
   "Use the Microsoft account for {name}.": "Uża l-kont Microsoft għal {name}.",
   "Use these jars": "Uża dawn il-vażetti",
   "Used from the next start.": "Użat mill-bidu li jmiss.",

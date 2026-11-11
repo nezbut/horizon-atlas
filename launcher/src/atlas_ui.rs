@@ -51,6 +51,13 @@ pub(crate) fn change_in(
     (profiles, done)
 }
 
+/// Whether a Microsoft sign-in can't work (`patch: no-sign-in`), `client_id` being the one it would
+/// use (`account::client_id`): Atlas has none of its own yet and may not use Horizon's. A player
+/// who sets their own `HORIZON_MSA_CLIENT_ID` keeps upstream's sign-in.
+pub(crate) fn refuses_sign_in(client_id: Option<&str>) -> bool {
+    client_id.is_none()
+}
+
 /// Atlas's state in the window.
 #[derive(Default)]
 pub(crate) struct AtlasUi {
@@ -111,16 +118,19 @@ pub(crate) struct Previews {
 pub(crate) enum AtlasDialog {
     /// Removing an offline name, asked first: its skin and cape go with it.
     ConfirmRemove(String),
+    /// A Microsoft sign-in pressed while it can't work ([`refuses_sign_in`]).
+    NoSignIn,
 }
 
 /// What a button at a dialog's foot does to the window, once the dialog has closed.
 type Act = Rc<dyn Fn(&mut Launcher, &mut Context<Launcher>)>;
 
-/// How a dialog's button looks: a destructive answer, or a way out.
+/// How a dialog's button looks: a destructive answer, a way out, or a notice's only answer.
 #[derive(Clone, Copy, PartialEq)]
 enum Weight {
     Danger,
     Quiet,
+    Plain,
 }
 
 /// A dialog's button.
@@ -186,6 +196,23 @@ impl Launcher {
         let (profiles, done) = change_in(&backend::data_dir(), change);
         self.atlas.profiles = profiles;
         done
+    }
+
+    /// Upstream's Microsoft sign-in, pressed while it can't work ([`refuses_sign_in`]): Atlas's
+    /// dialog says so instead. Whether it did; the sign-in then doesn't start.
+    pub(crate) fn atlas_refuse_sign_in(&mut self) -> bool {
+        let refused = refuses_sign_in(account::client_id().as_deref());
+        if refused {
+            self.atlas.dialog = Some(AtlasDialog::NoSignIn);
+        }
+        refused
+    }
+
+    /// Whether the glass top bar leaves out its Sign in with Microsoft button: while sign-in can't
+    /// work ([`refuses_sign_in`]) the button could only open that dialog, and the tab strip needs
+    /// its room at the default window width.
+    pub(crate) fn atlas_hides_sign_in(&self) -> bool {
+        refuses_sign_in(account::client_id().as_deref())
     }
 
     /// Escape closes Atlas's dialog. Whether one was open.
@@ -256,6 +283,16 @@ impl Launcher {
                     ],
                 )
             }
+            AtlasDialog::NoSignIn => (
+                tr("Microsoft account").to_string(),
+                tr("Horizon Atlas doesn't support Microsoft sign-in yet.").to_string(),
+                vec![Answer::new(
+                    "atlas-dialog-ok",
+                    tr("Got it"),
+                    Weight::Plain,
+                    |_, _| {},
+                )],
+            ),
         };
         let t = self.theme;
         let buttons: Vec<Stateful<Div>> = answers
@@ -378,7 +415,7 @@ fn dialog_button(answer: &Answer, t: &Theme) -> Stateful<Div> {
     let label = answer.label.clone();
     if t.glass {
         let kind = match answer.weight {
-            Weight::Danger => Kind::Secondary,
+            Weight::Danger | Weight::Plain => Kind::Secondary,
             Weight::Quiet => Kind::Ghost,
         };
         return ui::button(answer.id.into(), label.into(), kind, t)
@@ -387,7 +424,7 @@ fn dialog_button(answer: &Answer, t: &Theme) -> Stateful<Div> {
             });
     }
     let action = match answer.weight {
-        Weight::Danger => shell::Action::Raised,
+        Weight::Danger | Weight::Plain => shell::Action::Raised,
         Weight::Quiet => shell::Action::Quiet,
     };
     shell::action(answer.id, action, t)
@@ -486,5 +523,14 @@ pub(crate) mod tests {
         assert_eq!(done, Ok(()));
         assert_eq!(shown.plays, Some(Plays::Offline("Alex".into())));
         assert_eq!(Profiles::load_in(&data.0), shown);
+    }
+
+    #[test]
+    fn without_a_client_id_sign_in_opens_the_dialog() {
+        assert!(refuses_sign_in(None));
+        // A player's own HORIZON_MSA_CLIENT_ID keeps upstream's sign-in.
+        assert!(!refuses_sign_in(Some(
+            "00000000-0000-0000-0000-000000000000"
+        )));
     }
 }

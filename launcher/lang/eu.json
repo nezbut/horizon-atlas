@@ -1110,6 +1110,7 @@
   "{name}'s skin": "{name}-ren skin-a",
   "{name}'s skin is kept.": "{name}-ren skin-a gordeta dago.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: izenak 3 eta 16 letra, zenbaki edo _ izan behar ditu",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas-ek ez du Microsoft-ekin saio-hasiera onartzen oraindik.",
   "Use the Microsoft account for {name}.": "Erabili Microsoft kontua {name}-rako.",
   "Use these jars": "Erabili pote hauek",
   "Used from the next start.": "Hurrengo hasieratik erabilia.",

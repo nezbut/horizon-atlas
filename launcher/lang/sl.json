@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Plašč za {name} je ohranjen.",
   "{name}'s skin": "Preobleka za {name}",
   "{name}'s skin is kept.": "Preobleka za {name} je ohranjena.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ime je dolgo 3 do 16 črk, številk ali _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ime je dolgo 3 do 16 črk, številk ali _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas prijave z Microsoftom še ne podpira."
 }

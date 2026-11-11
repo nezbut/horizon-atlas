@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Plášť pre {name} sa zachoval.",
   "{name}'s skin": "Vzhľad hráča {name}",
   "{name}'s skin is kept.": "Vzhľad pre {name} sa zachoval.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: meno má 3 až 16 písmen, číslic alebo _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: meno má 3 až 16 písmen, číslic alebo _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas zatiaľ nepodporuje prihlásenie pomocou Microsoftu."
 }

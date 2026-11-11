@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Echekwara uwe elu {name}.",
   "{name}'s skin": "Akpụkpọ {name}",
   "{name}'s skin is kept.": "Echekwara akpụkpọ {name}.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: aha nwere mkpụrụedemede 3 ruo 16, ọnụọgụ ma ọ bụ _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: aha nwere mkpụrụedemede 3 ruo 16, ọnụọgụ ma ọ bụ _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas enweghị nkwado maka ịbanye site na Microsoft ka mma."
 }

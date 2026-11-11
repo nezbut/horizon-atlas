@@ -733,6 +733,7 @@ impl Launcher {
                 &t,
             )
         });
+        let sign_in = sign_in.filter(|_| !self.atlas_hides_sign_in());
         let settings = ui::icon_button(
             "nav-Settings",
             "sliders-horizontal",

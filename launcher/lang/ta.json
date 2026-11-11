@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name} இன் கேப் வைக்கப்பட்டது.",
   "{name}'s skin": "{name} இன் ஸ்கின்",
   "{name}'s skin is kept.": "{name} இன் ஸ்கின் வைக்கப்பட்டது.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: பெயர் 3 முதல் 16 எழுத்துகள், இலக்கங்கள் அல்லது _ ஆக இருக்க வேண்டும்"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: பெயர் 3 முதல் 16 எழுத்துகள், இலக்கங்கள் அல்லது _ ஆக இருக்க வேண்டும்",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas இன்னும் Microsoft மூலம் உள்நுழைவை ஆதரிக்கவில்லை."
 }

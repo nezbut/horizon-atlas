@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "La mantelo de {name} restas.",
   "{name}'s skin": "La haŭto de {name}",
   "{name}'s skin is kept.": "La haŭto de {name} restas.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: nomo havas 3 ĝis 16 literojn, ciferojn aŭ _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: nomo havas 3 ĝis 16 literojn, ciferojn aŭ _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ankoraŭ ne subtenas ensalutadon per Microsoft."
 }

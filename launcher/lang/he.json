@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "הגלימה של {name} נשמרה.",
   "{name}'s skin": "הסקין של {name}",
   "{name}'s skin is kept.": "הסקין של {name} נשמר.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: שם חייב להיות בין 3 ל-16 אותיות, ספרות או _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: שם חייב להיות בין 3 ל-16 אותיות, ספרות או _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas עדיין אינו תומך בכניסה עם Microsoft."
 }

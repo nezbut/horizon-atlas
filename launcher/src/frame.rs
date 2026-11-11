@@ -1177,7 +1177,7 @@ impl Launcher {
         }
         let t = self.theme;
         let soft = self.look.accent_soft;
-        let now = self.accounts.selected().map(|a| a.uuid.clone());
+        let now = self.atlas_chosen();
         let mut menu = ui::popover(250.)
             .id("account-menu")
             .occlude()
@@ -1245,7 +1245,7 @@ impl Launcher {
             ui::menu_row("account-manage", "user", tr("Manage accounts"), false, &t).on_click(
                 cx.listener(|this, _: &ClickEvent, _, cx| {
                     this.account_menu = false;
-                    this.go(Page::Settings);
+                    this.go(Page::Profile);
                     cx.notify();
                 }),
             ),

@@ -12,6 +12,7 @@ impl Launcher {
             && (self.owner_screen_open || !self.settings.owner_notice_seen || sign_in_preview())
             && !self.asking_consent()
             && self.opening.is_none()
+            && !self.atlas.profiles.plays_offline()
     }
 
     /// Opens the screen and starts the sign-in on it.

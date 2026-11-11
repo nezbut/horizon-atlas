@@ -64,10 +64,12 @@ pub(super) enum Field {
     AccentHex,
     /// The Shop's gift recipient (`wardrobe_page/shop/basket.rs`).
     ShopGift,
+    /// The Profile tab's offline name, added or renamed (`atlas_profile.rs`).
+    AtlasName,
 }
 
 impl Field {
-    const ALL: [Field; 24] = [
+    const ALL: [Field; 25] = [
         Field::Name,
         Field::Seed,
         Field::Players,
@@ -92,6 +94,7 @@ impl Field {
         Field::DeleteServer,
         Field::AccentHex,
         Field::ShopGift,
+        Field::AtlasName,
     ];
 }
 
@@ -1286,6 +1289,7 @@ impl Launcher {
             Field::MemoryLimit => self.memory_enter(),
             Field::ShopGift => self.shop.find_soon = true,
             Field::ServerName | Field::ServerAddress => self.add_server(),
+            Field::AtlasName => self.atlas_name_enter(),
         }
     }
 

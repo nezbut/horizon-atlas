@@ -13,9 +13,11 @@ name: atlas-release
 # AppImage (packaging/linux/appimage.sh) for players without a distribution package, which replaces
 # itself instead (launcher/src/backend.rs).
 # macOS: Apple Silicon, and Intel cross-built for x86_64-apple-darwin on the same runner, its tests and smoke test
-# under Rosetta 2. With the repository variable MACOS_SIGN_IDENTITY set, Horizon.app and the .dmg are signed with
-# Developer ID, notarized and stapled, from the runner's signing keychain (packaging/macos/README.md);
-# unset (Atlas), they are signed ad hoc.
+# under Rosetta 2. The app is Horizon Atlas.app, with Atlas's own bundle identifier, so it never takes the official
+# launcher's Horizon.app place: upstream's packaging/macos/package.sh makes Horizon.app, and the step after it
+# renames that, changes its Info.plist, signs it again and makes the zip and the .dmg again under the same names.
+# With the repository variable MACOS_SIGN_IDENTITY set, the app and the .dmg are signed with Developer ID, notarized
+# and stapled, from the runner's signing keychain (packaging/macos/README.md); unset (Atlas), they are signed ad hoc.
 # Windows ships each architecture's launcher in its ZIP (what a launcher updates itself from) and as
 # horizon-launcher-setup.exe or horizon-launcher-setup-arm64.exe, which opens the per-user installer instead of Home
 # (launcher/src/installer.rs).
@@ -275,12 +277,11 @@ jobs:
         run: |
           rm -rf dist out && mkdir -p out
           if [[ "$RUNNER_OS" == "macOS" ]]; then
-            # Horizon.app, zipped (self-update) and in a .dmg (installer), signed (and notarized with
-            # Developer ID): packaging/macos.
+            # Horizon.app, zipped (self-update) and in a .dmg (installer), signed: packaging/macos. Not notarized
+            # here: the next step renames and signs it again, and notarizes (with Developer ID) what it makes.
             python3 -m venv "$RUNNER_TEMP/dmg" && "$RUNNER_TEMP/dmg/bin/pip" install --quiet dmgbuild==1.6.5
             version=${HORIZON_LAUNCHER_VERSION:-$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)}
-            DMGBUILD="$RUNNER_TEMP/dmg/bin/dmgbuild" ../packaging/macos/package.sh "$BIN/${{ matrix.binary }}" "$version" out ${{ matrix.mac_arch }}
-            rm -rf out/Horizon.app
+            MACOS_NOTARY_PROFILE='' DMGBUILD="$RUNNER_TEMP/dmg/bin/dmgbuild" ../packaging/macos/package.sh "$BIN/${{ matrix.binary }}" "$version" out ${{ matrix.mac_arch }}
           else
             version=${HORIZON_LAUNCHER_VERSION:-$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)}
             if [[ "$RUNNER_OS" == "Linux" ]]; then
@@ -297,6 +298,83 @@ jobs:
               (cd dist && 7z a ../out/${{ matrix.asset }} ${{ matrix.binary }})
             fi
           fi
+          ls -l out
+      - name: Horizon Atlas.app (macOS)
+        # package.sh's Horizon.app under Atlas's own name and bundle identifier (the official launcher's is Horizon.app,
+        # dev.horizon.launcher), without changing upstream's packaging/macos: renamed, its Info.plist changed, signed
+        # again as package.sh signs it (the signature covers Info.plist), notarized when package.sh would notarize it,
+        # then the zip and the .dmg made again as package.sh makes them, under the same names. The executable stays
+        # Contents/MacOS/horizon-launcher. A self-update puts the new app at the old app's own path, whatever its name
+        # (launcher/src/backend.rs find_app, launcher/src/mac_update.rs replace_bundle).
+        if: runner.os == 'macOS'
+        env:
+          MACOS_SIGN_IDENTITY: ${{ vars.MACOS_SIGN_IDENTITY }}
+          ARCH: ${{ matrix.mac_arch }}
+        run: |
+          set -euo pipefail
+          name="Horizon Atlas"
+          id=io.github.nezbut.horizon-atlas
+          here=$(cd ../packaging/macos && pwd)
+          out=$PWD/out
+          app=$out/$name.app
+          zip=horizon-launcher-macos-$ARCH.zip
+          dmg=$out/horizon-launcher-macos-$ARCH.dmg
+          rm -rf "$app" "${out:?}/$zip" "$dmg"
+          mv "$out/Horizon.app" "$app"
+          plist=$app/Contents/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $id" -c "Set :CFBundleName \"$name\"" \
+            -c "Set :CFBundleDisplayName \"$name\"" "$plist"
+          plutil -lint "$plist"
+          holds() { [[ "$(plutil -extract "$1" raw -o - "$plist")" == "$2" ]] || { echo "::error::$1 is not $2"; exit 1; }; }
+          holds CFBundleIdentifier "$id"
+          holds CFBundleName "$name"
+          holds CFBundleDisplayName "$name"
+          holds CFBundleExecutable horizon-launcher
+
+          identity=${MACOS_SIGN_IDENTITY:--}
+          keychain=()
+          [[ -n "${MACOS_SIGN_KEYCHAIN:-}" ]] && keychain=(--keychain "$MACOS_SIGN_KEYCHAIN")
+          if [[ "$identity" == "-" ]]; then
+            codesign --force --sign - "$app"
+          else
+            codesign --force --options runtime --timestamp ${keychain[@]+"${keychain[@]}"} --sign "$identity" "$app"
+          fi
+          # package.sh's check, with --deep as the self-update checks a downloaded app (launcher/src/mac_update.rs).
+          codesign --verify --deep --strict --verbose=2 "$app"
+          codesign --display --verbose=2 "$app" 2>&1 | grep -Fx "Identifier=$id"
+          "$app/Contents/MacOS/horizon-launcher" --version
+          notarize=$([[ "$identity" != "-" && -n "${MACOS_NOTARY_PROFILE:-}" ]] && echo yes || true)
+          [[ -z "$notarize" ]] || "$here/notarize.sh" "$app"
+
+          # No resource forks or extended attributes: they would land as ._ files inside the bundle.
+          (cd "$out" && ditto -c -k --norsrc --noextattr --noqtn --keepParent "$name.app" "$zip")
+          cat > "$out/dmg.json" <<JSON
+          {
+            "title": "$name",
+            "icon-size": 128,
+            "background": "$here/background.png",
+            "window": { "position": { "x": 200, "y": 160 }, "size": { "width": 660, "height": 420 } },
+            "format": "UDZO",
+            "contents": [
+              { "x": 180, "y": 200, "type": "file", "path": "$app" },
+              { "x": 480, "y": 200, "type": "link", "path": "/Applications" }
+            ]
+          }
+          JSON
+          "$RUNNER_TEMP/dmg/bin/dmgbuild" -s "$out/dmg.json" "$name" "$dmg"
+          rm "$out/dmg.json"
+          if [[ "$identity" != "-" ]]; then
+            codesign --force --timestamp ${keychain[@]+"${keychain[@]}"} --sign "$identity" "$dmg"
+            codesign --verify --strict --verbose=2 "$dmg"
+          fi
+          hdiutil verify "$dmg" >/dev/null
+          if [[ -n "$notarize" ]]; then
+            "$here/notarize.sh" "$dmg"
+            # What Gatekeeper says of a download: both must be "source=Notarized Developer ID".
+            spctl --assess --verbose=2 "$app"
+            spctl --assess --type open --context context:primary-signature --verbose=2 "$dmg"
+          fi
+          rm -rf "$app"
           ls -l out
       - name: Setup exe (Windows)
         # The launcher's binary under another name: started with no arguments it shows the per-user

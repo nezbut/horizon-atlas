@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Skin za {name}",
   "{name}'s skin is kept.": "Skin za {name} je zadržan.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: ime ima 3 do 16 slova, znamenki ili _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas još ne podržava prijavu s Microsoftom.",
   "Use the Microsoft account for {name}.": "Koristi Microsoft račun za {name}.",
   "Use these jars": "Koristi ove jar datoteke",
   "Used from the next start.": "Koristi se od sljedećeg pokretanja.",

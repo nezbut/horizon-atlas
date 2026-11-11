@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Skin của {name}",
   "{name}'s skin is kept.": "Skin của {name} đã được giữ lại.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: tên gồm 3 đến 16 chữ cái, chữ số hoặc _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas chưa hỗ trợ đăng nhập bằng Microsoft.",
   "Use the Microsoft account for {name}.": "Sử dụng tài khoản Microsoft cho {name}.",
   "Use these jars": "Hãy sử dụng những chiếc lọ này",
   "Used from the next start.": "Được sử dụng từ lần bắt đầu tiếp theo.",

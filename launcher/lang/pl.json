@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Skin dla {name}",
   "{name}'s skin is kept.": "Skin dla {name} został zachowany.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: nazwa ma od 3 do 16 liter, cyfr lub _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas nie obsługuje jeszcze logowania przez Microsoft.",
   "Use the Microsoft account for {name}.": "Użyj konta Microsoft gracza {name}.",
   "Use these jars": "Użyj tych jarów",
   "Used from the next start.": "Używane od następnego uruchomienia.",

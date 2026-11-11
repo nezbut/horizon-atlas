@@ -1110,6 +1110,7 @@
   "{name}'s skin": "{name}s skinn",
   "{name}'s skin is kept.": "{name}s skinn beholdes.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: et navn er 3 til 16 bokstaver, siffer eller _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas støtter ikke pålogging med Microsoft ennå.",
   "Use the Microsoft account for {name}.": "Bruk Microsoft-kontoen for {name}.",
   "Use these jars": "Bruk disse glassene",
   "Used from the next start.": "Brukes fra neste start.",

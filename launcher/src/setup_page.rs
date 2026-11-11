@@ -45,6 +45,11 @@ pub struct Setup {
     options: Options,
     /// An install is already there: the button says Update.
     update: bool,
+    /// An old Atlas install is in the official launcher's folder: the switch to remove it shows.
+    old_atlas: bool,
+    /// Uninstall: the switch that also deletes Atlas's own data shows (not for an old copy beside a
+    /// new install, whose data that is).
+    data_switch: bool,
     stage: Stage,
     rx: Option<Receiver<Event>>,
 }
@@ -75,7 +80,7 @@ fn step_text(step: Step) -> String {
         Step::Shortcuts => tr("Making shortcuts").to_string(),
         Step::Registry => tr("Registering with Windows").to_string(),
         Step::Removing => tr("Removing files").to_string(),
-        Step::Data => tr("Removing the launcher's data").to_string(),
+        Step::Data => tr("Removing Horizon Atlas's own data").to_string(),
     }
 }
 
@@ -94,6 +99,8 @@ impl Setup {
             settings_stamp: Self::settings_stamp(),
             options: Options::new(),
             update: installer::installed().is_some(),
+            old_atlas: mode == Mode::Install && installer::old_atlas_install().is_some(),
+            data_switch: mode == Mode::Uninstall && installer::offers_data_removal(),
             stage: Stage::Welcome,
             rx: None,
         }
@@ -139,7 +146,7 @@ impl Setup {
                 let _ = tx.send(Event::Step(step, fraction));
             };
             let result = match mode {
-                Mode::Install => installer::install(&options, report).map(|_| Vec::new()),
+                Mode::Install => installer::install_atlas(&options, report).map(|(_, left)| left),
                 // Asks a launcher that is still open to quit first (`installer::uninstall`).
                 Mode::Uninstall => installer::uninstall(options.remove_data, report),
             };
@@ -278,7 +285,7 @@ impl Setup {
             Stage::Welcome if self.mode == Mode::Install => {
                 body = body
                     .child(text(night::UI, c(n.ink_soft)).child(
-                        tr("Installs Horizon Launcher for this account. No administrator needed.")
+                        tr("Installs Horizon Atlas Launcher for this account. No administrator needed.")
                             .to_string(),
                     ))
                     .child(self.folder_row(cx))
@@ -290,6 +297,17 @@ impl Setup {
                         |o| o.desktop = !o.desktop,
                         cx,
                     ))
+                    .children(self.old_atlas.then(|| {
+                        self.toggle(
+                            "remove-old",
+                            self.options.remove_old,
+                            tr("Remove the old Horizon Atlas install (from the Horizon Launcher folder)")
+                                .to_string(),
+                            None,
+                            |o| o.remove_old = !o.remove_old,
+                            cx,
+                        )
+                    }))
                     .child(div().flex().justify_end().child(
                         crate::button(
                             "go",
@@ -307,20 +325,20 @@ impl Setup {
             Stage::Welcome => {
                 body = body
                     .child(text(night::UI, c(n.ink_soft)).child(
-                        tr("Removes Horizon Launcher from this computer. Your worlds and the game's folder stay.")
+                        tr("Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.")
                             .to_string(),
                     ))
-                    .child(self.toggle(
-                        "data",
-                        self.options.remove_data,
-                        tr("Also delete the launcher's data").to_string(),
-                        Some(
-                            tr("Game builds, servers made in the launcher, settings, skins.")
+                    .children(self.data_switch.then(|| {
+                        self.toggle(
+                            "data",
+                            self.options.remove_data,
+                            tr("Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes")
                                 .to_string(),
-                        ),
-                        |o| o.remove_data = !o.remove_data,
-                        cx,
-                    ))
+                            None,
+                            |o| o.remove_data = !o.remove_data,
+                            cx,
+                        )
+                    }))
                     .child(
                         div()
                             .flex()
@@ -346,8 +364,8 @@ impl Setup {
             }
             Stage::Done { left } => {
                 let said = match self.mode {
-                    Mode::Install => tr("Horizon Launcher is installed.").to_string(),
-                    Mode::Uninstall => tr("Horizon Launcher was removed.").to_string(),
+                    Mode::Install => tr("Horizon Atlas Launcher is installed.").to_string(),
+                    Mode::Uninstall => tr("Horizon Atlas Launcher was removed.").to_string(),
                 };
                 body = body.child(text(night::TITLE, c(n.ink)).child(said));
                 if !left.is_empty() {
@@ -368,7 +386,7 @@ impl Setup {
                 if self.mode == Mode::Install {
                     body = body.child(
                         div().flex().items_center().justify_end().child(
-                            crate::button("launch", tr("Launch Horizon"), Kind::Primary, &t)
+                            crate::button("launch", tr("Launch Horizon Atlas"), Kind::Primary, &t)
                                 .on_click(
                                     cx.listener(|this, _: &ClickEvent, _, cx| this.launch(cx)),
                                 ),
@@ -396,7 +414,7 @@ impl Setup {
             .flex()
             .flex_col()
             .gap(px(18.))
-            .child(text(night::DISPLAY, c(n.ink)).child("Horizon"))
+            .child(text(night::DISPLAY, c(n.ink)).child("Horizon Atlas"))
             .child(body)
     }
 }

@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name}-ren skin-a",
   "{name}'s skin is kept.": "{name}-ren skin-a gordeta dago.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: izenak 3 eta 16 letra, zenbaki edo _ izan behar ditu",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas-ek ez du Microsoft-ekin saio-hasiera onartzen oraindik."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas-ek ez du Microsoft-ekin saio-hasiera onartzen oraindik.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Ezabatu baita Horizon Atlas-en datu propioak ere: bere kontuak, lineaz kanpoko izenak, skinak eta capeak",
+  "Don't show again": "Ez erakutsi berriro",
+  "Download installer": "Deskargatu instalatzailea",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher instalatuta dago.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher kendu da.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas orain bere kabuz instalatzen da, launcher ofizialaren ondoan. Mugitzeko, deskargatu instalatzaile berria: bere aukerak kopia hau kenduko du. Zure munduak eta ezarpenak leku berean geratuko dira.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Kontu honentzat Horizon Atlas Launcher instalatzen du. Ez da administratzaile baimenik behar.",
+  "Launch Horizon Atlas": "Abiarazi Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Kendu Horizon Atlas-en instalazio zaharra (Horizon Launcher karpetatik)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Horizon Atlas Launcher ordenagailu honetatik kentzen du. Zure munduak eta jokoaren karpeta geratuko dira.",
+  "Removing Horizon Atlas's own data": "Horizon Atlas-en datu propioak ezabatzen"
 }

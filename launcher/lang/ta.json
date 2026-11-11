@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name} இன் ஸ்கின்",
   "{name}'s skin is kept.": "{name} இன் ஸ்கின் வைக்கப்பட்டது.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: பெயர் 3 முதல் 16 எழுத்துகள், இலக்கங்கள் அல்லது _ ஆக இருக்க வேண்டும்",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas இன்னும் Microsoft மூலம் உள்நுழைவை ஆதரிக்கவில்லை."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas இன்னும் Microsoft மூலம் உள்நுழைவை ஆதரிக்கவில்லை.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Horizon Atlas-இன் சொந்த தரவையும் நீக்கு: அதன் கணக்குகள், ஆஃப்லைன் பெயர்கள், ஸ்கின்கள் மற்றும் கேப்கள்",
+  "Don't show again": "மீண்டும் காட்டாதே",
+  "Download installer": "நிறுவியைப் பதிவிறக்கு",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher நிறுவப்பட்டது.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher அகற்றப்பட்டது.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas இப்போது அதிகாரப்பூர்வ துவக்கியின் அருகில் தானாக நிறுவப்படும். இதை நகர்த்த, புதிய நிறுவியைப் பதிவிறக்கு: அதன் விருப்பம் இந்த நகலை அகற்றும். உங்கள் உலகங்களும் அமைப்புகளும் இருக்கும் இடத்திலேயே இருக்கும்.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "இந்தக் கணக்குக்காக Horizon Atlas Launcher-ஐ நிறுவு. நிர்வாகி உரிமை தேவையில்லை.",
+  "Launch Horizon Atlas": "Horizon Atlas-ஐ தொடங்கு",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "பழைய Horizon Atlas நிறுவலை அகற்று (Horizon Launcher கோப்புறையிலிருந்து)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "இந்தக் கணினியிலிருந்து Horizon Atlas Launcher-ஐ அகற்றும். உங்கள் உலகங்களும் விளையாட்டுக் கோப்புறையும் இருக்கும்.",
+  "Removing Horizon Atlas's own data": "Horizon Atlas-ன் சொந்த தரவு நீக்கப்படுகிறது"
 }

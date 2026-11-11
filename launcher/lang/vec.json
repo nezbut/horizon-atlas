@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skin de {name}",
   "{name}'s skin is kept.": "La skin de {name} xe mantegnua.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: un nome el ga da èssar da 3 a 16 letare, sifre o _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas no supòrta ancora l'acesso con Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas no supòrta ancora l'acesso con Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Sùbito cancełar anca i dati de Horizon Atlas: i conti, i nomi offline, le skin e le cape",
+  "Don't show again": "No mostrar più",
+  "Download installer": "Descarga el instalador",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher xe stà instalà.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher xe stà rimosso.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas ora se instala da par conto suo, a fianco del launcher ufiziałe. Par spostarlo, descarga el novo instalador: la so opsion rimoverà sta copia. I toi mondi e le impostazion resta dove che le xe.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Instala Horizon Atlas Launcher par sto account. No serve èssere aministrador.",
+  "Launch Horizon Atlas": "Vèrxi Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Rimuovi la vecia instalasion de Horizon Atlas (da la cartèla Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Rimuove Horizon Atlas Launcher da sto computer. I toi mondi e la cartèla del gioco resta.",
+  "Removing Horizon Atlas's own data": "Se cancełarà i dati de Horizon Atlas"
 }

@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Is-skin ta' {name}",
   "{name}'s skin is kept.": "Is-skin ta' {name} tinżamm.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: isem irid ikun ta' 3 sa 16 ittra, ċifri jew _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas għadu ma jappoġġjax id-dħul ma' Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas għadu ma jappoġġjax id-dħul ma' Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Ukoll ħassar id-dejta ta' Horizon Atlas innifsu: il-kontijiet, l-ismijiet offline, il-skins u l-capes",
+  "Don't show again": "Togħrodx aktar",
+  "Download installer": "Niżżel l-installatur",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher ġie installat.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher tneħħa.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas issa jinstalla waħdu, flimkien mal-launcher uffiċjali. Biex tmexxih, niżżel l-installatur il-ġdid: l-opzjoni tiegħu tneħħi din il-kopja. Id-dinjiet u s-settings tiegħek jibqgħu fejn huma.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Jinstalla Horizon Atlas Launcher għal dan il-kont. Ma teħtieġx amministratur.",
+  "Launch Horizon Atlas": "Iftaħ Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Neħħi l-installazzjoni l-qadima ta' Horizon Atlas (mill-folder ta' Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Jneħħi Horizon Atlas Launcher minn dan il-kompjuter. Id-dinjiet u l-folder tal-logħba jibqgħu.",
+  "Removing Horizon Atlas's own data": "Qed jitħassar id-dejta ta' Horizon Atlas innifsu"
 }

@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Το skin του {name}",
   "{name}'s skin is kept.": "Το skin του {name} διατηρείται.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: ένα όνομα έχει 3 έως 16 γράμματα, ψηφία ή _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Το Horizon Atlas δεν υποστηρίζει ακόμη σύνδεση με τη Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Το Horizon Atlas δεν υποστηρίζει ακόμη σύνδεση με τη Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Διέγραψε επίσης τα δικά του δεδομένα του Horizon Atlas: λογαριασμούς, ονόματα εκτός σύνδεσης, skins και capes",
+  "Don't show again": "Να μην ξαναεμφανιστεί",
+  "Download installer": "Λήψη προγράμματος εγκατάστασης",
+  "Horizon Atlas Launcher is installed.": "Το Horizon Atlas Launcher είναι εγκατεστημένο.",
+  "Horizon Atlas Launcher was removed.": "Το Horizon Atlas Launcher αφαιρέθηκε.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Το Horizon Atlas πλέον εγκαθίσταται μόνο του, δίπλα στο επίσημο launcher. Για να το μετακινήσετε, κατεβάστε το νέο πρόγραμμα εγκατάστασης: η επιλογή του αφαιρεί αυτό το αντίγραφο. Οι κόσμοι και οι ρυθμίσεις σας μένουν εκεί που είναι.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Εγκαθιστά το Horizon Atlas Launcher για αυτόν τον λογαριασμό. Δεν απαιτούνται δικαιώματα διαχειριστή.",
+  "Launch Horizon Atlas": "Εκκίνηση Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Αφαίρεση της παλιάς εγκατάστασης Horizon Atlas (από τον φάκελο Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Αφαιρεί το Horizon Atlas Launcher από αυτόν τον υπολογιστή. Οι κόσμοι σας και ο φάκελος του παιχνιδιού μένουν.",
+  "Removing Horizon Atlas's own data": "Διαγραφή των δικών δεδομένων του Horizon Atlas"
 }

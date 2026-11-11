@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skin {name}",
   "{name}'s skin is kept.": "Coinnítear skin {name}.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: is idir 3 agus 16 litir, digit nó _ an t-ainm",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Níl tacaíocht ag Horizon Atlas le sínithe isteach le Microsoft fós."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Níl tacaíocht ag Horizon Atlas le sínithe isteach le Microsoft fós.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Scrios sonraí féin Horizon Atlas freisin: a chuntais, ainmneacha as líne, skins agus caipíní",
+  "Don't show again": "Ná taispeáin arís",
+  "Download installer": "Íoslódáil an suiteálaí",
+  "Horizon Atlas Launcher is installed.": "Tá Horizon Atlas Launcher suiteáilte.",
+  "Horizon Atlas Launcher was removed.": "Baineadh Horizon Atlas Launcher.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Suiteálfar Horizon Atlas ina aonar anois, taobh leis an mbeartaire oifigiúil. Chun é a bhogadh, íoslódáil an suiteálaí nua: baintear an cóip seo leis an rogha atá ann. Fanfaidh do dhomhanna agus do shocruithe áit a bhfuil siad.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Suiteálann Horizon Atlas Launcher don chuntas seo. Ní gá riarthóir.",
+  "Launch Horizon Atlas": "Oscail Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Bain an tsuiteáil shean de Horizon Atlas (ó fhillteán Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Baineann Horizon Atlas Launcher den ríomhaire seo. Fanann do dhomhanna agus fillteán an chluiche.",
+  "Removing Horizon Atlas's own data": "Sonraí féin Horizon Atlas á mbaint"
 }

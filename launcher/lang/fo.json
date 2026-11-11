@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skin hjá {name}",
   "{name}'s skin is kept.": "Skin hjá {name} verður varðveitt.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: eitt navn er 3 til 16 bókstavir, tøl ella _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas stuðlar ikki enn innlogging við Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas stuðlar ikki enn innlogging við Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Strika eisini Horizon Atlas' egnu dátur: kontur, offline navn, skinnar og kápur",
+  "Don't show again": "Vís ikki aftur",
+  "Download installer": "Heinta innsetingarforritið",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher er innsett.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher er strikað.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas setur nú seg sjálv upp við hliðina á tí opinbera launcheranum. Fyri at flyta hann, heinta tað nýggja innsetingarforritið: valmøguleikin í tí strikar hesa avritan. Heimar og stillingar tíni verða har tey eru.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Setur Horizon Atlas Launcher upp fyri hesa kontuna. Ongin umsitarans rættindi tørvast.",
+  "Launch Horizon Atlas": "Byrja Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Strika gamla Horizon Atlas-uppsetingina (úr Horizon Launcher-mappuni)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Strikar Horizon Atlas Launcher av hesi telduni. Heimar tíni og spælimappan verða.",
+  "Removing Horizon Atlas's own data": "Strikar Horizon Atlas' egnu dátur"
 }

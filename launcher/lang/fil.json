@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skin ni {name}",
   "{name}'s skin is kept.": "Nanatili ang skin ni {name}.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: ang pangalan ay 3 hanggang 16 na letra, digit, o _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Hindi pa sinusuportahan ng Horizon Atlas ang pag-sign in gamit ang Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Hindi pa sinusuportahan ng Horizon Atlas ang pag-sign in gamit ang Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Burahin din ang sariling datos ng Horizon Atlas: ang mga account nito, offline na pangalan, skin at cape",
+  "Don't show again": "Huwag nang ipakita",
+  "Download installer": "I-download ang installer",
+  "Horizon Atlas Launcher is installed.": "Naka-install na ang Horizon Atlas Launcher.",
+  "Horizon Atlas Launcher was removed.": "Naalis na ang Horizon Atlas Launcher.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Mag-i-install na ngayon ang Horizon Atlas nang mag-isa, katabi ng opisyal na launcher. Para ilipat ito, i-download ang bagong installer: ang opsyon nito ay mag-aalis ng kopyang ito. Mananatili ang iyong mga mundo at setting kung nasaan sila.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Nag-i-install ng Horizon Atlas Launcher para sa account na ito. Hindi kailangan ng administrator.",
+  "Launch Horizon Atlas": "Ilunsad ang Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Alisin ang lumang install ng Horizon Atlas (mula sa folder ng Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Tinatanggal ang Horizon Atlas Launcher sa computer na ito. Mananatili ang iyong mga mundo at ang folder ng laro.",
+  "Removing Horizon Atlas's own data": "Tinatanggal ang sariling datos ng Horizon Atlas"
 }

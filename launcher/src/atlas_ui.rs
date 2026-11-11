@@ -4,6 +4,8 @@
 use super::*;
 use crate::glass_ui::{self as ui, white};
 use gpui::RenderImage;
+use horizon_launcher::atlas_install;
+use horizon_launcher::offline;
 use horizon_launcher::offline::profiles::Profiles;
 use horizon_launcher::offline::skins::{self, Model};
 use horizon_theme::glass::{ink, radius};
@@ -70,10 +72,14 @@ pub(crate) struct AtlasUi {
 
 impl AtlasUi {
     /// Atlas's state at the window's start. Reading the profiles moves a 0.1.x player's offline
-    /// names into Atlas's folder first (`Profiles::load`), before anything else can run.
+    /// names into Atlas's folder first (`Profiles::load`), before anything else can run. On Windows,
+    /// a launcher still in the official launcher's folder asks to move (`patch: own-install`).
     pub(crate) fn load() -> Self {
+        let move_out = cfg!(windows)
+            && atlas_install::shows_move_dialog(backend::exe_path(), &offline::atlas_dir());
         Self {
             profiles: Profiles::load(),
+            dialog: move_out.then_some(AtlasDialog::MoveToOwnInstall),
             ..Self::default()
         }
     }
@@ -120,6 +126,9 @@ pub(crate) enum AtlasDialog {
     ConfirmRemove(String),
     /// A Microsoft sign-in pressed while it can't work ([`refuses_sign_in`]).
     NoSignIn,
+    /// At the start of a launcher still in the official launcher's folder, where Atlas 0.1.x
+    /// installed: Atlas now installs in its own (`atlas_install::shows_move_dialog`).
+    MoveToOwnInstall,
 }
 
 /// What a button at a dialog's foot does to the window, once the dialog has closed.
@@ -292,6 +301,33 @@ impl Launcher {
                     Weight::Plain,
                     |_, _| {},
                 )],
+            ),
+            // Closing it any other way than "Don't show again" asks again at the next start.
+            AtlasDialog::MoveToOwnInstall => (
+                tr("Horizon Atlas").to_string(),
+                tr("Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.")
+                    .to_string(),
+                vec![
+                    Answer::new(
+                        "atlas-dialog-never",
+                        tr("Don't show again"),
+                        Weight::Quiet,
+                        |_, _| {
+                            if let Err(e) =
+                                atlas_install::dismiss_move_dialog(&offline::atlas_dir())
+                            {
+                                glass_toast::say(e.to_string());
+                            }
+                        },
+                    ),
+                    Answer::new("atlas-dialog-later", tr("Not now"), Weight::Quiet, |_, _| {}),
+                    Answer::new(
+                        "atlas-dialog-download",
+                        tr("Download installer"),
+                        Weight::Plain,
+                        |_, cx| cx.open_url(&atlas_install::releases_page()),
+                    ),
+                ],
             ),
         };
         let t = self.theme;

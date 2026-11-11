@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name} 的皮肤",
   "{name}'s skin is kept.": "已保留 {name} 的皮肤。",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}：名称须为 3 至 16 个字母、数字或 _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas 暂不支持使用 Microsoft 账户登录。"
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas 暂不支持使用 Microsoft 账户登录。",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "同时删除 Horizon Atlas 自身的数据：其账户、离线名称、皮肤和披风",
+  "Don't show again": "不再显示",
+  "Download installer": "下载安装程序",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher 已安装。",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher 已移除。",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas 现在会独立安装在官方启动器旁边。若要迁移，请下载新安装程序：其选项会移除此副本。你的世界和设置会保留在原处。",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "为此账户安装 Horizon Atlas Launcher，无需管理员权限。",
+  "Launch Horizon Atlas": "启动 Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "移除旧的 Horizon Atlas 安装（来自 Horizon Launcher 文件夹）",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "从此计算机移除 Horizon Atlas Launcher。你的世界和游戏文件夹会保留。",
+  "Removing Horizon Atlas's own data": "正在删除 Horizon Atlas 自身的数据"
 }

@@ -5,6 +5,8 @@
 
 mod agents_page;
 mod art;
+mod atlas_profile;
+mod atlas_ui;
 mod blocks;
 mod cli;
 mod cli_tools;
@@ -109,6 +111,8 @@ enum Page {
     /// Mods, resource packs and modpacks (imported ones and the browser's).
     Mods,
     Servers,
+    /// Atlas's offline names with their skins and capes (`atlas_profile.rs`).
+    Profile,
     /// What the player wears (`wardrobe_page.rs`), with the cosmetics flag on.
     Wardrobe,
     /// Cosmetics to try on and buy (`wardrobe_page/shop.rs`), beside the Wardrobe and under the
@@ -127,6 +131,7 @@ impl Page {
         let page = match std::env::var("HORIZON_LAUNCHER_PAGE").as_deref() {
             Ok("mods" | "modpacks" | "resourcepacks" | "shaders" | "datapacks") => Page::Mods,
             Ok("servers") => Page::Servers,
+            Ok("profile") => Page::Profile,
             Ok("wardrobe") if horizon_cosmetics::forced() => Page::Wardrobe,
             Ok("shop") if horizon_cosmetics::forced() => Page::Shop,
             Ok("versions") => Page::Versions,
@@ -143,10 +148,11 @@ impl Page {
 
     /// Every page, with its name and icon: the top bar shows all but Settings, which has its
     /// own button.
-    const ALL: [(Page, &'static str, &'static str); 7] = [
+    const ALL: [(Page, &'static str, &'static str); 8] = [
         (Page::Play, "Home", "home"),
         (Page::Mods, "Mods", "package"),
         (Page::Servers, "Servers", "server"),
+        (Page::Profile, "Profile", "user"),
         (Page::Wardrobe, "Wardrobe", "user"),
         (Page::Shop, "Shop", "bag"),
         (Page::Versions, "Versions", "archive"),
@@ -362,6 +368,8 @@ struct Launcher {
     root_focus: FocusHandle,
     /// Microsoft accounts (accounts.json), the sign-in under way and what it last showed.
     accounts: Accounts,
+    /// Atlas's offline names, who plays and its dialogs (`atlas_ui.rs`).
+    atlas: atlas_ui::AtlasUi,
     auth_status: HashMap<String, account::session::Status>,
     auth_progress: HashMap<String, account::session::Phase>,
     profile_heads: profile_heads::Heads,
@@ -675,6 +683,7 @@ impl Launcher {
             palette: None,
             toast_seen: None,
             accounts: Accounts::load(),
+            atlas: atlas_ui::AtlasUi::load(),
             auth_status: HashMap::new(),
             auth_progress: HashMap::new(),
             profile_heads: profile_heads::Heads::default(),
@@ -3420,7 +3429,7 @@ impl Launcher {
         // Not prepared: an owner can have Horizon download Minecraft from Mojang; without an
         // owner there is nothing to play, so signing in comes first.
         let first = (!prepared && !self.preparing)
-            .then_some(self.owner)
+            .then_some(self.atlas_owner())
             .flatten();
         // No launcher folder with Minecraft on this computer: an owner needs none.
         let no_install = self.settings.minecraft_dir.is_none();
@@ -3502,7 +3511,7 @@ impl Launcher {
             )),
             None => div().child(prepare),
         };
-        let owner = self.owner == Some(true);
+        let owner = self.atlas_owner() == Some(true);
         let minecraft = self.settings.minecraft_dir.as_deref().map_or_else(
             || {
                 div()
@@ -3604,7 +3613,7 @@ impl Launcher {
         // account that owns the game (Play needs one), or offline. The glass look's top bar has
         // Sign in with Microsoft and says Offline itself.
         if !t.glass {
-            if self.owner == Some(false) {
+            if self.atlas_owner() == Some(false) {
                 rows = rows.child(index_row(
                     5,
                     tr("Microsoft account"),
@@ -5357,6 +5366,7 @@ impl Render for Launcher {
             Page::Versions => self.versions_page(cx),
             Page::Mods => self.mods_page(cx),
             Page::Servers => self.servers_page(cx),
+            Page::Profile => self.profile_page(cx),
             Page::Wardrobe => self.wardrobe_page(cx),
             Page::Shop => self.shop_page(cx),
             Page::Settings => self.settings_page(cx),
@@ -5429,6 +5439,7 @@ impl Render for Launcher {
                             window.focus_next(cx);
                         }
                     }
+                    "escape" if this.atlas_escape() => {}
                     "escape" if this.native_log_escape() => {}
                     "escape" if this.servers_escape() => {}
                     "escape" if this.instance_escape() => {}
@@ -5550,6 +5561,7 @@ impl Render for Launcher {
         if let Some(dialog) = self.instance_dialog(cx) {
             root = root.child(dialog);
         }
+        root = root.children(self.atlas_dialog(cx));
         if let Some(panel) = self.native_log_panel(cx) {
             root = root.child(panel);
         }
@@ -5786,6 +5798,11 @@ fn main() {
     let setup_window = horizon_launcher::installer::window_mode();
     #[cfg(not(windows))]
     let setup_window: Option<horizon_launcher::setup_args::Mode> = None;
+    if setup_window.is_none() {
+        if let Some(code) = horizon_launcher::offline::cli::from_env() {
+            std::process::exit(code);
+        }
+    }
     if setup_window.is_none() {
         if let Some(code) = cli::run() {
             std::process::exit(code);

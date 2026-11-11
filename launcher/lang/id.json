@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Skin {name}",
   "{name}'s skin is kept.": "Skin {name} dipertahankan.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: nama terdiri dari 3 sampai 16 huruf, angka, atau _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas belum mendukung masuk dengan Microsoft.",
   "Use the Microsoft account for {name}.": "Gunakan akun Microsoft untuk {name}.",
   "Use these jars": "Gunakan jar ini",
   "Used from the next start.": "Digunakan mulai peluncuran berikutnya.",

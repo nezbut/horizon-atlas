@@ -1110,6 +1110,7 @@
   "{name}'s skin": "{name} skin",
   "{name}'s skin is kept.": "{name} skin jäetakse alles.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: nimi on 3–16 tähte, numbrit või _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ei toeta veel Microsofti sisselogimist.",
   "Use the Microsoft account for {name}.": "Kasutage Microsofti kontot {name} jaoks.",
   "Use these jars": "Kasutage neid purke",
   "Used from the next start.": "Kasutatud järgmisest algusest.",

@@ -1110,6 +1110,7 @@
   "{name}'s skin": "{name} のスキン",
   "{name}'s skin is kept.": "{name} のスキンは保持されます。",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: 名前は 3〜16 文字の英数字または _ で入力してください。",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas はまだ Microsoft でのサインインに対応していません。",
   "Use the Microsoft account for {name}.": "{name} のMicrosoftアカウントを使用します。",
   "Use these jars": "これらのJARを使用",
   "Used from the next start.": "次回起動時から適用されます。",

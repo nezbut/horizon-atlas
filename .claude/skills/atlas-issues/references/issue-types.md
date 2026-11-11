@@ -12,13 +12,18 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
 - **Do:** reproduce with `references/rebase-playbook.md` (scratch clone, rebase onto the tag in the title). The named
   patch is the first to conflict; later ones may too. Resolve each by keeping upstream's new code and re-applying
   only Atlas's seam. Typical hot spots: `launcher/src/backend.rs`, `cli.rs`, `main.rs`, `frame.rs`,
-  `glass_account.rs`, `sources.rs`, `launcher/lang/*.json` (only when the patch does more than add keys:
-  keep upstream's lines and re-apply only Atlas's change), `THIRD_PARTY_NOTICES.md`, `README.md`
-  (keep both sides).
-- **Known resolutions:** `launcher@0.2.54` conflicted in `offline-play` (upstream turned the refusal into a
-  structured error; the fix was to keep upstream's code and replace the literal `false` with `OFFLINE_PLAY`),
+  `sources.rs`, `account.rs` (Atlas's accounts path, keychain service, the first line of `session_for_game`),
+  `switch_page.rs`, `owner_page.rs`, `servers_page.rs` (`Field`), `titlebar.rs`, `installer.rs`, `setup_page.rs`,
+  `desktop.rs`, `launcher/lang/*.json` (only when the patch does more than add keys: keep upstream's lines and
+  re-apply only Atlas's change), `THIRD_PARTY_NOTICES.md`, `README.md` (keep both sides). Atlas's own files
+  (`launcher/src/offline/`, `atlas_ui.rs`, `atlas_profile.rs`, `atlas_install.rs`, `installer_atlas.rs`) never
+  conflict, but upstream may change an API they call: that shows up as a compile error after the rebase.
+- **Known resolutions:** `launcher@0.2.54` conflicted in the old `offline-play` patch (gone since Atlas 0.2.0),
   `branding` (lang files) and the notices file. `launcher@0.2.56` conflicted in `choose-jar` only in
-  `launcher/lang/cs.json`; that kind is now merged automatically.
+  `launcher/lang/cs.json`; that kind is now merged automatically. `launcher@0.2.59` (upstream removed its
+  offline names, commit `1e789800af`) was the reason for Atlas 0.2.0: `offline-play` was replaced by the
+  `offline`, `no-sign-in` and `own-install` patches, and `choose-jar` needed upstream's renamed
+  `horizon_prepare` -> `prepare` / `horizon_platform::prepare` path.
 
 ### `Sync to launcher@X.Y.Z failed: the rebase did not start or finish`
 - **Cause:** the rebase failed without naming a conflicting patch (a missing ref, a dirty tree, a git error).
@@ -31,8 +36,11 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
 - **Cause:** the patches applied cleanly but `cargo fmt --check` or `cargo test --release --lib --bins` failed
   in `launcher/` on the rebased tree. Usual reasons: upstream changed an API that an Atlas patch uses (compile
   error), upstream added user-visible strings and the language-consistency test wants the key in every
-  `launcher/lang/*.json`, upstream changed a test that pins behaviour Atlas inverted on purpose (the owner-gate
-  tests in `launcher/tests/owner_gate.rs` and tests around `OFFLINE_PLAY`), or formatting drift.
+  `launcher/lang/*.json`, upstream's Polish test (`polish_entries_are_valid_and_keep_placeholders`: every key in
+  `pl.json` must still appear as a string literal in `launcher/src`) after upstream reworded a text an Atlas
+  patch replaced (keep the replaced English texts in the `const _` in `atlas_install.rs` in step with `pl.json`),
+  upstream changed a test that pins behaviour Atlas changes on purpose (Atlas's `launcher/tests/owner_gate.rs`:
+  `play` and the MCP server play offline without an owner), or formatting drift.
 - **Do:** rebase in the scratch clone, run the failing command, read the failure, fix it in the patch that owns
   the code. Prefer amending the owning patch commit (so the next sync conflicts, if ever, on a meaningfully
   named patch); if that is not possible in this environment, add one `atlas: ...` fix commit and say so.
@@ -53,9 +61,13 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
 - **Do:** `git diff refs/upstream/tags/launcher@OLD refs/upstream/tags/launcher@NEW -- .github/workflows/launcher.yml`.
   Port what matters into `.github/workflows/atlas-release.yml` and keep Atlas's differences: the `meta` job and
   inputs (`version`, `upstream_tag`, `dry_run`), no `tools/release_train.py`, `macos-15` instead of upstream's
-  self-hosted Mac mini, `--latest=true`, the macOS arm64 test skip, the `release` environment on `sign`.
-  `packaging/` and `sign_release.sh` are upstream files and already updated by the rebase. Lint with
-  `uvx --from actionlint-py actionlint .github/workflows/atlas-release.yml`.
+  self-hosted Mac mini, `--latest=true`, the macOS arm64 test skip, the `release` environment on `sign`, and
+  the macOS rename: `package.sh` runs with `MACOS_NOTARY_PROFILE=''`, then Atlas's own step renames the app to
+  `Horizon Atlas.app`, sets the bundle id and names, signs again (and notarizes when a profile is set) and
+  rebuilds the zip and `.dmg`. `packaging/` and `sign_release.sh` are upstream files and already updated by the
+  rebase, but that step re-implements the end of `package.sh` (signing, zip, `.dmg`): when the notice names
+  `packaging/macos/`, compare `package.sh` between the two tags and carry its changes into the step, keeping the
+  asset names. Lint with `uvx --from actionlint-py actionlint .github/workflows/atlas-release.yml`.
 
 ## Red runs that open no issue (the user pastes a screenshot or the log)
 
@@ -76,6 +88,14 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
   progress. Nothing was lost; the user re-runs `atlas-sync`.
 - **Authentication error in `publish` or in a checkout that uses `SYNC_TOKEN`:** the token expired or lost a
   permission. The user creates a new fine-grained token and replaces the repository secret.
-- **atlas-ci red on a push:** read which step. Usually fmt or a test; reproduce in a scratch clone.
+- **atlas-ci red on a push:** read which job and step. Usually fmt or a test; reproduce in a scratch clone
+  (`task check`). The `windows` job runs the launcher's tests on Windows (the installer's Windows-only tests are
+  there), a release build, then `tools/atlas_installer_e2e.ps1`, which prints the scenario and the check that
+  failed. Its checks guard the hard limits (the official launcher's exe, shortcuts and registry keys, and the
+  shared data folder, stay untouched): fix the installer, never loosen a check to get green.
+- **atlas-release, the macOS rename step fails:** Atlas's step after `package.sh` (rename to
+  `Horizon Atlas.app`, `PlistBuddy`, re-sign, rebuild zip and `.dmg`) checks its own result. Usual cause: upstream
+  changed `packaging/macos/package.sh` or `Info.plist` (the app's name, the asset names, signing); compare them
+  between the old base and the new tag and adapt the step, keeping the asset names the self-updater expects.
 - **A sync run is green but nothing was released:** expected when there was no newer upstream tag, or on a dry run.
   The summary says which ("New upstream launcher tag: none" / "Dry run: would push ...").

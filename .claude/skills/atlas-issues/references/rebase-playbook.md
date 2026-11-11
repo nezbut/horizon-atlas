@@ -1,76 +1,79 @@
 # Playbook: reproduce, fix, verify, hand over
 
-`REPO` below is the owner's clone (`git rev-parse --show-toplevel`). `S` is a NEW, EMPTY directory outside it
-(for example from `mktemp -d`), named after the tag, e.g. `.../sync-0.2.56`. Never work in `REPO` itself until the
-owner has said yes.
+`REPO` below is the owner's clone (`git rev-parse --show-toplevel`). The routine commands are tasks in REPO's
+`Taskfile.yml` (go-task; `task --list` shows them). None of them commits, pushes or touches the owner's data;
+`task clone:sync` is the only one that changes REPO's branch, so ask before running it. Never work in `REPO`
+itself until the owner has said yes.
 
-## 1. Scratch clone that sees what the runner sees
-```
-git clone -q --no-hardlinks https://github.com/nezbut/horizon-atlas.git $S/atlas      # GitHub's main, like the runner
-git -C $S/atlas remote add upstream https://github.com/horizon-rust/horizon.git
-git -C $S/atlas fetch -q --no-tags upstream '+refs/tags/launcher@*:refs/upstream/tags/launcher@*' '+refs/heads/main:refs/remotes/upstream/main'
-uv run python $S/atlas/tools/atlas_sync.py base       # current base, e.g. launcher@0.2.54
-uv run python $S/atlas/tools/atlas_sync.py new-tag    # newest upstream tag newer than the base ("" = none)
-git -C $S/atlas switch -q -c sync-<tag>
-```
-If the user's `REPO` has commits that are not on GitHub (`git -C REPO log origin/main..main`), the issue was
-produced from GitHub's `main`; say so, and base your work on GitHub's `main`.
+Cargo builds are slow cold (about ten minutes for the launcher). Export one shared build folder outside the
+repository before any task that builds, e.g. `export CARGO_TARGET_DIR=<a folder outside REPO>/target-shared`,
+and run long tasks in the background.
 
-## 2. Reproduce
+## 1. Rehearse in a scratch clone
 ```
-uv run python $S/atlas/tools/atlas_sync.py rebase launcher@<new>     # exit 0 = no conflict; exit 1 + FAILED_PATCH=<subject> = conflict
+task upstream:fetch                                        # in REPO: upstream's launcher tags and main
+task rehearse -- refs/upstream/tags/launcher@<new>         # or: task rehearse -- upstream/main (early warning)
 ```
-The tool aborts and leaves the clone clean on a conflict. To resolve by hand run the same rebase directly.
-Copy the tool out first: once the rebase stops, the working tree holds an older `atlas_sync.py`.
+`rehearse` clones what is committed in REPO into a new temporary folder (honours `TMPDIR`), fetches upstream
+there, runs `atlas_sync.py rebase-onto <ref>` and prints `scratch clone: <path>` and either the new base or the
+failing patch (`FAILED_PATCH=<subject>`, exit 1). Call that path `C`. The conflicts the sync resolves by itself
+(upstream workflow files; `launcher/lang/*.json` where a patch only adds keys) are resolved here too.
+
+`rehearse` starts from REPO's committed `main`. If REPO's `main` differs from GitHub's (step 2 of the workflow),
+the issue was produced from GitHub's `main`: bring REPO up to date first (section 9), or clone GitHub directly:
 ```
-cp $S/atlas/tools/atlas_sync.py $S/atlas_sync.py
-git -C $S/atlas -c merge.conflictStyle=diff3 rebase --onto refs/upstream/tags/launcher@<new> refs/upstream/tags/launcher@<old base>
-uv run python $S/atlas_sync.py --repo $S/atlas resolve    # at every stop: resolves what the sync resolves by itself
-git -C $S/atlas diff --name-only --diff-filter=U      # what is left for you in the commit it stopped at
+git clone -q --no-hardlinks https://github.com/nezbut/horizon-atlas.git $C && git -C $C remote add upstream https://github.com/horizon-rust/horizon.git
+git -C $C fetch -q --no-tags upstream '+refs/tags/launcher@*:refs/upstream/tags/launcher@*' '+refs/heads/main:refs/remotes/upstream/main'
 ```
-For the early-warning issue use `refs/remotes/upstream/main` as the new base
-(`uv run python $S/atlas/tools/atlas_sync.py rebase-onto upstream/main` reproduces it).
+
+## 2. Replay by hand (when the rehearsal named a conflict)
+The tool aborted and left `C` clean. Run the same rebase directly in `C`, on a branch named after the tag. Use
+REPO's copy of the sync tool (`C`'s own copy is rewritten while the rebase runs):
+```
+git -C $C switch -q -c sync-<tag>
+git -C $C -c merge.conflictStyle=diff3 rebase --onto refs/upstream/tags/launcher@<new> refs/upstream/tags/launcher@<old base>
+uv run python REPO/tools/atlas_sync.py --repo $C resolve    # at every stop: resolves what the sync resolves by itself
+git -C $C diff --name-only --diff-filter=U                   # what is left for you in the commit it stopped at
+```
+`<old base>` is what `task status` printed as the base. For the early-warning issue the new base is
+`refs/remotes/upstream/main`.
 
 ## 3. Resolve a conflict
 - Markers: `grep -n '^<<<<<<<\|^=======\|^>>>>>>>' <file>`. During a rebase the part after `<<<<<<< HEAD` is
   **upstream's new code** (plus Atlas commits already replayed); the part before `>>>>>>> <sha> (<patch>)` is the
   Atlas patch being replayed.
-- Keep upstream's new code and re-apply only Atlas's seam to it (`OFFLINE_PLAY`, `LAUNCHER_REPO`, one added
-  condition, one added key). Read the whole block first (Read with offset and limit), then replace it with Edit:
-  old string = the exact block including the three marker lines, new string = the resolution. If upstream renamed
-  or restructured a function, adapt Atlas's seam to the new shape instead of restoring the old shape.
+- Keep upstream's new code and re-apply only Atlas's seam to it (`LAUNCHER_REPO`, one added condition, one call
+  into Atlas's own module such as `crate::offline::session()`, one added key). Read the whole block first (Read
+  with offset and limit), then replace it with Edit: old string = the exact block including the three marker
+  lines, new string = the resolution. If upstream renamed or restructured a function, adapt Atlas's seam to the
+  new shape instead of restoring the old shape.
 - Resolve by editing the block, not by taking a whole side with `git checkout --ours/--theirs`: a whole side
   loses either upstream's change or Atlas's seam. In `launcher/lang/*.json` conflicts upstream's side holds the
-  new translations and Atlas's side holds old English placeholders plus Atlas's key: keep upstream's lines and
-  add Atlas's key line. Check each JSON file still parses (`uv run python -c "import json; json.load(open(f))"`).
-- Then: `git -C $S/atlas add <files>` and `GIT_EDITOR=true git -C $S/atlas rebase --continue`. It stops again at the
-  next conflicting commit; repeat until it says the rebase succeeded.
+  new translations and Atlas's side holds old English placeholders plus Atlas's keys: keep upstream's lines and
+  add Atlas's key lines. Check each JSON file still parses (`uv run python -m json.tool <file> > /dev/null`).
+- Then: `git -C $C add <files>` and `GIT_EDITOR=true git -C $C rebase --continue`. It stops again at the next
+  conflicting commit; repeat until it says the rebase succeeded.
 
 ## 4. Verify (all of it; paste the evidence into your report)
 ```
-git -C $S/atlas grep -n -E '^(<<<<<<<|>>>>>>>) ' -- . ':!docs'                         # nothing
-uv run python $S/atlas/tools/atlas_sync.py base                                         # prints launcher@<new>
-git -C $S/atlas rev-list --count refs/upstream/tags/launcher@<new>..HEAD                # Atlas's commit count
-git -C $S/atlas log --format='%s' refs/upstream/tags/launcher@<new>..HEAD | grep -c '^patch: '   # 5
-uv run python -m unittest discover -s $S/atlas/tests -p 'test_atlas*.py'
-cargo fmt --manifest-path $S/atlas/launcher/Cargo.toml --check
-cargo clippy --manifest-path $S/atlas/launcher/Cargo.toml --release --all-targets -- -D warnings
-cargo test --manifest-path $S/atlas/launcher/Cargo.toml --release --lib --bins --test owner_gate
-cargo test --manifest-path $S/atlas/Cargo.toml -p horizon-release-sign
+task -d $C check                                                                     # fmt, clippy -D warnings, launcher tests + owner_gate, sync tool tests, actionlint
+git -C $C grep -n -E '^(<<<<<<<|>>>>>>>) ' -- . ':!docs'                              # nothing
+uv run python REPO/tools/atlas_sync.py --repo $C base                                  # prints launcher@<new>
+git -C $C log --format='%s' refs/upstream/tags/launcher@<new>..HEAD | grep -c '^patch: '   # 7
+cargo test --manifest-path $C/Cargo.toml -p horizon-release-sign
 ```
-A cold build of the launcher takes about ten minutes. Share the build between scratch clones with
-`CARGO_TARGET_DIR=<a directory outside the repository>/target-shared` and run long builds in the background. Also check `git -C $S/atlas diff refs/upstream/tags/launcher@<new>..HEAD --stat -- crates/horizon-release-sign`
-shows only the `own-keys` patch and that `release-keys.txt` still lists both keys.
+Also check `git -C $C diff refs/upstream/tags/launcher@<new>..HEAD --stat -- crates/horizon-release-sign` shows
+only the `own-keys` patch and that `release-keys.txt` still lists both keys.
 
 ## 5. Show the user what changed
-For each conflicting patch show the resolved hunks (`git -C $S/atlas show <rebased commit> -- <files>`) next to
-what upstream changed in the same place (`git -C $S/atlas diff refs/upstream/tags/launcher@<old>..refs/upstream/tags/launcher@<new> -- <file>`),
+For each conflicting patch show the resolved hunks (`git -C $C show <rebased commit> -- <files>`) next to what
+upstream changed in the same place (`git -C $C diff refs/upstream/tags/launcher@<old>..refs/upstream/tags/launcher@<new> -- <file>`),
 and say in one paragraph why the conflict happened. Then ask the questions from the workflow in SKILL.md.
 
 ## 6. Apply to the user's repository (only after a yes)
 ```
 git -C REPO fetch origin                                    # origin/main must still be what you started from
-git -C REPO fetch $S/atlas sync-<tag>:sync-<tag>            # creates a local branch with the rebased stack; main is untouched
+git -C REPO fetch $C sync-<tag>:sync-<tag>                  # creates a local branch with the rebased stack; main is untouched
 ```
 If `origin/main` moved since you started, stop and tell the user: the work must be redone on the new `main`.
 
@@ -87,10 +90,11 @@ plain `git push` is enough only when `git merge-base --is-ancestor origin/main s
 Then locally: `git branch -f main sync-<tag>`, `git switch main`, `git branch -d sync-<tag>`.
 
 ## 8. After the push
-- `atlas-ci` (started by the push) must go green.
+- `atlas-ci` (started by the push) must go green: its Linux job and its `windows` job (launcher tests, a release
+  build, and the installer's end-to-end script `tools/atlas_installer_e2e.ps1`).
 - The scheduled sync will not release this base, because it no longer sees a newer tag. Release by hand: Actions ->
-  `atlas-release` -> Run workflow with `version` = the output of `uv run python tools/atlas_sync.py next-version`,
-  `upstream_tag` = the tag, `dry_run` unticked (do a dry run first if anything in the workflow changed).
+  `atlas-release` -> Run workflow with `version` = the next version `task status` prints, `upstream_tag` = the
+  tag, `dry_run` unticked (do a dry run first if anything in the workflow changed).
 - Close the issue by hand.
 - After a release you may verify it independently: download the assets of the release (the API lists them:
   `https://api.github.com/repos/nezbut/horizon-atlas/releases/tags/launcher%40<version>`) into a NEW empty
@@ -102,16 +106,17 @@ Then locally: `git branch -f main sync-<tag>`, `git switch main`, `git branch -d
 Every successful sync (and every push from step 7) replaces `main` on GitHub with the same Atlas commits replayed
 onto the new upstream tag, under new ids. A clone that still has the old stack then shows `main` both ahead and
 behind (`git status -sb`: `[ahead 33, behind 788]`). Nothing is lost; the clone holds the old copies. Ask the owner
-before running the commands that change the branch.
+before running it, then in REPO:
 ```
-git -C REPO fetch origin
-git -C REPO status --short                                                  # must print nothing
-git -C REPO range-diff --no-color -s main...origin/main | grep -E '^ *[0-9]+: +[0-9a-f]+ < '   # commits only this clone has
+task clone:sync
 ```
-- Nothing listed (the usual case): `git -C REPO reset --keep origin/main`. `--keep` refuses rather than drop
-  uncommitted changes.
-- Commits listed (the owner's local work on top of the old stack): `git -C REPO rebase --onto origin/main <first listed>^ main`
-  moves exactly those commits onto the new `main`.
+It fetches `origin`, refuses on a dirty working tree or a branch other than `main`, and lists the commits only
+this clone has (`git range-diff -s main...origin/main`, the `<` lines).
+- Nothing listed (the usual case): it runs `git reset --keep origin/main` itself (`--keep` refuses rather than
+  drop uncommitted changes).
+- Commits listed (the owner's local work on top of the old stack): it changes nothing and prints
+  `git rebase --onto origin/main <first listed>^ main`, which moves exactly those commits onto the new `main`; run
+  that only after the owner says yes.
 
 Never run a plain `git pull` here: it merges the old stack with the new one, every Atlas commit then exists twice,
 and once pushed the next sync conflicts with the duplicates.

@@ -1,0 +1,202 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# Atlas's routine commands. Nothing here pushes, force-pushes or commits.
+
+version: '3'
+
+vars:
+  MANIFEST: launcher/Cargo.toml
+  UPSTREAM_URL: https://github.com/horizon-rust/horizon.git
+
+tasks:
+  check:
+    desc: Run every check in order (fmt, clippy, launcher tests, sync tool tests, actionlint), stopping at the first failure
+    cmds:
+      - cargo fmt --manifest-path {{.MANIFEST}} --check
+      - cargo clippy --manifest-path {{.MANIFEST}} --release --all-targets -- -D warnings
+      - task: test
+      - task: test:sync
+      - task: lint:workflows
+
+  test:
+    desc: Run the launcher's tests (lib, bins and the owner_gate test)
+    cmds:
+      - cargo test --manifest-path {{.MANIFEST}} --release --lib --bins --test owner_gate
+
+  test:sync:
+    desc: Run the sync tool's tests
+    cmds:
+      - uv run python -m unittest discover -s tests -p 'test_atlas*.py'
+
+  lint:workflows:
+    desc: Lint the GitHub workflows with actionlint
+    cmds:
+      - uvx --from actionlint-py actionlint .github/workflows/*.yml
+
+  build:
+    desc: Build the launcher in release mode
+    cmds:
+      - cargo build --manifest-path {{.MANIFEST}} --release
+
+  run:scratch:
+    desc: Start the built launcher on fresh scratch folders, never the real data
+    # run:copy calls this task with COPY_REAL=yes
+    env:
+      COPY_REAL: '{{.COPY_REAL | default "no"}}'
+    silent: true
+    cmds:
+      - |
+        bin="${CARGO_TARGET_DIR:-launcher/target}/release/horizon-launcher"
+        if [ ! -x "$bin" ]; then
+          echo "$bin is not built; run: task build" >&2
+          exit 1
+        fi
+
+        if [ "$COPY_REAL" = yes ]; then
+          # The folder the launcher itself uses (backend::data_dir), found before the environment is replaced below.
+          if [ -n "${HORIZON_LAUNCHER_HOME:-}" ]; then
+            real="$HORIZON_LAUNCHER_HOME"
+          elif [ "$(uname -s)" = Darwin ]; then
+            real="$HOME/Library/Application Support/horizon-launcher"
+            moved="$HOME/Library/Application Support/horizon-launcher-location/location.json"
+          else
+            real="${XDG_DATA_HOME:-$HOME/.local/share}/horizon-launcher"
+            moved="${XDG_CONFIG_HOME:-$HOME/.config}/horizon-launcher-location/location.json"
+          fi
+          if [ -n "${moved:-}" ] && [ -e "$moved" ]; then
+            echo "note: $moved exists, so the launcher may keep its data elsewhere; set HORIZON_LAUNCHER_HOME to that folder to copy from it" >&2
+          fi
+        fi
+
+        scratch=$(mktemp -d)
+        mkdir "$scratch/launcher" "$scratch/horizon" "$scratch/xdg-data" "$scratch/xdg-config" "$scratch/trash" "$scratch/desktop"
+
+        if [ "$COPY_REAL" = yes ]; then
+          echo "copying from $real (read only)"
+          if [ -f "$real/accounts.json" ]; then
+            cp "$real/accounts.json" "$scratch/launcher/"
+            echo "  copied accounts.json"
+          else
+            echo "  no accounts.json, skipped"
+          fi
+          if [ -d "$real/skins" ]; then
+            cp -RL "$real/skins" "$scratch/launcher/"
+            echo "  copied skins/"
+          else
+            echo "  no skins/, skipped"
+          fi
+        fi
+
+        export HORIZON_LAUNCHER_HOME="$scratch/launcher"
+        export HORIZON_HOME="$scratch/horizon"
+        export XDG_DATA_HOME="$scratch/xdg-data"
+        export XDG_CONFIG_HOME="$scratch/xdg-config"
+        export HORIZON_LAUNCHER_NO_SELF_UPDATE=1
+        export HORIZON_NO_AUDIO=1
+        export HORIZON_LAUNCHER_TRASH="$scratch/trash"
+        export HORIZON_LAUNCHER_CLIPBOARD="$scratch/clipboard.txt"
+        export HORIZON_LAUNCHER_DESKTOP="$scratch/desktop"
+
+        echo "scratch folders under $scratch:"
+        echo "  HORIZON_LAUNCHER_HOME=$HORIZON_LAUNCHER_HOME"
+        echo "  HORIZON_HOME=$HORIZON_HOME"
+        echo "  XDG_DATA_HOME=$XDG_DATA_HOME"
+        echo "  XDG_CONFIG_HOME=$XDG_CONFIG_HOME"
+        echo "  HORIZON_LAUNCHER_TRASH=$HORIZON_LAUNCHER_TRASH"
+        echo "  HORIZON_LAUNCHER_CLIPBOARD=$HORIZON_LAUNCHER_CLIPBOARD"
+        echo "  HORIZON_LAUNCHER_DESKTOP=$HORIZON_LAUNCHER_DESKTOP"
+        "$bin"
+
+  run:copy:
+    desc: Like run:scratch, but the scratch launcher home starts with a copy of the real accounts.json and skins/ (to try a migration)
+    silent: true
+    cmds:
+      - task: run:scratch
+        vars:
+          COPY_REAL: 'yes'
+
+  upstream:fetch:
+    desc: Fetch upstream's launcher tags into refs/upstream/tags/ and its main into refs/remotes/upstream/main
+    cmds:
+      - git remote get-url upstream >/dev/null 2>&1 || git remote add upstream {{.UPSTREAM_URL}}
+      - git fetch --no-tags upstream '+refs/tags/launcher@*:refs/upstream/tags/launcher@*' '+refs/heads/main:refs/remotes/upstream/main'
+
+  status:
+    desc: Show Atlas's upstream base, a newer upstream launcher tag if any, the next Atlas version and git status
+    cmds:
+      - uv run python tools/atlas_sync.py base
+      - uv run python tools/atlas_sync.py new-tag
+      - uv run python tools/atlas_sync.py next-version
+      - git status -sb
+
+  clone:sync:
+    desc: Bring main up to date with origin/main after a sync, unless this clone holds commits of its own
+    silent: true
+    cmds:
+      - |
+        branch=$(git branch --show-current)
+        if [ "$branch" != main ]; then
+          echo "clone:sync works on main; this clone is on ${branch:-a detached HEAD}" >&2
+          exit 1
+        fi
+
+        git fetch origin
+        if [ -n "$(git status --short)" ]; then
+          echo "The working tree is not clean; commit, stash or discard first:" >&2
+          git status --short >&2
+          exit 1
+        fi
+
+        range=$(git range-diff --no-color -s main...origin/main)
+        local_only=$(printf '%s\n' "$range" | grep -E '^ *[0-9]+: +[0-9a-f]+ < ' || true)
+        if [ -z "$local_only" ]; then
+          git reset --keep origin/main
+          echo "main now matches origin/main"
+          git status -sb
+          exit 0
+        fi
+
+        first=$(printf '%s\n' "$local_only" | head -n 1 | awk '{print $2}')
+        echo "main holds commits that origin/main does not; nothing was changed:"
+        printf '%s\n' "$local_only"
+        echo
+        echo "To move exactly those commits onto the new main:"
+        echo "  git rebase --onto origin/main $first^ main"
+
+  rehearse:
+    desc: "Replay Atlas's patches onto a ref in a fresh scratch clone, leaving this clone alone: task rehearse -- <ref>"
+    env:
+      REF: '{{.CLI_ARGS}}'
+    silent: true
+    cmds:
+      - |
+        case "$REF" in
+          ""|-*|*[[:space:]]*)
+            echo "usage: task rehearse -- <ref>" >&2
+            echo "  <ref> is an upstream tag such as refs/upstream/tags/launcher@0.2.59, or upstream/main" >&2
+            exit 1
+            ;;
+        esac
+
+        # The clone holds what is committed here; uncommitted changes are not part of the rehearsal.
+        scratch=$(mktemp -d)
+        echo "scratch clone: $scratch"
+        git clone --quiet "{{.ROOT_DIR}}" "$scratch"
+        git -C "$scratch" config user.name atlas-rehearsal
+        git -C "$scratch" config user.email atlas-rehearsal@users.noreply.github.com
+        {{.TASK_EXE}} --taskfile "{{.TASKFILE}}" --dir "$scratch" upstream:fetch
+
+        if ! git -C "$scratch" rev-parse --verify --quiet "$REF^{commit}" >/dev/null; then
+          echo "$REF does not exist in the scratch clone after upstream:fetch" >&2
+          exit 1
+        fi
+
+        # The sync tool comes from this checkout, not the clone: the rebase rewrites the clone's copy of it.
+        if result=$(uv run python "{{.ROOT_DIR}}/tools/atlas_sync.py" --repo "$scratch" rebase-onto "$REF"); then
+          echo "rehearsal succeeded: the patches now sit on $result"
+          echo "scratch clone: $scratch"
+        else
+          echo "rehearsal failed: ${result:-no patch was named, see the output above}"
+          echo "scratch clone: $scratch"
+          exit 1
+        fi

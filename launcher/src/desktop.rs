@@ -52,7 +52,7 @@ const ICONS: [(&str, &[u8]); 9] = [
     ),
 ];
 
-const LAUNCHER_ENTRY: &str = "horizon-launcher.desktop";
+const LAUNCHER_ENTRY: &str = "horizon-atlas.desktop";
 const GAME_ENTRY: &str = "horizon.desktop";
 const GAME_ENTRY_TEXT: &str = include_str!("../../packaging/linux/horizon.desktop");
 
@@ -82,7 +82,7 @@ pub fn launcher_entry(exe: &Path) -> String {
     format!(
         "[Desktop Entry]\n\
          Type=Application\n\
-         Name=Horizon\n\
+         Name=Horizon Atlas\n\
          GenericName=Game launcher\n\
          Comment=Install, prepare and play Horizon, Minecraft: Java Edition {minecraft} rewritten in Rust\n\
          Exec={}\n\
@@ -143,12 +143,18 @@ pub fn install_in(data: &Path, exe: &Path) -> io::Result<bool> {
         fs::rename(&temp, &path)?;
         wrote = true;
     }
+    // Atlas 0.1.x's entry, under the official launcher's name, goes (`atlas_install.rs`).
+    wrote |= crate::atlas_install::remove_old_entry_in(data, exe, entry_target);
     Ok(wrote)
 }
 
 /// Removes every file `install_in` writes (the folders stay: other apps share them).
 pub fn remove_in(data: &Path) -> io::Result<()> {
     for (path, _) in files(data, Path::new("")) {
+        // Atlas: what the official launcher's entry uses too stays while it is there.
+        if crate::atlas_install::keeps_shared(data, &path, LAUNCHER_ENTRY) {
+            continue;
+        }
         match fs::remove_file(&path) {
             Err(e) if e.kind() != io::ErrorKind::NotFound => return Err(e),
             _ => {}

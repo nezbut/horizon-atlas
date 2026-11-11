@@ -187,7 +187,8 @@ jobs:
           fmt=0
           tests=0
           (cd launcher && cargo fmt --check) > "$RUNNER_TEMP/fmt.log" 2>&1 || fmt=$?
-          (cd launcher && cargo test --release --lib --bins) > "$RUNNER_TEMP/tests.log" 2>&1 || tests=$?
+          # owner_gate: offline play from the CLI and MCP, end to end; desktop: the Linux menu entry.
+          (cd launcher && cargo test --release --lib --bins --test owner_gate --test desktop) > "$RUNNER_TEMP/tests.log" 2>&1 || tests=$?
           tail -n 60 "$RUNNER_TEMP/fmt.log" "$RUNNER_TEMP/tests.log"
           [[ $fmt == 0 && $tests == 0 ]] && exit 0
           # The useful part of a log: the test failures, else the compiler errors, else the end.
@@ -201,11 +202,11 @@ jobs:
             fi
           }
           if [[ $fmt != 0 && $tests != 0 ]]; then
-            what='both `cargo fmt --check` and `cargo test --release --lib --bins`'
+            what='both `cargo fmt --check` and `cargo test --release --lib --bins --test owner_gate --test desktop`'
           elif [[ $fmt != 0 ]]; then
             what='`cargo fmt --check`'
           else
-            what='`cargo test --release --lib --bins`'
+            what='`cargo test --release --lib --bins --test owner_gate --test desktop`'
           fi
           mkdir -p report
           printf '%s\n' "Sync to $TAG failed: cargo fmt or the tests" > report/title.txt
@@ -223,7 +224,7 @@ jobs:
             fi
             if [[ $tests != 0 ]]; then
               echo
-              echo 'Output of `cargo test --release --lib --bins` (the failures, else the compiler errors, else the last lines):'
+              echo 'Output of `cargo test --release --lib --bins --test owner_gate --test desktop` (the failures, else the compiler errors, else the last lines):'
               echo
               echo '````'
               excerpt "$RUNNER_TEMP/tests.log"

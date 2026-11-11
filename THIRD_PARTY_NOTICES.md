@@ -36,16 +36,6 @@ license.
 Horizon Atlas is an unofficial fork of [Horizon](https://github.com/horizon-rust/horizon) by Ludovic
 Marie and the Horizon contributors (MIT, see `LICENSE`). It changes the launcher only.
 
-- The launcher's "choose your own jar" patch (`patch: choose-jar`) ports code from
-  [Horizon-Offline-Launcher](https://github.com/gerdaroot/Horizon-Offline-Launcher), another fork of
-  Horizon, licensed under MIT (the same licence and copyright holders as Horizon): reading a
-  player-chosen client jar (`from_jar`), the "Choose jar…" row on Home, and the install script this
-  repository's `install.sh` is adapted from.
-- The offline-play switch (`patch: offline-play`) and the Atom-feed fallback for launcher releases
-  (`patch: own-releases`) follow the approach of [horizon-free](https://github.com/0CYBER/horizon-free),
-  another fork of Horizon, licensed under MIT (the same licence and copyright holders as Horizon); the
-  feed reader is adapted from it.
-
 ## Catnip / Ponder
 
 `crates/horizon-client-render/src/fluid_render.rs` translates the still-fluid face tiling and

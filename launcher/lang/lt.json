@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name} cape išsaugotas.",
   "{name}'s skin": "{name} skin",
   "{name}'s skin is kept.": "{name} skin išsaugotas.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: vardas turi būti 3–16 raidžių, skaitmenų arba _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: vardas turi būti 3–16 raidžių, skaitmenų arba _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas dar nepalaiko prisijungimo naudojant „Microsoft“."
 }

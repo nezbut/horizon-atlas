@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name} плащы сақталды.",
   "{name}'s skin": "{name} скині",
   "{name}'s skin is kept.": "{name} скині сақталды.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ат 3-тен 16-ға дейінгі әріптерден, сандардан немесе _ белгісінен тұрады"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ат 3-тен 16-ға дейінгі әріптерден, сандардан немесе _ белгісінен тұрады",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas әзірге Microsoft арқылы кіруді қолдамайды."
 }

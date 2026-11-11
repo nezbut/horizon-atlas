@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name} se kap is behou.",
   "{name}'s skin": "{name} se vel",
   "{name}'s skin is kept.": "{name} se vel is behou.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: 'n naam is 3 tot 16 letters, syfers of _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: 'n naam is 3 tot 16 letters, syfers of _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ondersteun nog nie Microsoft-aanmelding nie."
 }

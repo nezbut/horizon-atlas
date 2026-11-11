@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "D'Cape vu(n) {name} gëtt behalen.",
   "{name}'s skin": "{name}seng Skin",
   "{name}'s skin is kept.": "D'Skin vu(n) {name} gëtt behalen.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: e Numm huet 3 bis 16 Buschtawen, Zifferen oder _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: e Numm huet 3 bis 16 Buschtawen, Zifferen oder _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas unterstëtzt d'Microsoft-Umeldung nach net."
 }

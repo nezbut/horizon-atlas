@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "已保留 {name} 的披风。",
   "{name}'s skin": "{name} 的皮肤",
   "{name}'s skin is kept.": "已保留 {name} 的皮肤。",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}：名称须为 3 至 16 个字母、数字或 _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}：名称须为 3 至 16 个字母、数字或 _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas 暂不支持使用 Microsoft 账户登录。"
 }

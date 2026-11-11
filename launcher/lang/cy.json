@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Mae clogyn {name} wedi'i gadw.",
   "{name}'s skin": "Croen {name}",
   "{name}'s skin is kept.": "Mae croen {name} wedi'i gadw.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: enw o 3 i 16 o lythrennau, digidau neu _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: enw o 3 i 16 o lythrennau, digidau neu _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Nid yw Horizon Atlas yn cefnogi mewngofnodi gyda Microsoft eto."
 }

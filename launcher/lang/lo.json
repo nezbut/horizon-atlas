@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Cape ຂອງ {name} ຖືກເກັບໄວ້.",
   "{name}'s skin": "Skin ຂອງ {name}",
   "{name}'s skin is kept.": "Skin ຂອງ {name} ຖືກເກັບໄວ້.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ຊື່ຕ້ອງມີ 3 ຫາ 16 ໂຕອັກສອນ, ຕົວເລກ ຫຼື _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ຊື່ຕ້ອງມີ 3 ຫາ 16 ໂຕອັກສອນ, ຕົວເລກ ຫຼື _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ຍັງບໍ່ຮອງຮັບການເຂົ້າສູ່ລະບົບດ້ວຍ Microsoft."
 }

@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Το cape του {name} διατηρείται.",
   "{name}'s skin": "Το skin του {name}",
   "{name}'s skin is kept.": "Το skin του {name} διατηρείται.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ένα όνομα έχει 3 έως 16 γράμματα, ψηφία ή _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ένα όνομα έχει 3 έως 16 γράμματα, ψηφία ή _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Το Horizon Atlas δεν υποστηρίζει ακόμη σύνδεση με τη Microsoft."
 }

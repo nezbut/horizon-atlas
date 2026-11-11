@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Pel de {name}",
   "{name}'s skin is kept.": "A pel de {name} consérvase.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: un nome ten de 3 a 16 letras, díxitos ou _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas aínda non admite iniciar sesión con Microsoft.",
   "Use the Microsoft account for {name}.": "Usa a conta de Microsoft para {name}.",
   "Use these jars": "Use estes frascos",
   "Used from the next start.": "Usado a partir do seguinte inicio.",

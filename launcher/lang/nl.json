@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Skin van {name}",
   "{name}'s skin is kept.": "De skin van {name} blijft bewaard.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: een naam bestaat uit 3 tot 16 letters, cijfers of _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ondersteunt aanmelden bij Microsoft nog niet.",
   "Use the Microsoft account for {name}.": "Gebruik het Microsoft-account voor {name}.",
   "Use these jars": "Gebruik deze potten",
   "Used from the next start.": "Gebruikt vanaf de volgende start.",

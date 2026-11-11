@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Miret eo mantell {name}.",
   "{name}'s skin": "Kroc'hen {name}",
   "{name}'s skin is kept.": "Miret eo kroc'hen {name}.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: un anv a zo 3 da 16 lizherenn, sifroù pe _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: un anv a zo 3 da 16 lizherenn, sifroù pe _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ne skor ket kevreadur gant Microsoft c'hoazh."
 }

@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Плашч {name} захаваны.",
   "{name}'s skin": "Скін {name}",
   "{name}'s skin is kept.": "Скін {name} захаваны.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: імя — ад 3 да 16 літар, лічбаў або _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: імя — ад 3 да 16 літар, лічбаў або _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas пакуль не падтрымлівае ўваход праз Microsoft."
 }

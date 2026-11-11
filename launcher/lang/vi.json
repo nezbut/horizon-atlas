@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Áo choàng của {name} đã được giữ lại.",
   "{name}'s skin": "Skin của {name}",
   "{name}'s skin is kept.": "Skin của {name} đã được giữ lại.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: tên gồm 3 đến 16 chữ cái, chữ số hoặc _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: tên gồm 3 đến 16 chữ cái, chữ số hoặc _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas chưa hỗ trợ đăng nhập bằng Microsoft."
 }

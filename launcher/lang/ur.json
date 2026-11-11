@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name} کی جلد",
   "{name}'s skin is kept.": "{name} کی جلد محفوظ ہے۔",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: نام 3 سے 16 حروف، ہندسوں یا _ پر مشتمل ہونا چاہیے۔",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ابھی Microsoft کے ساتھ سائن ان کو سپورٹ نہیں کرتا۔"
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ابھی Microsoft کے ساتھ سائن ان کو سپورٹ نہیں کرتا۔",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Horizon Atlas کا اپنا ڈیٹا بھی حذف کریں: اس کے اکاؤنٹس، آف لائن نام، اسکنز اور کیپس",
+  "Don't show again": "دوبارہ نہ دکھائیں",
+  "Download installer": "انسٹالر ڈاؤن لوڈ کریں",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher انسٹال ہو گیا ہے۔",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher ہٹا دیا گیا ہے۔",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas اب سرکاری لانچر کے ساتھ خود انسٹال ہوتا ہے۔ اسے منتقل کرنے کے لیے نیا انسٹالر ڈاؤن لوڈ کریں: اس کا آپشن یہ نسخہ ہٹا دے گا۔ آپ کی دنیائیں اور ترتیبات وہیں رہیں گی۔",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "اس اکاؤنٹ کے لیے Horizon Atlas Launcher انسٹال کریں۔ ایڈمنسٹریٹر کی ضرورت نہیں۔",
+  "Launch Horizon Atlas": "Horizon Atlas شروع کریں",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "پرانی Horizon Atlas انسٹالیشن ہٹائیں (Horizon Launcher فولڈر سے)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "اس کمپیوٹر سے Horizon Atlas Launcher ہٹائیں۔ آپ کی دنیائیں اور گیم کا فولڈر باقی رہیں گے۔",
+  "Removing Horizon Atlas's own data": "Horizon Atlas کا اپنا ڈیٹا حذف ہو رہا ہے"
 }

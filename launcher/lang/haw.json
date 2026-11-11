@@ -1271,5 +1271,16 @@
   "{name}'s skin": "ʻIli o {name}",
   "{name}'s skin is kept.": "Mālama ʻia ka ʻili o {name}.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: he 3 a 16 ka lōʻihi o kahi inoa me nā huaʻōlelo, nā helu a me _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Aʻole i kākoʻo ʻia ka Horizon Atlas i ka ʻeʻe me Microsoft i kēia manawa."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Aʻole i kākoʻo ʻia ka Horizon Atlas i ka ʻeʻe me Microsoft i kēia manawa.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "E holoi pū ʻo ka ʻikepili ponoʻī o Horizon Atlas: kāna mau moʻokāʻi, nā inoa offline, nā skin a me nā cape",
+  "Don't show again": "Mai hōʻike hou",
+  "Download installer": "Hoʻoiho i ka mea hoʻonohonoho",
+  "Horizon Atlas Launcher is installed.": "Ua hoʻonohonoho ʻia ʻo Horizon Atlas Launcher.",
+  "Horizon Atlas Launcher was removed.": "Ua wehe ʻia ʻo Horizon Atlas Launcher.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Ke hoʻonohonoho ʻia nei ʻo Horizon Atlas iā ia iho, ma ka ʻaoʻao o ka mea hoʻohana ʻoihana. No ka neʻe ʻana, e hoʻoiho i ka mea hoʻonohonoho hou: ʻo kāna koho e wehe i kēia kope. Noho nā honua a me nā hoʻonohonoho ma kahi o lākou.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Hoʻonohonoho ʻo Horizon Atlas Launcher no kēia moʻokāʻi. ʻAʻole pono ke kuleana luna.",
+  "Launch Horizon Atlas": "Hoʻomaka iā Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "E wehe i ka hoʻonohonoho kahiko o Horizon Atlas (mai ka waihona Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "E wehe ʻo Horizon Atlas Launcher mai kēia kamepiula. Noho nā honua a me ka waihona pāʻani.",
+  "Removing Horizon Atlas's own data": "Ke wehe nei i ka ʻikepili ponoʻī o Horizon Atlas"
 }

@@ -1271,5 +1271,16 @@
   "{name}'s skin": "הסקין של {name}",
   "{name}'s skin is kept.": "הסקין של {name} נשמר.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: שם חייב להיות בין 3 ל-16 אותיות, ספרות או _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas עדיין אינו תומך בכניסה עם Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas עדיין אינו תומך בכניסה עם Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "מחק גם את הנתונים של Horizon Atlas עצמו: החשבונות שלו, שמות לא מקוונים, סקינים וקייפים",
+  "Don't show again": "אל תציג שוב",
+  "Download installer": "הורדת תוכנית ההתקנה",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher הותקן.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher הוסר.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas מתקין את עצמו כעת, לצד המשגר הרשמי. כדי להעביר אותו, הורד את תוכנית ההתקנה החדשה: האפשרות שבה מסירה את העותק הזה. העולמות וההגדרות שלך יישארו במקומם.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "מתקין את Horizon Atlas Launcher עבור חשבון זה. אין צורך בהרשאות מנהל.",
+  "Launch Horizon Atlas": "הפעל את Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "הסר את ההתקנה הישנה של Horizon Atlas (מתיקיית Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "מסיר את Horizon Atlas Launcher מהמחשב הזה. העולמות שלך ותיקיית המשחק יישארו.",
+  "Removing Horizon Atlas's own data": "מוחק את הנתונים של Horizon Atlas עצמו"
 }

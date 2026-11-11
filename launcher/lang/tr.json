@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name} skini",
   "{name}'s skin is kept.": "{name} için skin korundu.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: bir isim 3 ila 16 harf, rakam veya _ olmalı",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas henüz Microsoft ile oturum açmayı desteklemiyor."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas henüz Microsoft ile oturum açmayı desteklemiyor.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Horizon Atlas'ın kendi verilerini de sil: hesapları, çevrimdışı adları, skinleri ve pelerinleri",
+  "Don't show again": "Bir daha gösterme",
+  "Download installer": "Yükleyiciyi indir",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher yüklendi.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher kaldırıldı.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas artık resmi başlatıcının yanında kendi kendine kurulur. Taşımak için yeni yükleyiciyi indirin: yükleyicideki seçenek bu kopyayı kaldırır. Dünyalarınız ve ayarlarınız olduğu yerde kalır.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Bu hesap için Horizon Atlas Launcher'ı yükler. Yönetici yetkisi gerekmez.",
+  "Launch Horizon Atlas": "Horizon Atlas'ı başlat",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Eski Horizon Atlas kurulumunu kaldır (Horizon Launcher klasöründen)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Horizon Atlas Launcher'ı bu bilgisayardan kaldırır. Dünyalarınız ve oyun klasörü kalır.",
+  "Removing Horizon Atlas's own data": "Horizon Atlas'ın kendi verileri kaldırılıyor"
 }

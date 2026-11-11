@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name} skin",
   "{name}'s skin is kept.": "{name} skin išsaugotas.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: vardas turi būti 3–16 raidžių, skaitmenų arba _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas dar nepalaiko prisijungimo naudojant „Microsoft“."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas dar nepalaiko prisijungimo naudojant „Microsoft“.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Taip pat ištrinti Horizon Atlas savo duomenis: paskyras, neprisijungusių žaidėjų vardus, skinus ir apdangalus",
+  "Don't show again": "Nerodyti dar kartą",
+  "Download installer": "Atsisiųsti diegimo programą",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher įdiegtas.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher pašalintas.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas dabar diegiamas savarankiškai, šalia oficialios paleidimo priemonės. Norint ją perkelti, atsisiųskite naują diegimo programą: jos parinktis pašalina šią kopiją. Jūsų pasauliai ir nustatymai lieka kur buvo.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Įdiegia Horizon Atlas Launcher šiai paskyrai. Administratoriaus teisių nereikia.",
+  "Launch Horizon Atlas": "Paleisti Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Pašalinti seną Horizon Atlas diegimą (iš Horizon Launcher aplanko)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Pašalina Horizon Atlas Launcher iš šio kompiuterio. Jūsų pasauliai ir žaidimo aplankas lieka.",
+  "Removing Horizon Atlas's own data": "Šalinami Horizon Atlas duomenys"
 }

@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name} āda",
   "{name}'s skin is kept.": "{name} āda tiek saglabāta.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: vārdam jābūt 3–16 burtiem, cipariem vai _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas vēl neatbalsta pierakstīšanos ar Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas vēl neatbalsta pierakstīšanos ar Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Dzēst arī Horizon Atlas pašu datus: tā kontus, bezsaistes vārdus, skinus un apmetņus",
+  "Don't show again": "Vairs nerādīt",
+  "Download installer": "Lejupielādēt instalētāju",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher ir instalēts.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher ir noņemts.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas tagad instalējas pats blakus oficiālajam palaidējam. Lai to pārvietotu, lejupielādējiet jauno instalētāju: tā opcija noņem šo kopiju. Jūsu pasaules un iestatījumi paliek tur, kur ir.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Instalē Horizon Atlas Launcher šim kontam. Administratora tiesības nav vajadzīgas.",
+  "Launch Horizon Atlas": "Palaist Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Noņemt veco Horizon Atlas instalāciju (no Horizon Launcher mapes)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Noņem Horizon Atlas Launcher no šī datora. Jūsu pasaules un spēles mape paliek.",
+  "Removing Horizon Atlas's own data": "Horizon Atlas pašu datu dzēšana"
 }

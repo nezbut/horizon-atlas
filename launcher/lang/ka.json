@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name}-ის სკინი",
   "{name}'s skin is kept.": "{name}-ის სკინი შენარჩუნებულია.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: სახელი უნდა იყოს 3-დან 16 ასომდე, ციფრი ან _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ჯერ არ უჭერს მხარს Microsoft-ით შესვლას."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ჯერ არ უჭერს მხარს Microsoft-ით შესვლას.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "ასევე წაშალე Horizon Atlas-ის საკუთარი მონაცემებიც: მისი ანგარიშები, ოფლაინ სახელები, სკინები და ქეფები",
+  "Don't show again": "აღარ მაჩვენო",
+  "Download installer": "ინსტალერის ჩამოტვირთვა",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher დაინსტალირებულია.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher წაიშალა.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas ახლა თავისით ინსტალირდება ოფიციალური ლაუნჩერის გვერდით. გადასატანად ჩამოტვირთე ახალი ინსტალერი: მისი ვარიანტი წაშლის ამ ასლს. შენი სამყაროები და პარამეტრები თავის ადგილას დარჩება.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "ამ ანგარიშისთვის აინსტალირებს Horizon Atlas Launcher-ს. ადმინისტრატორის უფლება არ სჭირდება.",
+  "Launch Horizon Atlas": "Horizon Atlas-ის გაშვება",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Horizon Atlas-ის ძველი ინსტალაციის წაშლა (Horizon Launcher-ის საქაღალდიდან)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "შლის Horizon Atlas Launcher-ს ამ კომპიუტერიდან. შენი სამყაროები და თამაშის საქაღალდე დარჩება.",
+  "Removing Horizon Atlas's own data": "Horizon Atlas-ის საკუთარი მონაცემების წაშლა"
 }

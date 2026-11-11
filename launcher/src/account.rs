@@ -21,7 +21,7 @@ use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 /// The keychain service name every secret is stored under.
-pub const SERVICE: &str = "dev.playhorizon.launcher";
+pub const SERVICE: &str = "io.github.nezbut.horizon-atlas";
 const SCOPE: &str = "XboxLive.signin offline_access";
 pub const NOT_CONFIGURED: &str = "This build of the launcher has no Microsoft sign-in (HORIZON_MSA_CLIENT_ID), so it can't start the game.";
 /// What every Play says while no account in the launcher owns the game.
@@ -790,7 +790,7 @@ impl FileStore {
 
     /// The launcher's own: [`SECRETS_FILE`] in its data folder.
     pub fn launcher() -> Self {
-        Self::new(crate::backend::data_dir().join(SECRETS_FILE))
+        Self::new(crate::offline::atlas_dir().join(SECRETS_FILE))
     }
 
     fn shown(&self, e: std::io::Error) -> String {
@@ -1713,7 +1713,7 @@ fn secrets_in(store: &dyn SecretStore, uuid: &str) -> Option<Secrets> {
 
 impl Accounts {
     pub(crate) fn path() -> PathBuf {
-        crate::backend::data_dir().join("accounts.json")
+        crate::offline::atlas_dir().join("accounts.json")
     }
     pub fn load() -> Self {
         Self::load_from(&Self::path())
@@ -2269,6 +2269,9 @@ pub struct GameSession {
 /// The owner gate for the game about to start, then the selected account's session in a file
 /// for it, and the other accounts' for its splitscreen players.
 pub fn session_for_game(game_home: &Path) -> Result<GameSession, NoOwner> {
+    if let Some(session) = crate::offline::session() {
+        return Ok(session);
+    }
     let mut accounts = Accounts::load();
     let pass = launch_for_game(
         &Endpoints::live(),

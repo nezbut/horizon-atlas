@@ -1271,6 +1271,7 @@
   "{name}'s skin": "Is-skin ta' {name}",
   "{name}'s skin is kept.": "Is-skin ta' {name} tinżamm.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: isem irid ikun ta' 3 sa 16 ittra, ċifri jew _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas għadu ma jappoġġjax id-dħul ma' Microsoft.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
   "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
 }

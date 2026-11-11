@@ -1271,6 +1271,7 @@
   "{name}'s skin": "Akpụkpọ {name}",
   "{name}'s skin is kept.": "Echekwara akpụkpọ {name}.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: aha nwere mkpụrụedemede 3 ruo 16, ọnụọgụ ma ọ bụ _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas enweghị nkwado maka ịbanye site na Microsoft ka mma.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
   "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
 }

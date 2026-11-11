@@ -1271,6 +1271,7 @@
   "{name}'s skin": "Pèl de {name}",
   "{name}'s skin is kept.": "La pèl de {name} es gardada.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name} : un nom fa 3 a 16 letras, chifras o _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas pren pas encara en carga la connexion amb Microsoft.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
   "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
 }

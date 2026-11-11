@@ -1271,6 +1271,7 @@
   "{name}'s skin": "Croen {name}",
   "{name}'s skin is kept.": "Mae croen {name} wedi'i gadw.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: enw o 3 i 16 o lythrennau, digidau neu _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Nid yw Horizon Atlas yn cefnogi mewngofnodi gyda Microsoft eto.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
   "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
 }

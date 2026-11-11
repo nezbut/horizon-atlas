@@ -1271,6 +1271,7 @@
   "{name}'s skin": "{name} skin",
   "{name}'s skin is kept.": "{name} skin jäetakse alles.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: nimi on 3–16 tähte, numbrit või _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ei toeta veel Microsofti sisselogimist.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
   "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
 }

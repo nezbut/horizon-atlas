@@ -311,7 +311,7 @@ impl Launcher {
                     ],
                 ),
                 // Signed out, the button says "Sign in to play": the line says the same.
-                None if self.owner == Some(false)
+                None if self.atlas_owner() == Some(false)
                     && !horizon_launcher::developer_offline::selected() =>
                 {
                     tr("You haven't played this one yet. Sign in to start.").into()

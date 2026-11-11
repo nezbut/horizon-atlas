@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "تم الاحتفاظ بعباءة {name}.",
   "{name}'s skin": "جلد {name}",
   "{name}'s skin is kept.": "تم الاحتفاظ بجلد {name}.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: يتكون الاسم من 3 إلى 16 حرفًا أو رقمًا أو _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: يتكون الاسم من 3 إلى 16 حرفًا أو رقمًا أو _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "لا يدعم Horizon Atlas تسجيل الدخول بواسطة Microsoft بعد."
 }

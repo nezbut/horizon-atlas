@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name} plaşı saxlanılır.",
   "{name}'s skin": "{name} dərisi",
   "{name}'s skin is kept.": "{name} dərisi saxlanılır.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ad 3-16 hərf, rəqəm və ya _ olmalıdır"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ad 3-16 hərf, rəqəm və ya _ olmalıdır",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas hələ Microsoft ilə daxil olmağı dəstəkləmir."
 }

@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name}의 망토가 유지됩니다.",
   "{name}'s skin": "{name}의 스킨",
   "{name}'s skin is kept.": "{name}의 스킨이 유지됩니다.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: 이름은 3~16자의 글자, 숫자 또는 _여야 합니다"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: 이름은 3~16자의 글자, 숫자 또는 _여야 합니다",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas는 아직 Microsoft 로그인을 지원하지 않습니다."
 }

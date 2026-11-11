@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Cape {name} dikekalkan.",
   "{name}'s skin": "Skin {name}",
   "{name}'s skin is kept.": "Skin {name} dikekalkan.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: nama mestilah 3 hingga 16 huruf, digit atau _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: nama mestilah 3 hingga 16 huruf, digit atau _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas belum menyokong log masuk dengan Microsoft."
 }

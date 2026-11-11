@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Nanatili ang cape ni {name}.",
   "{name}'s skin": "Skin ni {name}",
   "{name}'s skin is kept.": "Nanatili ang skin ni {name}.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ang pangalan ay 3 hanggang 16 na letra, digit, o _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ang pangalan ay 3 hanggang 16 na letra, digit, o _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Hindi pa sinusuportahan ng Horizon Atlas ang pag-sign in gamit ang Microsoft."
 }

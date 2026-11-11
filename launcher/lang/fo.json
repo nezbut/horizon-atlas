@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Cape hjá {name} verður varðveitt.",
   "{name}'s skin": "Skin hjá {name}",
   "{name}'s skin is kept.": "Skin hjá {name} verður varðveitt.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: eitt navn er 3 til 16 bókstavir, tøl ella _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: eitt navn er 3 til 16 bókstavir, tøl ella _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas stuðlar ikki enn innlogging við Microsoft."
 }

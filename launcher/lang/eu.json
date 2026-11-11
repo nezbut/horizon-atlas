@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name}-ren capa gordeta dago.",
   "{name}'s skin": "{name}-ren skin-a",
   "{name}'s skin is kept.": "{name}-ren skin-a gordeta dago.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: izenak 3 eta 16 letra, zenbaki edo _ izan behar ditu"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: izenak 3 eta 16 letra, zenbaki edo _ izan behar ditu",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas-ek ez du Microsoft-ekin saio-hasiera onartzen oraindik."
 }

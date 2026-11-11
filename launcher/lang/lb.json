@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name}seng Skin",
   "{name}'s skin is kept.": "D'Skin vu(n) {name} gëtt behalen.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: e Numm huet 3 bis 16 Buschtawen, Zifferen oder _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas unterstëtzt d'Microsoft-Umeldung nach net."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas unterstëtzt d'Microsoft-Umeldung nach net.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Och d'Horizon-Atlas-eege Daten läschen: Konten, Offline-Nimm, Skins a Capes",
+  "Don't show again": "Net méi weisen",
+  "Download installer": "Installer eroflueden",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher ass installéiert.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher gouf ewechgeholl.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas installéiert sech elo selwer nieft dem offiziellen Launcher. Fir en ze plëtzen, lued den neie Installer erof: seng Optioun entfernt dës Kopie. Är Welten a Astellungen bleiwen, wou se sinn.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Installéiert Horizon Atlas Launcher fir dëst Kont. Keen Administrator néideg.",
+  "Launch Horizon Atlas": "Horizon Atlas starten",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Déi al Horizon-Atlas-Installatioun ewechhuelen (aus dem Dossier „Horizon Launcher“)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Entfernt Horizon Atlas Launcher vun dësem Computer. Är Welten an de Spillordner bleiwen.",
+  "Removing Horizon Atlas's own data": "Horizon-Atlas-eege Daten ginn ewechgeholl"
 }

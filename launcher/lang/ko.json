@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name}의 스킨",
   "{name}'s skin is kept.": "{name}의 스킨이 유지됩니다.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: 이름은 3~16자의 글자, 숫자 또는 _여야 합니다",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas는 아직 Microsoft 로그인을 지원하지 않습니다."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas는 아직 Microsoft 로그인을 지원하지 않습니다.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Horizon Atlas 자체 데이터(계정, 오프라인 이름, 스킨, 망토)도 함께 삭제",
+  "Don't show again": "다시 표시하지 않음",
+  "Download installer": "설치 프로그램 다운로드",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher가 설치되었습니다.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher가 제거되었습니다.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas는 이제 공식 런처와 별도로 설치됩니다. 옮기려면 새 설치 프로그램을 다운로드하세요. 설치 프로그램의 옵션으로 이 사본이 제거됩니다. 월드와 설정은 그대로 유지됩니다.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "이 계정용 Horizon Atlas Launcher를 설치합니다. 관리자 권한은 필요하지 않습니다.",
+  "Launch Horizon Atlas": "Horizon Atlas 시작",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "이전 Horizon Atlas 설치본 제거 (Horizon Launcher 폴더에서)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "이 컴퓨터에서 Horizon Atlas Launcher를 제거합니다. 월드와 게임 폴더는 유지됩니다.",
+  "Removing Horizon Atlas's own data": "Horizon Atlas 자체 데이터 제거 중"
 }

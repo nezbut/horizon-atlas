@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name} skini",
   "{name}'s skin is kept.": "{name} skini saqlandi.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: ism 3 dan 16 gacha harf, raqam yoki _ dan iborat boʻlishi kerak",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas hali Microsoft bilan tizimga kirishni qoʻllab-quvvatlamaydi."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas hali Microsoft bilan tizimga kirishni qoʻllab-quvvatlamaydi.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Horizon Atlas'ning o‘z ma’lumotlarini ham o‘chirish: hisoblari, oflayn nomlari, skinlari va pelerinlari",
+  "Don't show again": "Qayta ko‘rsatilmasin",
+  "Download installer": "O‘rnatuvchini yuklab olish",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher o‘rnatildi.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher o‘chirildi.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas endi rasmiy launcher yonida o‘zi o‘rnatiladi. Uni ko‘chirish uchun yangi o‘rnatuvchini yuklab oling: uning varianti bu nusxani o‘chiradi. Dunyolaringiz va sozlamalaringiz o‘z joyida qoladi.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Ushbu hisob uchun Horizon Atlas Launcher’ni o‘rnatadi. Administrator huquqi talab etilmaydi.",
+  "Launch Horizon Atlas": "Horizon Atlas’ni ishga tushirish",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Eski Horizon Atlas o‘rnatilishini olib tashlash (Horizon Launcher papkasidan)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Bu kompyuterdan Horizon Atlas Launcher’ni olib tashlaydi. Dunyolaringiz va o‘yin papkasi qoladi.",
+  "Removing Horizon Atlas's own data": "Horizon Atlas’ning o‘z ma’lumotlari o‘chirilmoqda"
 }

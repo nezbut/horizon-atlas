@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skin di {name}",
   "{name}'s skin is kept.": "Il skin di {name} e reste.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: un non al à di 3 a 16 letaris, numars o _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas nol supuarte ancjemò l'accès cun Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas nol supuarte ancjemò l'accès cun Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Scancele ancje i dâts propris di Horizon Atlas: i siei account, i nons offline, lis skins e lis capis",
+  "Don't show again": "No mostrâ plui",
+  "Download installer": "Discjame l'instalatôr",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher al è instalât.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher al è stât gjavât.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas al ven instalât cumò di bessôl, dongje dal launcher uficiâl. Par spostâlu, discjame il gnûf instalatôr: la sô opzion e gjave cheste copie. I tiei mondos e lis impostazions a restin dulà che a son.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Al instale Horizon Atlas Launcher par chest account. No covente jessi aministradôr.",
+  "Launch Horizon Atlas": "Vierç Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Gjave la vecje instalazion di Horizon Atlas (de cartele di Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Al gjave Horizon Atlas Launcher di chest computer. I tiei mondos e la cartele dal zuc a restin.",
+  "Removing Horizon Atlas's own data": "Si gjavin i dâts propris di Horizon Atlas"
 }

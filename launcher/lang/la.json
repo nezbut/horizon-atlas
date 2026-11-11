@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skinus {name}",
   "{name}'s skin is kept.": "Skinus {name} servatur.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: nomen 3 ad 16 litteras, numeros vel _ habet",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas introitum per Microsoft nondum sustinet."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas introitum per Microsoft nondum sustinet.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Etiam data propria Horizon Atlas delere: rationes, nomina offline, pelles et palliola",
+  "Don't show again": "Noli iterum monere",
+  "Download installer": "Installatorem deponere",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher installatus est.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher remotus est.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas nunc seorsim iuxta Launcherem officialem installatur. Ut eam moveas, novum installatorem depone: eius optio hanc copiam removet. Mundi et optiones suis locis manent.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Installat Horizon Atlas Launcher pro hac ratione. Administrator non opus est.",
+  "Launch Horizon Atlas": "Horizon Atlas incipe",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Vetus Horizon Atlas installatio removetur (ex folliculo Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Horizon Atlas Launcher ex hoc computatro removet. Mundi et folliculus ludi manent.",
+  "Removing Horizon Atlas's own data": "Data propria Horizon Atlas removentur"
 }

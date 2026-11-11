@@ -1271,5 +1271,16 @@
   "{name}'s skin": "La haŭto de {name}",
   "{name}'s skin is kept.": "La haŭto de {name} restas.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: nomo havas 3 ĝis 16 literojn, ciferojn aŭ _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ankoraŭ ne subtenas ensalutadon per Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ankoraŭ ne subtenas ensalutadon per Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Ankaŭ forigu la propraj datumoj de Horizon Atlas: ĝiaj kontoj, neliniaj nomoj, skinojn kaj mantelojn",
+  "Don't show again": "Ne montru denove",
+  "Download installer": "Elŝuti la instalilon",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher estas instalita.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher estis forigita.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas nun instalas sin memstare, apud la oficiala lanĉilo. Por movi ĝin, elŝutu la novan instalilon: ĝia opcio forigas ĉi tiun kopion. Viaj mondoj kaj agordoj restas kie ili estas.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Instalas Horizon Atlas Launcher por ĉi tiu konto. Administranto ne necesas.",
+  "Launch Horizon Atlas": "Lanĉi Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Forigi la malnovan instaladon de Horizon Atlas (el la dosierujo de Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Forigas Horizon Atlas Launcher de ĉi tiu komputilo. Viaj mondoj kaj la dosierujo de la ludo restas.",
+  "Removing Horizon Atlas's own data": "Forigado de la propraj datumoj de Horizon Atlas"
 }

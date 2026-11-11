@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name} ivdni",
   "{name}'s skin is kept.": "{name} ivdni bissu.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: namma lea 3–16 bukstaba, lohku dahje _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ii leat vel doarjjagis Microsoft sisaloggadeami."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ii leat vel doarjjagis Microsoft sisaloggadeami.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Sihko maiddái Horizon Atlas iežas dieđuid: kontoid, offline-namaid, skins ja capes",
+  "Don't show again": "Ii čájet fas",
+  "Download installer": "Viežžat installerii",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher lea installerejuvvon.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher lea poastabealde váldojuvvon.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas installerejuvvo dál iežas, oktan almmolaš launcheriin. Movttiidahttit dan, viežžat ođđa installeriin: dat optuvdna sihkkuda dán kopiija. Du máilmmit ja heivehusat leat goas leat.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Installere Horizon Atlas Launcher dán kontui. Ii dárbbašuvvo hállin.",
+  "Launch Horizon Atlas": "Álggat Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Sihko boares Horizon Atlas installerejupmi (Horizon Launcher fálddagis)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Sihkkuda Horizon Atlas Launcher dán dators. Du máilmmit ja speallamápa leat.",
+  "Removing Horizon Atlas's own data": "Horizon Atlas iežas dieđut sihkkojuvvojit"
 }

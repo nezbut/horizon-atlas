@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skin {name}",
   "{name}'s skin is kept.": "Thèid skin {name} a chumail.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: tha ainm eadar 3 agus 16 litrichean, àireamhan no _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Chan eil taic aig Horizon Atlas ri log a-steach le Microsoft fhathast."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Chan eil taic aig Horizon Atlas ri log a-steach le Microsoft fhathast.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Sguab às cuideachd dàta Horizon Atlas fhèin: na cunntasan aige, na h-ainmean far loidhne, na skins 's na capes",
+  "Don't show again": "Na seall a-rithist",
+  "Download installer": "Luchdaich a-nuas an stàlaichear",
+  "Horizon Atlas Launcher is installed.": "Tha Horizon Atlas Launcher air a stàladh.",
+  "Horizon Atlas Launcher was removed.": "Chaidh Horizon Atlas Launcher a thoirt air falbh.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Stàlaidh Horizon Atlas e fhèin a-nis, ri taobh a' bhun-luingeas oifigeil. Gus a ghluasad, luchdaich a-nuas an stàlaichear ùr: tha an roghainn aige a' toirt air falbh an lethbhric seo. Fuirichidh na saoghalan agus na roghainnean agad far a bheil iad.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Stàlaidh Horizon Atlas Launcher airson a' chunntais seo. Chan eil feum air ceadan rianaire.",
+  "Launch Horizon Atlas": "Tòisich Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Thoir air falbh an t-seann stàladh de Horizon Atlas (o phasgan Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Bheir Horizon Atlas Launcher air falbh far a' choimpiutair seo. Fuirichidh na saoghalan agus pasgan a' gheama.",
+  "Removing Horizon Atlas's own data": "Dàta Horizon Atlas fhèin ga sguabadh às"
 }

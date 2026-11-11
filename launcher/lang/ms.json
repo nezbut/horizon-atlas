@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skin {name}",
   "{name}'s skin is kept.": "Skin {name} dikekalkan.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: nama mestilah 3 hingga 16 huruf, digit atau _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas belum menyokong log masuk dengan Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas belum menyokong log masuk dengan Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Padam juga data Horizon Atlas sendiri: akaun, nama luar talian, kulit dan jubah",
+  "Don't show again": "Jangan tunjuk lagi",
+  "Download installer": "Muat turun pemasang",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher telah dipasang.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher telah dibuang.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas kini dipasang sendiri, di sebelah pelancar rasmi. Untuk memindahkannya, muat turun pemasang baharu: pilihannya akan membuang salinan ini. Dunia dan tetapan anda kekal di tempatnya.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Memasang Horizon Atlas Launcher untuk akaun ini. Tidak memerlukan pentadbir.",
+  "Launch Horizon Atlas": "Lancarkan Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Buang pemasangan Horizon Atlas lama (dari folder Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Membuang Horizon Atlas Launcher daripada komputer ini. Dunia dan folder permainan anda kekal.",
+  "Removing Horizon Atlas's own data": "Memadam data Horizon Atlas sendiri"
 }

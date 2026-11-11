@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Skin hráče {name}",
   "{name}'s skin is kept.": "Skin hráče {name} je zachován.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: jméno má 3 až 16 písmen, číslic nebo _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas zatím nepodporuje přihlášení pomocí Microsoftu.",
   "Use the Microsoft account for {name}.": "Použijte účet Microsoft pro {name}.",
   "Use these jars": "Použijte tyto JAR soubory",
   "Used from the next start.": "Používá se od dalšího startu.",

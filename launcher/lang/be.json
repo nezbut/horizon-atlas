@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Скін {name}",
   "{name}'s skin is kept.": "Скін {name} захаваны.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: імя — ад 3 да 16 літар, лічбаў або _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas пакуль не падтрымлівае ўваход праз Microsoft.",
   "Use the Microsoft account for {name}.": "Выкарыстоўвайце ўліковы запіс Microsoft для {name}.",
   "Use these jars": "Выкарыстаць гэтыя jar-файлы",
   "Used from the next start.": "Выкарыстоўваецца з наступнага запуску.",

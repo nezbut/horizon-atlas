@@ -1339,8 +1339,10 @@ impl Launcher {
             &t,
         )
         .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
-            this.go(Page::Settings);
-            this.start_sign_in();
+            if !this.atlas_refuse_sign_in() {
+                this.go(Page::Settings);
+                this.start_sign_in();
+            }
             cx.notify();
         }));
         glass::plate(radius::PANEL)

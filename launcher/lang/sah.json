@@ -1110,6 +1110,7 @@
   "{name}'s skin": "{name} тириитэ",
   "{name}'s skin is kept.": "{name} тириитэ харыстаммыт.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: аат 3-тэн 16-га диэри буукубалар, цифралар эбэтэр _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas Microsoft-тан киириини өссө дэмнээбэт.",
   "Use the Microsoft account for {name}.": "Microsoft учуоту {name}-га туттуҥ.",
   "Use these jars": "Бу бааҥкалары туһан",
   "Used from the next start.": "Кэлэр саҕаланыаҕыттан туттуллар.",

@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Skin {name}",
   "{name}'s skin is kept.": "Thèid skin {name} a chumail.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: tha ainm eadar 3 agus 16 litrichean, àireamhan no _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Chan eil taic aig Horizon Atlas ri log a-steach le Microsoft fhathast.",
   "Use the Microsoft account for {name}.": "Cleachd an cunntas Microsoft airson {name}.",
   "Use these jars": "Cleachd na soithichean sin",
   "Used from the next start.": "Air a chleachdadh bhon ath thoiseach.",

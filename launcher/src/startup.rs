@@ -80,6 +80,11 @@ fn run_launcher() {
     #[cfg(not(windows))]
     let setup_window: Option<horizon_launcher::setup_args::Mode> = None;
     if setup_window.is_none() {
+        if let Some(code) = horizon_launcher::offline::cli::from_env() {
+            std::process::exit(code);
+        }
+    }
+    if setup_window.is_none() {
         if let Some(code) = cli::run() {
             std::process::exit(code);
         }

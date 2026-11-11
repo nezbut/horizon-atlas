@@ -133,9 +133,9 @@ got=$("$out/$name" --appimage-extract-and-run --version)
 data=$work/data
 HORIZON_LAUNCHER_HOME=$work/home XDG_DATA_HOME=$data \
   "$out/$name" --appimage-extract-and-run desktop-entry > /dev/null
-grep -Fq "Exec=\"$out/$name\"" "$data/applications/horizon-launcher.desktop" || {
+grep -Fq "Exec=\"$out/$name\"" "$data/applications/horizon-atlas.desktop" || {
   echo "error: the menu entry does not start $out/$name" >&2
-  cat "$data/applications/horizon-launcher.desktop" >&2
+  cat "$data/applications/horizon-atlas.desktop" >&2
   exit 1
 }
 

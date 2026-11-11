@@ -15,6 +15,8 @@ mod launcher_setup;
 mod widgets;
 pub(crate) use widgets::*;
 mod agents_page;
+mod atlas_profile;
+mod atlas_ui;
 mod atlas_updates;
 mod blocks;
 mod build_mode;
@@ -133,6 +135,8 @@ enum Page {
     /// Mods, resource packs and modpacks (imported ones and the browser's).
     Mods,
     Servers,
+    /// Atlas's offline names with their skins and capes (`atlas_profile.rs`).
+    Profile,
     /// What the player wears (`wardrobe_page.rs`), with the cosmetics flag on.
     Wardrobe,
     /// Cosmetics to try on and buy (`wardrobe_page/shop.rs`), beside the Wardrobe and under the
@@ -151,6 +155,7 @@ impl Page {
         let page = match std::env::var("HORIZON_LAUNCHER_PAGE").as_deref() {
             Ok("mods" | "modpacks" | "resourcepacks" | "shaders" | "datapacks") => Page::Mods,
             Ok("servers") => Page::Servers,
+            Ok("profile") => Page::Profile,
             Ok("wardrobe") if horizon_cosmetics::forced() => Page::Wardrobe,
             Ok("shop") if horizon_cosmetics::forced() => Page::Shop,
             Ok("versions") => Page::Versions,
@@ -167,10 +172,11 @@ impl Page {
 
     /// Every page, with its name and icon: the top bar shows all but Settings, which has its
     /// own button.
-    const ALL: [(Page, &'static str, &'static str); 7] = [
+    const ALL: [(Page, &'static str, &'static str); 8] = [
         (Page::Play, "Home", "home"),
         (Page::Mods, "Mods", "package"),
         (Page::Servers, "Servers", "server"),
+        (Page::Profile, "Profile", "user"),
         (Page::Wardrobe, "Wardrobe", "user"),
         (Page::Shop, "Shop", "bag"),
         (Page::Versions, "Versions", "archive"),
@@ -442,6 +448,8 @@ struct Launcher {
     root_focus: FocusHandle,
     /// Microsoft accounts (accounts.json), the sign-in under way and what it last showed.
     accounts: Accounts,
+    /// Atlas's offline names, who plays and its dialogs (`atlas_ui.rs`).
+    atlas: atlas_ui::AtlasUi,
     auth_status: HashMap<String, account::session::Status>,
     auth_progress: HashMap<String, account::session::Phase>,
     profile_heads: profile_heads::Heads,

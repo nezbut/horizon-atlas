@@ -211,6 +211,7 @@ impl Launcher {
             palette: None,
             toast_seen: None,
             accounts: Accounts::load(),
+            atlas: atlas_ui::AtlasUi::load(),
             auth_status: HashMap::new(),
             auth_progress: HashMap::new(),
             profile_heads: profile_heads::Heads::default(),

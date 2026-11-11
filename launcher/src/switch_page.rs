@@ -5,6 +5,9 @@ use super::*;
 impl Launcher {
     /// The chip's two lines: the name that plays, and how.
     pub(super) fn who_plays(&self) -> (String, &'static str) {
+        if let Some(who) = self.atlas_who_plays() {
+            return who;
+        }
         match self.accounts.selected() {
             Some(a) => (a.name.clone(), tr("Microsoft account")),
             None => (String::new(), tr("Sign in with Microsoft")),
@@ -12,6 +15,9 @@ impl Launcher {
     }
 
     pub(super) fn play_as(&mut self, uuid: &str) {
+        if self.atlas_play_as(uuid) {
+            return;
+        }
         let mut accounts = Accounts::load();
         let done = accounts.play_as(uuid).and_then(|()| accounts.save());
         match done {
@@ -27,6 +33,7 @@ impl Launcher {
             .accounts
             .iter()
             .map(|a| (a.uuid.clone(), a.name.clone(), tr("Microsoft")))
+            .chain(self.atlas_players())
             .collect()
     }
 
@@ -36,7 +43,7 @@ impl Launcher {
             return None;
         }
         let t = self.theme;
-        let now = self.accounts.selected().map(|a| a.uuid.clone());
+        let now = self.atlas_chosen();
         let mut menu = div()
             .id("account-menu")
             .absolute()
@@ -104,7 +111,7 @@ impl Launcher {
                 .child(tr("Manage accounts"))
                 .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
                     this.account_menu = false;
-                    this.go(Page::Settings);
+                    this.go(Page::Profile);
                     cx.notify();
                 })),
         );

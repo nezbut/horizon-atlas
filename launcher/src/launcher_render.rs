@@ -68,6 +68,7 @@ impl Render for Launcher {
             Page::Versions => self.versions_page(cx),
             Page::Mods => self.mods_page(cx),
             Page::Servers => self.servers_page(cx),
+            Page::Profile => self.profile_page(cx),
             Page::Wardrobe => self.wardrobe_page(cx),
             Page::Shop => self.shop_page(cx),
             Page::Settings => self.settings_page(cx),
@@ -230,6 +231,7 @@ impl Render for Launcher {
                     }
                     "escape" if this.welcome_escape() => {}
                     "escape" if this.consent_escape() => {}
+                    "escape" if this.atlas_escape() => {}
                     "escape" if this.native_log_escape() => {}
                     "escape" if this.servers_escape() => {}
                     "escape" if this.instance_escape() => {}
@@ -331,6 +333,7 @@ impl Render for Launcher {
         if t.glass && self.page == Page::Settings {
             root = root.child(self.settings_dialog(cx));
         }
+        root = root.children(self.atlas_dialog(cx));
         if let Some(panel) = self.native_log_panel(cx) {
             root = root.child(panel);
         }

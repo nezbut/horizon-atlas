@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Lëkura e {name}",
   "{name}'s skin is kept.": "Lëkura e {name} u ruajt.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: një emër ka 3 deri 16 shkronja, shifra ose _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ende nuk mbështet hyrjen me Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ende nuk mbështet hyrjen me Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Fshi gjithashtu të dhënat e vetë Horizon Atlas: llogaritë, emrat offline, skin-et dhe mantelet",
+  "Don't show again": "Mos e shfaq përsëri",
+  "Download installer": "Shkarko instaluesin",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher është instaluar.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher është hequr.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas tani instalohet vetë, pranë launcher-it zyrtar. Për ta zhvendosur, shkarko instaluesin e ri: opsioni i tij heq këtë kopje. Botët dhe cilësimet e tua mbeten aty ku janë.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Instalon Horizon Atlas Launcher për këtë llogari. Nuk kërkohet administrator.",
+  "Launch Horizon Atlas": "Nis Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Hiq instalimin e vjetër të Horizon Atlas (nga dosja Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Heq Horizon Atlas Launcher nga ky kompjuter. Botët e tua dhe dosja e lojës mbeten.",
+  "Removing Horizon Atlas's own data": "Të dhënat e vetë Horizon Atlas po fshihen"
 }

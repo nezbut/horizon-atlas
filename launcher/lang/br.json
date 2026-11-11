@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Kroc'hen {name}",
   "{name}'s skin is kept.": "Miret eo kroc'hen {name}.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: un anv a zo 3 da 16 lizherenn, sifroù pe _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ne skor ket kevreadur gant Microsoft c'hoazh."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ne skor ket kevreadur gant Microsoft c'hoazh.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Dilemel a ra ivez roadennoù Horizon Atlas e-unan: e gontoù, anvioù ezlinenn, kroc'hen ha kapoù",
+  "Don't show again": "Na ziskouez ket adarre",
+  "Download installer": "Pellgargañ ar staliadur",
+  "Horizon Atlas Launcher is installed.": "Staliet eo bet Horizon Atlas Launcher.",
+  "Horizon Atlas Launcher was removed.": "Dilamet eo bet Horizon Atlas Launcher.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas a staliñ dezhañ e-unan a-zevez al lañser ofisiel bremañ. Evit e lakaat en unan all, pellgargit ar staliadur nevez: an dibab a zilam an eilskrid-mañ. Ho c'hêrioù hag ho arventennoù a chom el lec'h m'emaint.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Staliañ a ra Horizon Atlas Launcher evit ar gont-mañ. Ne rankit ket bezañ merour.",
+  "Launch Horizon Atlas": "Loc'hañ Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Dilemel an hen staliadur Horizon Atlas (eus teuliad Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Dilemel a ra Horizon Atlas Launcher eus an urzhiataer-mañ. Ho c'hêrioù ha teuliad ar c'hêm a chom.",
+  "Removing Horizon Atlas's own data": "O tilemel roadennoù Horizon Atlas o-unan"
 }

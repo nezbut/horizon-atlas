@@ -1271,5 +1271,16 @@
   "{name}'s skin": "skin {name}",
   "{name}'s skin is kept.": "skin مربوط به {name} نگه داشته شد.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: نام باید ۳ تا ۱۶ حرف، رقم یا _ باشد",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas هنوز از ورود با مایکروسافت پشتیبانی نمی‌کند."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas هنوز از ورود با مایکروسافت پشتیبانی نمی‌کند.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "دادههای خود Horizon Atlas را هم حذف کن: حساب‌ها، نام‌های آفلاین، اسکین‌ها و کیپ‌ها",
+  "Don't show again": "دیگر نشان نده",
+  "Download installer": "دانلود نصاب",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher نصب شد.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher حذف شد.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas اکنون به‌تنهایی و کنار لانچر رسمی نصب می‌شود. برای انتقال، نصاب جدید را دانلود کنید: گزینه‌اش این نسخه را حذف می‌کند. دنیاها و تنظیماتتان سر جای خود می‌مانند.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Horizon Atlas Launcher را برای این حساب نصب می‌کند. نیازی به دسترسی مدیر نیست.",
+  "Launch Horizon Atlas": "اجرای Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "حذف نصب قدیمی Horizon Atlas (از پوشه Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Horizon Atlas Launcher را از این رایانه حذف می‌کند. دنیاها و پوشه بازی باقی می‌مانند.",
+  "Removing Horizon Atlas's own data": "در حال حذف داده‌های خود Horizon Atlas"
 }

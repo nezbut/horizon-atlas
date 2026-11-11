@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Croen {name}",
   "{name}'s skin is kept.": "Mae croen {name} wedi'i gadw.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: enw o 3 i 16 o lythrennau, digidau neu _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Nid yw Horizon Atlas yn cefnogi mewngofnodi gyda Microsoft eto."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Nid yw Horizon Atlas yn cefnogi mewngofnodi gyda Microsoft eto.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Dileu hefyd ddata Horizon Atlas ei hun: ei gyfrifon, enwau all-lein, crwyn a mentyll",
+  "Don't show again": "Peidio â dangos eto",
+  "Download installer": "Lawrlwytho'r gosodwr",
+  "Horizon Atlas Launcher is installed.": "Mae Horizon Atlas Launcher wedi'i osod.",
+  "Horizon Atlas Launcher was removed.": "Mae Horizon Atlas Launcher wedi'i dynnu.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Mae Horizon Atlas bellach yn gosod ei hun, ochr yn ochr â'r lansiwr swyddogol. I'w symud, lawrlwythwch y gosodwr newydd: mae ei opsiwn yn dileu'r copi hwn. Mae eich bydoedd a'ch gosodiadau yn aros lle maen nhw.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Yn gosod Horizon Atlas Launcher ar gyfer y cyfrif hwn. Nid oes angen gweinyddwr.",
+  "Launch Horizon Atlas": "Lansio Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Tynnu'r hen osodiad Horizon Atlas (o ffolder Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Yn tynnu Horizon Atlas Launcher oddi ar y cyfrifiadur hwn. Mae eich bydoedd a ffolder y gêm yn aros.",
+  "Removing Horizon Atlas's own data": "Yn dileu data Horizon Atlas ei hun"
 }

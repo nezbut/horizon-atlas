@@ -1271,5 +1271,16 @@
   "{name}'s skin": "A(z) {name} skinje",
   "{name}'s skin is kept.": "A(z) {name} skinje megmarad.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: a név 3–16 betűből, számjegyből vagy _ jelből álljon",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "A Horizon Atlas még nem támogatja a Microsofttal való bejelentkezést."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "A Horizon Atlas még nem támogatja a Microsofttal való bejelentkezést.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "A Horizon Atlas saját adatainak törlése is: a fiókjai, offline nevei, skinjei és köpenyei",
+  "Don't show again": "Ne jelenjen meg újra",
+  "Download installer": "Telepítő letöltése",
+  "Horizon Atlas Launcher is installed.": "A Horizon Atlas Launcher telepítve van.",
+  "Horizon Atlas Launcher was removed.": "A Horizon Atlas Launcher el lett távolítva.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "A Horizon Atlas mostantól önállóan, a hivatalos indító mellett települ. Az áthelyezéshez töltsd le az új telepítőt: annak egyik opciója eltávolítja ezt a példányt. A világaid és beállításaid a helyükön maradnak.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Ehhez a fiókhoz telepíti a Horizon Atlas Launchert. Nincs szükség rendszergazdára.",
+  "Launch Horizon Atlas": "Horizon Atlas indítása",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "A régi Horizon Atlas telepítés eltávolítása (a Horizon Launcher mappából)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Eltávolítja a Horizon Atlas Launchert erről a számítógépről. A világaid és a játék mappája megmarad.",
+  "Removing Horizon Atlas's own data": "A Horizon Atlas saját adatainak törlése"
 }

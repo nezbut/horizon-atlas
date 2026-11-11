@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Maqaarka {name}",
   "{name}'s skin is kept.": "Maqaarka {name} waa la kaydiyay.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: magac waa 3 ilaa 16 xaraf, lambar ama _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas weli ma taageero galitaanka Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas weli ma taageero galitaanka Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Sidoo kale ka tirtir xogta Horizon Atlas laftiisa: akoonnada, magacyada offline, skins-ka iyo capes-ka",
+  "Don't show again": "Mar dambe ha tusin",
+  "Download installer": "Soo deji rakibaha",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher waa la rakibay.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher waa la saaray.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas hadda wuxuu isagu ku rakibmaa dhinaca launcher-ka rasmiga ah. Si aad u wareejiso, soo deji rakibaha cusub: ikhtiyaarkiisu wuxuu tirtiri doonaa nuqulkan. Adduunyadaadii iyo settings-kaagu waxay ku sii jiri doonaan meeshoodii.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Wuxuu rakibayaa Horizon Atlas Launcher akoonkan. Ma loo baahna maamule.",
+  "Launch Horizon Atlas": "Bilow Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Ka saar rakibaadda hore ee Horizon Atlas (faylka Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Horizon Atlas Launcher ayuu ka saarayaa kombuutarkan. Adduunyadaadii iyo faylka ciyaarta way ku sii jiraan.",
+  "Removing Horizon Atlas's own data": "Xogta Horizon Atlas laftiisa ayaa la tirtirayaa"
 }

@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skin fan {name}",
   "{name}'s skin is kept.": "De skin fan {name} wurdt bewarre.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: in namme is 3 oant 16 letters, sifers of _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas stipet noch net Oanmelding mei Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas stipet noch net Oanmelding mei Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Ek Horizon Atlas syn eigen gegevens wiskje: syn accounts, offline nammen, skins en capes",
+  "Don't show again": "Net wer toane",
+  "Download installer": "Ynstallearder downloade",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher is ynstalleard.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher is fuortsmiten.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas ynstallearret himsels no neist de offisjele launcher. Om it te ferpleatsen, download de nije ynstallearder: de opsje dêrfan ferwidert dit kopy. Dyn wrâlden en ynstellingen bliuwe wêr't se binne.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Ynstallearret Horizon Atlas Launcher foar dit account. Gjin administrator nedich.",
+  "Launch Horizon Atlas": "Horizon Atlas starte",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Âlde Horizon Atlas-ynstallaasje fuortsmite (út de Horizon Launcher-map)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Ferwideret Horizon Atlas Launcher fan dizze kompjûter. Dyn wrâlden en de spielmap bliuwe.",
+  "Removing Horizon Atlas's own data": "Horizon Atlas syn eigen gegevens wurde fuortsmiten"
 }

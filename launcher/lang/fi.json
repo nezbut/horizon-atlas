@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name}n skin",
   "{name}'s skin is kept.": "{name}n skin säilytetään.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: nimi on 3–16 kirjainta, numeroa tai _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ei vielä tue kirjautumista Microsoftilla."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ei vielä tue kirjautumista Microsoftilla.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Poista myös Horizon Atlasin omat tiedot: sen tilit, offline-nimet, skinit ja capet",
+  "Don't show again": "Älä näytä uudelleen",
+  "Download installer": "Lataa asennusohjelma",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher on asennettu.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher on poistettu.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas asentuu nyt itsenäisesti virallisen launcherin rinnalle. Siirtääksesi sen lataa uusi asennusohjelma: sen valinta poistaa tämän kopion. Maailmasi ja asetuksesi pysyvät paikoillaan.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Asentaa Horizon Atlas Launcherin tälle tilille. Järjestelmänvalvojan oikeuksia ei tarvita.",
+  "Launch Horizon Atlas": "Käynnistä Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Poista vanha Horizon Atlas -asennus (Horizon Launcher -kansiosta)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Poistaa Horizon Atlas Launcherin tältä tietokoneelta. Maailmasi ja pelin kansio jäävät.",
+  "Removing Horizon Atlas's own data": "Poistetaan Horizon Atlasin omia tietoja"
 }

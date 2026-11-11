@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skin ຂອງ {name}",
   "{name}'s skin is kept.": "Skin ຂອງ {name} ຖືກເກັບໄວ້.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: ຊື່ຕ້ອງມີ 3 ຫາ 16 ໂຕອັກສອນ, ຕົວເລກ ຫຼື _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ຍັງບໍ່ຮອງຮັບການເຂົ້າສູ່ລະບົບດ້ວຍ Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ຍັງບໍ່ຮອງຮັບການເຂົ້າສູ່ລະບົບດ້ວຍ Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "ລຶບຂໍ້ມູນຂອງ Horizon Atlas ເອງນຳ: ບັນຊີ, ຊື່ offline, ສະກິນ ແລະ ແຄບ",
+  "Don't show again": "ບໍ່ສະແດງອີກ",
+  "Download installer": "ດາວໂຫຼດຕົວຕິດຕັ້ງ",
+  "Horizon Atlas Launcher is installed.": "ຕິດຕັ້ງ Horizon Atlas Launcher ແລ້ວ",
+  "Horizon Atlas Launcher was removed.": "ລຶບ Horizon Atlas Launcher ອອກແລ້ວ",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas ຕອນນີ້ຕິດຕັ້ງດ້ວຍຕົວເອງ ຄຽງຄູ່ກັບ launcher ທາງການ. ເພື່ອຍ້າຍ, ໃຫ້ດາວໂຫຼດຕົວຕິດຕັ້ງໃໝ່: ຕົວເລືອກຂອງມັນຈະລຶບສຳເນົານີ້ອອກ. ໂລກ ແລະ ການຕັ້ງຄ່າຂອງທ່ານຈະຢູ່ບ່ອນເດີມ.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "ຕິດຕັ້ງ Horizon Atlas Launcher ສຳລັບບັນຊີນີ້. ບໍ່ຕ້ອງການສິດຜູ້ດູແລ.",
+  "Launch Horizon Atlas": "ເປີດ Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "ລຶບການຕິດຕັ້ງ Horizon Atlas ເກົ່າ (ຈາກໂຟນເດີ Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "ລຶບ Horizon Atlas Launcher ອອກຈາກຄອມພິວເຕີນີ້. ໂລກ ແລະ ໂຟນເດີເກມຈະຢູ່ຄືເກົ່າ.",
+  "Removing Horizon Atlas's own data": "ກຳລັງລຶບຂໍ້ມູນຂອງ Horizon Atlas"
 }

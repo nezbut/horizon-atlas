@@ -582,6 +582,9 @@ impl Launcher {
     }
 
     pub(crate) fn begin_sign_in(&mut self, target: Option<account::Account>) {
+        if self.atlas_refuse_sign_in() {
+            return;
+        }
         self.cancel_sign_in();
         // The code page offers a private window: find the default browser meanwhile.
         std::thread::spawn(|| {

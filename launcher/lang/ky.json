@@ -1110,6 +1110,7 @@
   "{name}'s skin": "{name} скини",
   "{name}'s skin is kept.": "{name} үчүн скин сакталды.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: аты 3төн 16га чейинки тамга, сан же _ болушу керек",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas азырынча Microsoft менен кирүүнү колдобойт.",
   "Use the Microsoft account for {name}.": "{name} үчүн Microsoft эсебин колдонуңуз.",
   "Use these jars": "Бул банкаларды колдонуңуз",
   "Used from the next start.": "Кийинки башынан колдонулат.",

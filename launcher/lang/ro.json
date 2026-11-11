@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Skin-ul lui {name}",
   "{name}'s skin is kept.": "Skin-ul lui {name} este păstrat.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: un nume are 3 până la 16 litere, cifre sau _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas nu acceptă încă autentificarea cu Microsoft.",
   "Use the Microsoft account for {name}.": "Utilizați contul Microsoft pentru {name}.",
   "Use these jars": "Folosește aceste borcane",
   "Used from the next start.": "Folosit de la următorul început.",

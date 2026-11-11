@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Awọ {name}",
   "{name}'s skin is kept.": "A ti pa awọ {name} mọ.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: orukọ jẹ lẹta 3 si 16, nọmba tabi _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ko ti ṣe atilẹyin wíwọlé pẹlu Microsoft sibẹsibẹ."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ko ti ṣe atilẹyin wíwọlé pẹlu Microsoft sibẹsibẹ.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Tun pa data ara Horizon Atlas rẹ̀ pẹ̀lú: àwọn àkọọlẹ̀ rẹ̀, orúkọ offline, skin àti cape rẹ̀",
+  "Don't show again": "Má ṣe fihàn mọ́",
+  "Download installer": "Gba olùfisílẹ̀ sílẹ̀",
+  "Horizon Atlas Launcher is installed.": "A ti fi Horizon Atlas Launcher sílẹ̀.",
+  "Horizon Atlas Launcher was removed.": "A ti yọ Horizon Atlas Launcher kúrò.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas ń fi ara rẹ̀ sílẹ̀ nísinsìnyí, lẹ́gbẹ̀ẹ́ launcher oníṣẹ́ ìjọba. Láti sí i, gba olùfisílẹ̀ tuntun: àṣàyàn rẹ̀ yóò yọ ẹ̀dà yìí kúrò. Àwọn ayé àti ètò rẹ yóò wà ní ibi tí wọ́n wà.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Fi Horizon Atlas Launcher sílẹ̀ fún àkọọlẹ̀ yìí. Kò nílò alákòso.",
+  "Launch Horizon Atlas": "Ṣí Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Yọ fífi Horizon Atlas àtijọ́ kúrò (láti inú folda Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Yọ Horizon Atlas Launcher kúrò lórí kọ̀ǹpútà yìí. Àwọn ayé àti folda eré yóò wà.",
+  "Removing Horizon Atlas's own data": "Ń yọ data Horizon Atlas tirẹ̀ kúrò"
 }

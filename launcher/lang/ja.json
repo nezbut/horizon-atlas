@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name} のスキン",
   "{name}'s skin is kept.": "{name} のスキンは保持されます。",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: 名前は 3〜16 文字の英数字または _ で入力してください。",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas はまだ Microsoft でのサインインに対応していません。"
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas はまだ Microsoft でのサインインに対応していません。",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Horizon Atlas自身のデータも削除: アカウント、オフライン名、スキン、マント",
+  "Don't show again": "今後表示しない",
+  "Download installer": "インストーラーをダウンロード",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcherをインストールしました。",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcherを削除しました。",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlasは公式ランチャーと並んで独立してインストールされるようになりました。移行するには新しいインストーラーをダウンロードしてください。そのオプションでこのコピーを削除します。ワールドと設定はそのまま残ります。",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "このアカウント用にHorizon Atlas Launcherをインストールします。管理者権限は不要です。",
+  "Launch Horizon Atlas": "Horizon Atlasを起動",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "古いHorizon Atlasのインストールを削除（Horizon Launcherフォルダー内）",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "このコンピューターからHorizon Atlas Launcherを削除します。ワールドとゲームのフォルダーは残ります。",
+  "Removing Horizon Atlas's own data": "Horizon Atlas自身のデータを削除しています"
 }

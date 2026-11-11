@@ -20,16 +20,21 @@ use std::path::{Path, PathBuf};
 use winreg::enums::{HKEY_CURRENT_USER, KEY_READ, KEY_WRITE};
 use winreg::RegKey;
 
-pub const APP_NAME: &str = "Horizon Launcher";
+pub const APP_NAME: &str = "Horizon Atlas Launcher";
 const BINARY: &str = "horizon-launcher.exe";
-const PUBLISHER: &str = "Horizon";
-const ABOUT_URL: &str = "https://playhorizon.dev";
-const UNINSTALL_KEY: &str = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\HorizonLauncher";
-const OWN_KEY: &str = r"Software\Horizon\Launcher";
+const PUBLISHER: &str = "Horizon Atlas";
+const ABOUT_URL: &str = "https://github.com/nezbut/horizon-atlas";
+const UNINSTALL_KEY: &str = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\HorizonAtlas";
+const OWN_KEY: &str = r"Software\Horizon\Atlas";
 const ASIDE_PREFIX: &str = "horizon-launcher-uninstall-";
 
 pub use crate::setup_args::Mode;
 use crate::setup_args::{classify, Invocation};
+
+// Atlas installs beside the official launcher, and removes its own old install from there.
+#[path = "installer_atlas.rs"]
+mod atlas;
+pub use atlas::{install_atlas, offers_data_removal, old_atlas_install, remove_old_atlas};
 
 /// The parts of the work, for the progress line.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -48,8 +53,10 @@ pub struct Options {
     /// Where the launcher goes (always a folder called "Horizon Launcher").
     pub dir: PathBuf,
     pub desktop: bool,
-    /// Uninstall only: also delete the launcher's data folder.
+    /// Uninstall only: also delete Atlas's own folder in the (shared) data folder.
     pub remove_data: bool,
+    /// Install only: then remove an old Atlas install from the official launcher's folder.
+    pub remove_old: bool,
 }
 
 impl Options {
@@ -59,6 +66,7 @@ impl Options {
             dir: installed().map(|i| i.dir).unwrap_or_else(default_dir),
             desktop: true,
             remove_data: false,
+            remove_old: true,
         }
     }
 }
@@ -388,7 +396,7 @@ fn running_launchers() -> Vec<u32> {
 /// Asks a launcher that is still open to quit (a window closing is how it shuts down), waits a
 /// few seconds, and ends what stays: the player pressed Uninstall, and its files are going.
 /// The game a launcher started is another process and keeps running.
-fn close_running_launchers(progress: &impl Fn(Step, f32)) {
+fn close_running_launchers(dir: &Path, progress: &impl Fn(Step, f32)) {
     let taskkill = |pid: u32, force: bool| {
         let mut cmd = crate::process::command("taskkill");
         cmd.args(["/PID", &pid.to_string()]);
@@ -397,7 +405,7 @@ fn close_running_launchers(progress: &impl Fn(Step, f32)) {
         }
         let _ = cmd.output();
     };
-    let mut pids = running_launchers();
+    let mut pids = atlas::launchers_in(dir, running_launchers());
     if pids.is_empty() {
         return;
     }
@@ -407,7 +415,7 @@ fn close_running_launchers(progress: &impl Fn(Step, f32)) {
     }
     for _ in 0..30 {
         std::thread::sleep(std::time::Duration::from_millis(250));
-        pids = running_launchers();
+        pids = atlas::launchers_in(dir, running_launchers());
         if pids.is_empty() {
             return;
         }
@@ -420,10 +428,14 @@ fn close_running_launchers(progress: &impl Fn(Step, f32)) {
 
 /// Takes the install away. Returns what could not be removed (a file in use, say).
 pub fn uninstall(remove_data: bool, progress: impl Fn(Step, f32)) -> Result<Vec<String>, String> {
+    // An old Atlas copy in the official launcher's folder (its old Apps entry) removes itself.
+    if let Some(old) = atlas::running_from_old_install() {
+        return atlas::uninstall_old(&old, remove_data);
+    }
     let dir = registered()
-        .ok_or("Horizon Launcher is not installed for this account.")?
+        .ok_or_else(|| format!("{APP_NAME} is not installed for this account."))?
         .dir;
-    close_running_launchers(&progress);
+    close_running_launchers(&dir, &progress);
     clean_aside(&dir);
     let exe = dir.join(BINARY);
     let own = backend::exe_path().to_path_buf();
@@ -492,23 +504,8 @@ pub fn uninstall(remove_data: bool, progress: impl Fn(Step, f32)) -> Result<Vec<
 
     if remove_data {
         progress(Step::Data, 0.8);
-        let data = backend::data_dir();
-        // Only the folder the launcher itself names: `HORIZON_LAUNCHER_HOME` may point anywhere.
-        if data
-            .file_name()
-            .is_some_and(|n| n.eq_ignore_ascii_case("horizon-launcher"))
-        {
-            remove_all(&data, &mut left);
-            // A profile whose name isn't ASCII keeps the build folder in %ProgramData%
-            // (`backend::build_dir`); it is the launcher's too. Already gone with `data` otherwise.
-            let builds = backend::build_dir();
-            remove_all(&builds, &mut left);
-        } else {
-            left.push(format!(
-                "{} (not the launcher's own folder)",
-                data.display()
-            ));
-        }
+        // The data folder is shared with the official launcher: only Atlas's own folder in it goes.
+        atlas::remove_own_data(&mut left);
     }
     progress(Step::Data, 1.0);
     Ok(left)
@@ -565,8 +562,12 @@ pub fn run_quiet() -> Option<i32> {
                 options.dir = folder_for(Path::new(dir));
             }
             options.desktop = flag("--desktop-shortcut");
-            Some(match install(&options, |_, _| {}) {
-                Ok(exe) => {
+            options.remove_old = flag("--remove-old-atlas");
+            Some(match install_atlas(&options, |_, _| {}) {
+                Ok((exe, left)) => {
+                    for item in left {
+                        eprintln!("Not removed: {item}");
+                    }
                     println!("{}", exe.display());
                     0
                 }
@@ -585,14 +586,23 @@ mod tests {
     use super::*;
 
     #[test]
-    fn the_install_folder_is_always_ours() {
+    fn the_install_folder_is_atlas_own() {
         assert_eq!(
             folder_for(Path::new(r"C:\Games")),
-            PathBuf::from(r"C:\Games\Horizon Launcher")
+            PathBuf::from(r"C:\Games\Horizon Atlas Launcher")
         );
         assert_eq!(
-            folder_for(Path::new(r"C:\Games\horizon launcher")),
-            PathBuf::from(r"C:\Games\horizon launcher")
+            folder_for(Path::new(r"C:\Games\horizon atlas launcher")),
+            PathBuf::from(r"C:\Games\horizon atlas launcher")
+        );
+        // The official launcher's folder, picked, gets Atlas's own inside it: never installed over.
+        assert_eq!(
+            folder_for(Path::new(
+                r"C:\Users\a\AppData\Local\Programs\Horizon Launcher"
+            )),
+            PathBuf::from(
+                r"C:\Users\a\AppData\Local\Programs\Horizon Launcher\Horizon Atlas Launcher"
+            )
         );
     }
 

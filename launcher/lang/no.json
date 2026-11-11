@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name}s skinn",
   "{name}'s skin is kept.": "{name}s skinn beholdes.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: et navn er 3 til 16 bokstaver, siffer eller _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas støtter ikke pålogging med Microsoft ennå."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas støtter ikke pålogging med Microsoft ennå.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Slett også Horizon Atlas sine egne data: kontoene, offline-navnene, skinn og capes",
+  "Don't show again": "Ikke vis igjen",
+  "Download installer": "Last ned installasjonsprogrammet",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher er installert.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher er fjernet.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas installeres nå selv, ved siden av den offisielle launcheren. For å flytte den, last ned det nye installasjonsprogrammet: alternativet der fjerner denne kopien. Verdenene og innstillingene dine blir der de er.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Installerer Horizon Atlas Launcher for denne kontoen. Ingen administratorrettigheter nødvendig.",
+  "Launch Horizon Atlas": "Start Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Fjern den gamle Horizon Atlas-installasjonen (fra Horizon Launcher-mappen)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Fjerner Horizon Atlas Launcher fra denne datamaskinen. Verdenene dine og spillmappen blir.",
+  "Removing Horizon Atlas's own data": "Egne data for Horizon Atlas fjernes"
 }

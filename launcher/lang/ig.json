@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Akpụkpọ {name}",
   "{name}'s skin is kept.": "Echekwara akpụkpọ {name}.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: aha nwere mkpụrụedemede 3 ruo 16, ọnụọgụ ma ọ bụ _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas enweghị nkwado maka ịbanye site na Microsoft ka mma."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas enweghị nkwado maka ịbanye site na Microsoft ka mma.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Hichapụ ihe ọ bụla nke Horizon Atlas nke ya onwe ya: akaụntụ ya, aha offline, skin na cape ya",
+  "Don't show again": "Egositeghị ọzọ",
+  "Download installer": "Budata onye mmepụta",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher etinyela.",
+  "Horizon Atlas Launcher was removed.": "Ewepụla Horizon Atlas Launcher.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas na-etinye onwe ya ugbu a, n'akụkụ launcher gọọmentị. Iji kwaga ya, budata onye mmepụta ọhụrụ: nhọrọ ya ga-ewepụ ụdị a. Ụwa gị na ntọala gị ga-anọ ebe ha nọ.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Na-etinye Horizon Atlas Launcher maka akaụntụ a. Ọ dịghị mkpa onye nchịkwa.",
+  "Launch Horizon Atlas": "Malite Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Wepụ mmepụta Horizon Atlas ochie (site na folda Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Na-wepụ Horizon Atlas Launcher site n'kọmputa a. Ụwa gị na folda egwuregwu ga-anọ.",
+  "Removing Horizon Atlas's own data": "Na-ehichapụ data nke Horizon Atlas nke ya onwe ya"
 }

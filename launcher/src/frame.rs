@@ -1111,6 +1111,7 @@ impl Launcher {
                 &t,
             )
         });
+        let sign_in = sign_in.filter(|_| !self.atlas_hides_sign_in());
         // Search: the palette (⌘K or Ctrl+K anywhere), as a field-shaped button.
         let sid = SharedString::from("topbar-search");
         let key: &str = if cfg!(target_os = "macos") {

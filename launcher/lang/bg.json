@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Скин на {name}",
   "{name}'s skin is kept.": "Скинът на {name} е запазен.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: името е от 3 до 16 букви, цифри или _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas все още не поддържа вход с Microsoft.",
   "Use the Microsoft account for {name}.": "Използвайте акаунта на Microsoft за {name}.",
   "Use these jars": "Използвайте тези буркани",
   "Used from the next start.": "Използва се от следващия старт.",

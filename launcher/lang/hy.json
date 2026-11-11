@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name}-ի թիկնոցը պահպանված է։",
   "{name}'s skin": "{name}-ի մաշկը",
   "{name}'s skin is kept.": "{name}-ի մաշկը պահպանված է։",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}. անունը 3-ից 16 տառ, թիվ կամ _ պետք է լինի"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}. անունը 3-ից 16 տառ, թիվ կամ _ պետք է լինի",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas-ը դեռ չի աջակցում Microsoft-ով մուտք գործելուն։"
 }

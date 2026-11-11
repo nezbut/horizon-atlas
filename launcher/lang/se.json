@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name} kappa bissu.",
   "{name}'s skin": "{name} ivdni",
   "{name}'s skin is kept.": "{name} ivdni bissu.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: namma lea 3–16 bukstaba, lohku dahje _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: namma lea 3–16 bukstaba, lohku dahje _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ii leat vel doarjjagis Microsoft sisaloggadeami."
 }

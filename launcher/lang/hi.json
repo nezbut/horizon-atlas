@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name} का केप रखा गया है।",
   "{name}'s skin": "{name} की स्किन",
   "{name}'s skin is kept.": "{name} की स्किन रखी गई है।",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: नाम में 3 से 16 अक्षर, अंक या _ होने चाहिए।"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: नाम में 3 से 16 अक्षर, अंक या _ होने चाहिए।",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas अभी Microsoft के साथ साइन इन का समर्थन नहीं करता।"
 }

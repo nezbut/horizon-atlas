@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name} плащы һаҡлана.",
   "{name}'s skin": "{name} скины",
   "{name}'s skin is kept.": "{name} скины һаҡлана.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: исем 3–16 хәреф, цифр йәки _ булырға тейеш"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: исем 3–16 хәреф, цифр йәки _ булырға тейеш",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas әлегә Microsoft менән инергә ярҙам итмәй."
 }

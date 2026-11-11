@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name}-ის მანტია შენარჩუნებულია.",
   "{name}'s skin": "{name}-ის სკინი",
   "{name}'s skin is kept.": "{name}-ის სკინი შენარჩუნებულია.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: სახელი უნდა იყოს 3-დან 16 ასომდე, ციფრი ან _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: სახელი უნდა იყოს 3-დან 16 ასომდე, ციფრი ან _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ჯერ არ უჭერს მხარს Microsoft-ით შესვლას."
 }

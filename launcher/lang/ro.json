@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skin-ul lui {name}",
   "{name}'s skin is kept.": "Skin-ul lui {name} este păstrat.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: un nume are 3 până la 16 litere, cifre sau _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas nu acceptă încă autentificarea cu Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas nu acceptă încă autentificarea cu Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Șterge și datele proprii ale Horizon Atlas: conturile, numele offline, skin-urile și mantiile",
+  "Don't show again": "Nu mai afișa",
+  "Download installer": "Descarcă programul de instalare",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher a fost instalat.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher a fost eliminat.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas se instalează acum singur, lângă launcherul oficial. Pentru a-l muta, descarcă noul program de instalare: opțiunea lui elimină această copie. Lumile și setările tale rămân unde sunt.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Instalează Horizon Atlas Launcher pentru acest cont. Nu este nevoie de administrator.",
+  "Launch Horizon Atlas": "Lansează Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Elimină vechea instalare Horizon Atlas (din folderul Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Elimină Horizon Atlas Launcher de pe acest computer. Lumile tale și folderul jocului rămân.",
+  "Removing Horizon Atlas's own data": "Se șterg datele proprii ale Horizon Atlas"
 }

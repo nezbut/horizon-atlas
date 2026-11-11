@@ -1,6 +1,6 @@
 name: atlas-ci
-# Formatting and the launcher's tests (library and binary targets) on Linux and Windows, and the Windows installer
-# end to end, for every push and pull request.
+# Formatting and the launcher's tests (library and binary targets, on Linux the owner_gate test too) on Linux and
+# Windows, and the Windows installer end to end, for every push and pull request.
 
 on:
   push:
@@ -36,7 +36,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libxkbcommon-x11-dev libwayland-dev libx11-xcb-dev libfontconfig-dev libvulkan-dev libasound2-dev
       - run: cargo fmt --manifest-path launcher/Cargo.toml --check
-      - run: cargo test --manifest-path launcher/Cargo.toml --release --lib --bins
+      - run: cargo test --manifest-path launcher/Cargo.toml --release --lib --bins --test owner_gate
 
   # The Windows installer builds and runs only on Windows (launcher/src/installer.rs, installer_atlas.rs): the
   # launcher's tests there, then the installer end to end in a scratch profile (tools/atlas_installer_e2e.ps1).

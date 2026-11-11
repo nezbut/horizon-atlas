@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Se conserva la capa de {name}.",
   "{name}'s skin": "Skin de {name}",
   "{name}'s skin is kept.": "Se conserva la skin de {name}.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: un nombre tiene de 3 a 16 letras, dígitos o _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: un nombre tiene de 3 a 16 letras, dígitos o _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas todavía no admite iniciar sesión con Microsoft."
 }

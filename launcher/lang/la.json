@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Pallium {name} servatur.",
   "{name}'s skin": "Skinus {name}",
   "{name}'s skin is kept.": "Skinus {name} servatur.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: nomen 3 ad 16 litteras, numeros vel _ habet"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: nomen 3 ad 16 litteras, numeros vel _ habet",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas introitum per Microsoft nondum sustinet."
 }

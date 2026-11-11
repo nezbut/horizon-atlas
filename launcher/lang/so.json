@@ -1110,6 +1110,7 @@
   "{name}'s skin": "Maqaarka {name}",
   "{name}'s skin is kept.": "Maqaarka {name} waa la kaydiyay.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: magac waa 3 ilaa 16 xaraf, lambar ama _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas weli ma taageero galitaanka Microsoft.",
   "Use the Microsoft account for {name}.": "Isticmaal koontada Microsoft {name}.",
   "Use these jars": "Isticmaal dhalooyinkan",
   "Used from the next start.": "Isticmaalka bilawga xiga.",

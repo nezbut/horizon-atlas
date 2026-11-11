@@ -1271,6 +1271,7 @@
   "{name}'s skin": "{name} இன் ஸ்கின்",
   "{name}'s skin is kept.": "{name} இன் ஸ்கின் வைக்கப்பட்டது.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: பெயர் 3 முதல் 16 எழுத்துகள், இலக்கங்கள் அல்லது _ ஆக இருக்க வேண்டும்",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas இன்னும் Microsoft மூலம் உள்நுழைவை ஆதரிக்கவில்லை.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
   "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
 }

@@ -1271,6 +1271,7 @@
   "{name}'s skin": "Скин на {name}",
   "{name}'s skin is kept.": "Скинот на {name} е зачуван.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: името мора да има од 3 до 16 букви, цифри или _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas сè уште не поддржува најава со Microsoft.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
   "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
 }

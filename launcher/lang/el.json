@@ -1271,6 +1271,7 @@
   "{name}'s skin": "Το skin του {name}",
   "{name}'s skin is kept.": "Το skin του {name} διατηρείται.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: ένα όνομα έχει 3 έως 16 γράμματα, ψηφία ή _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Το Horizon Atlas δεν υποστηρίζει ακόμη σύνδεση με τη Microsoft.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
   "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
 }

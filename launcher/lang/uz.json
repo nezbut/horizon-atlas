@@ -1271,6 +1271,7 @@
   "{name}'s skin": "{name} skini",
   "{name}'s skin is kept.": "{name} skini saqlandi.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: ism 3 dan 16 gacha harf, raqam yoki _ dan iborat boʻlishi kerak",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas hali Microsoft bilan tizimga kirishni qoʻllab-quvvatlamaydi.",
   "The server gets a copy: your single-player world stays as it is.": "The server gets a copy: your single-player world stays as it is.",
   "You have no single-player world yet: play one first, or choose New world.": "You have no single-player world yet: play one first, or choose New world."
 }

@@ -1,6 +1,6 @@
 # Horizon Atlas roadmap
 
-Now: the launcher fork, see `specs/2026-11-08-atlas-launcher-fork-design.md`.
+Done in 0.1.x: the launcher fork itself, see `specs/2026-11-08-atlas-launcher-fork-design.md`.
 
 Done in 0.2.0 (`specs/2026-11-11-atlas-0.2.0-offline-module-design.md`): upstream removed offline names from its
 launcher (commit `1e789800af`), so Atlas keeps offline play in its own module instead of switching upstream's on.
@@ -27,9 +27,9 @@ Later:
   ID is Horizon's alone (`docs/forking.md`): Atlas needs its own Azure app and Mojang's approval.
 - Names Atlas still shares with the official launcher (0.2.0 gave it its own install, menu entry and app): instance
   shortcuts are `<name> (Horizon)` (`launcher/src/shortcut.rs`; `.lnk` on Windows), the AppImage carries
-  `packaging/linux/horizon-launcher.desktop` (`Name=Horizon`), and both launchers' windows have
-  `StartupWMClass=horizon-launcher`, so a Linux dock groups them as one program. The data folders stay shared on
-  purpose.
+  `packaging/linux/horizon-launcher.desktop` (`Name=Horizon`), and both launchers' desktop entries have
+  `StartupWMClass=horizon-launcher`, the window class both launchers' windows share (`app_id` in `main.rs`), so a
+  Linux dock groups them as one program. The data folders stay shared on purpose.
 - A sync-tool check that upstream never contains the string `nezbut/horizon-atlas`: it is how the Windows installer
   tells an old Atlas copy from the official launcher (`launcher/src/atlas_install.rs`), so upstream gaining it would
   make an official launcher look like Atlas.

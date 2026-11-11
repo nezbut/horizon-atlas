@@ -85,6 +85,8 @@ pub(super) enum Field {
     JavaArgs,
     WindowWidth,
     WindowHeight,
+    /// The Profile tab's offline name, added or renamed (`atlas_profile.rs`).
+    AtlasName,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -1256,6 +1258,7 @@ impl Launcher {
             Field::MemoryLimit => self.memory_enter(),
             Field::ShopGift => self.shop.find_soon = true,
             Field::ServerName | Field::ServerAddress => self.add_server(),
+            Field::AtlasName => self.atlas_name_enter(),
         }
     }
 

@@ -1271,5 +1271,16 @@
   "{name}'s skin": "{name}ס הויט",
   "{name}'s skin is kept.": "{name}ס הויט בלײַבט.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: אַ נאָמען איז 3 ביז 16 אותיות, ציפערן אָדער _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas שטיצט נאָך נישט צייכן אין מיט Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas שטיצט נאָך נישט צייכן אין מיט Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "אויך אויסמעקן די אייגענע דאַטן פון Horizon Atlas: זיינע חשבונות, אָפּליין נעמען, סקינס און קייפּס",
+  "Don't show again": "נישט װײַזן מער",
+  "Download installer": "אראפלאדן דעם אינסטאַלאַטאָר",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher איז אינסטאַלירט.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher איז אַראָפּגענומען.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas אינסטאַלירט זיך איצט אַליין, לעבן דעם אָפֿיציעלן לאָנטשער. צו אַריבערפֿירן עס, לאָדן אַראָפּ דעם נײַעם אינסטאַלאַטאָר: זײַן אָפּציע וועט אַראָפּנעמען דעם קאָפּיע. אײַערע וועלטן און סעטטינגס בלײַבן ווו זײ זײַנען.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "אינסטאַלירט Horizon Atlas Launcher פֿאַר דעם חשבון. נישט נייטיק קײן אַדמין.",
+  "Launch Horizon Atlas": "הייב אָן Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "אַראָפּנעמען די אַלטע Horizon Atlas אינסטאַלאַציע (פֿון Horizon Launcher-טעקע)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "נעמט אַראָפּ Horizon Atlas Launcher פֿון דעם קאָמפּיוטער. אײַערע וועלטן און שפּיל-טעקע בלייבן.",
+  "Removing Horizon Atlas's own data": "די אייגענע דאטן פֿון Horizon Atlas ווערן אָפּגעמאַכט"
 }

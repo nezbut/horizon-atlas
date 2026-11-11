@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Skin của {name}",
   "{name}'s skin is kept.": "Skin của {name} đã được giữ lại.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: tên gồm 3 đến 16 chữ cái, chữ số hoặc _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas chưa hỗ trợ đăng nhập bằng Microsoft."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas chưa hỗ trợ đăng nhập bằng Microsoft.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Xóa luôn dữ liệu riêng của Horizon Atlas: tài khoản, tên offline, skin và áo choàng",
+  "Don't show again": "Không hiện lại",
+  "Download installer": "Tải trình cài đặt",
+  "Horizon Atlas Launcher is installed.": "Đã cài đặt Horizon Atlas Launcher.",
+  "Horizon Atlas Launcher was removed.": "Đã gỡ Horizon Atlas Launcher.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas giờ tự cài đặt, cạnh launcher chính thức. Để chuyển sang, hãy tải trình cài đặt mới: tùy chọn của nó sẽ gỡ bản sao này. Thế giới và cài đặt của bạn vẫn giữ nguyên.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Cài Horizon Atlas Launcher cho tài khoản này. Không cần quyền quản trị.",
+  "Launch Horizon Atlas": "Khởi chạy Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Gỡ bản cài Horizon Atlas cũ (trong thư mục Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Gỡ Horizon Atlas Launcher khỏi máy tính này. Thế giới và thư mục game được giữ lại.",
+  "Removing Horizon Atlas's own data": "Đang xóa dữ liệu riêng của Horizon Atlas"
 }

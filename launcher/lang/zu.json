@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Isikhumba sika-{name}",
   "{name}'s skin is kept.": "Isikhumba sika-{name} siyagcinwa.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: igama kufanele libe izinhlamvu ezi-3 kuya ezi-16, izinombolo noma _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "I-Horizon Atlas angisasekeli ukungena ngemvume nge-Microsoft okwamanje."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "I-Horizon Atlas angisasekeli ukungena ngemvume nge-Microsoft okwamanje.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Futhi susa idatha yayo ye-Horizon Atlas: ama-akhawunti, amagama e-offline, izikhumba namakhapu",
+  "Don't show again": "Ungabonisi futhi",
+  "Download installer": "Landa isifaki",
+  "Horizon Atlas Launcher is installed.": "I-Horizon Atlas Launcher ifakiwe.",
+  "Horizon Atlas Launcher was removed.": "I-Horizon Atlas Launcher isusiwe.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "I-Horizon Atlas manje ifakela yodwa, eceleni kwe-launcher esemthethweni. Ukuyithutha, landa isifaki esisha: inketho yaso izosusa leli kopi. Amawosi nezilungiselelo zakho zizohlala lapho zikhona.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Ifaka i-Horizon Atlas Launcher le akhawunti. Ayidingi umlawuli.",
+  "Launch Horizon Atlas": "Qalisa i-Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Susa ukufakwa kakade kwe-Horizon Atlas (kusuka efolda ye-Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Isusa i-Horizon Atlas Launcher kule khompyuta. Amawosi nefolda yegeyimu ziyahlala.",
+  "Removing Horizon Atlas's own data": "Idatha ye-Horizon Atlas iyasulwa"
 }

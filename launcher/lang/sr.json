@@ -1271,5 +1271,16 @@
   "{name}'s skin": "Скин за {name}",
   "{name}'s skin is kept.": "Скин за {name} је сачуван.",
   "{name}: a name is 3 to 16 letters, digits or _": "{name}: име има од 3 до 16 слова, цифара или _",
-  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas још не подржава пријаву са Microsoft-ом."
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas још не подржава пријаву са Microsoft-ом.",
+  "Also delete Horizon Atlas's own data: its accounts, offline names, skins and capes": "Такође избриши властите податке Horizon Atlas-а: налоге, ван мреже имена, скинове и огртаче",
+  "Don't show again": "Не приказуј поново",
+  "Download installer": "Преузми инсталер",
+  "Horizon Atlas Launcher is installed.": "Horizon Atlas Launcher је инсталиран.",
+  "Horizon Atlas Launcher was removed.": "Horizon Atlas Launcher је уклоњен.",
+  "Horizon Atlas now installs on its own, beside the official launcher. To move it, download the new installer: its option removes this copy. Your worlds and settings stay where they are.": "Horizon Atlas се сада инсталира самостално, поред званичног лансера. Да га преместите, преузмите нови инсталер: његова опција уклања ову копију. Ваши светови и подешавања остају тамо где јесу.",
+  "Installs Horizon Atlas Launcher for this account. No administrator needed.": "Инсталира Horizon Atlas Launcher за овај налог. Није потребан администратор.",
+  "Launch Horizon Atlas": "Покрени Horizon Atlas",
+  "Remove the old Horizon Atlas install (from the Horizon Launcher folder)": "Уклони стару инсталацију Horizon Atlas-а (из фасцикле Horizon Launcher)",
+  "Removes Horizon Atlas Launcher from this computer. Your worlds and the game's folder stay.": "Уклања Horizon Atlas Launcher са овог рачунара. Ваши светови и фасцикла игре остају.",
+  "Removing Horizon Atlas's own data": "Бришу се властити подаци Horizon Atlas-а"
 }

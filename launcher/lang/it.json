@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Il mantello di {name} è conservato.",
   "{name}'s skin": "Skin di {name}",
   "{name}'s skin is kept.": "La skin di {name} è conservata.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: un nome è composto da 3 a 16 lettere, cifre o _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: un nome è composto da 3 a 16 lettere, cifre o _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas non supporta ancora l'accesso con Microsoft."
 }

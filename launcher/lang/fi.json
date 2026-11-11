@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name}n cape säilytetään.",
   "{name}'s skin": "{name}n skin",
   "{name}'s skin is kept.": "{name}n skin säilytetään.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: nimi on 3–16 kirjainta, numeroa tai _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: nimi on 3–16 kirjainta, numeroa tai _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ei vielä tue kirjautumista Microsoftilla."
 }

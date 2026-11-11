@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Mantel i {name} u ruajt.",
   "{name}'s skin": "Lëkura e {name}",
   "{name}'s skin is kept.": "Lëkura e {name} u ruajt.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: një emër ka 3 deri 16 shkronja, shifra ose _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: një emër ka 3 deri 16 shkronja, shifra ose _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ende nuk mbështet hyrjen me Microsoft."
 }

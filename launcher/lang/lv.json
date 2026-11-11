@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name} apmetnis tiek saglabāts.",
   "{name}'s skin": "{name} āda",
   "{name}'s skin is kept.": "{name} āda tiek saglabāta.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: vārdam jābūt 3–16 burtiem, cipariem vai _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: vārdam jābūt 3–16 burtiem, cipariem vai _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas vēl neatbalsta pierakstīšanos ar Microsoft."
 }

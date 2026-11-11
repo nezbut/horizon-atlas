@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name} کی کیپ محفوظ ہے۔",
   "{name}'s skin": "{name} کی جلد",
   "{name}'s skin is kept.": "{name} کی جلد محفوظ ہے۔",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: نام 3 سے 16 حروف، ہندسوں یا _ پر مشتمل ہونا چاہیے۔"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: نام 3 سے 16 حروف، ہندسوں یا _ پر مشتمل ہونا چاہیے۔",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ابھی Microsoft کے ساتھ سائن ان کو سپورٹ نہیں کرتا۔"
 }

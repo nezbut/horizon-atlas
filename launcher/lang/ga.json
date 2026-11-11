@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Coinnítear caip {name}.",
   "{name}'s skin": "Skin {name}",
   "{name}'s skin is kept.": "Coinnítear skin {name}.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: is idir 3 agus 16 litir, digit nó _ an t-ainm"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: is idir 3 agus 16 litir, digit nó _ an t-ainm",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Níl tacaíocht ag Horizon Atlas le sínithe isteach le Microsoft fós."
 }

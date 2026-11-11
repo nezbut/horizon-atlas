@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "A(z) {name} köpenye megmarad.",
   "{name}'s skin": "A(z) {name} skinje",
   "{name}'s skin is kept.": "A(z) {name} skinje megmarad.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: a név 3–16 betűből, számjegyből vagy _ jelből álljon"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: a név 3–16 betűből, számjegyből vagy _ jelből álljon",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "A Horizon Atlas még nem támogatja a Microsofttal való bejelentkezést."
 }

@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name} үчүн кэйп сакталды.",
   "{name}'s skin": "{name} скини",
   "{name}'s skin is kept.": "{name} үчүн скин сакталды.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: аты 3төн 16га чейинки тамга, сан же _ болушу керек"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: аты 3төн 16га чейинки тамга, сан же _ болушу керек",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas азырынча Microsoft менен кирүүнү колдобойт."
 }

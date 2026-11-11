@@ -177,6 +177,14 @@ mod tests {
                 serde_json::json!({"revision":"a".repeat(40)}).to_string(),
             )
             .unwrap();
+            // Atlas plays offline unless a Microsoft account was chosen (`offline::session`): the
+            // gate pinned here is upstream's, for such an account.
+            crate::offline::profiles::Profiles {
+                plays: Some(crate::offline::profiles::Plays::Microsoft("uuid".into())),
+                ..Default::default()
+            }
+            .save_to(&crate::offline::profiles::Profiles::path_in(root.path()))
+            .unwrap();
             let mut child = Command::new(std::env::current_exe().unwrap());
             child.args(["--exact", "developer_offline::tests::account_gate_is_preserved_without_opt_in_and_for_signed_lineage", "--nocapture"])
                 .env("OFFLINE_GATE_TEST_TAG", tag)

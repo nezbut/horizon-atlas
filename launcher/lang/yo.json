@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "A ti pa ẹ̀wù {name} mọ.",
   "{name}'s skin": "Awọ {name}",
   "{name}'s skin is kept.": "A ti pa awọ {name} mọ.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: orukọ jẹ lẹta 3 si 16, nọmba tabi _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: orukọ jẹ lẹta 3 si 16, nọmba tabi _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas ko ti ṣe atilẹyin wíwọlé pẹlu Microsoft sibẹsibẹ."
 }

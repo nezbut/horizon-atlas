@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "Mālama ʻia ke kapa o {name}.",
   "{name}'s skin": "ʻIli o {name}",
   "{name}'s skin is kept.": "Mālama ʻia ka ʻili o {name}.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: he 3 a 16 ka lōʻihi o kahi inoa me nā huaʻōlelo, nā helu a me _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: he 3 a 16 ka lōʻihi o kahi inoa me nā huaʻōlelo, nā helu a me _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Aʻole i kākoʻo ʻia ka Horizon Atlas i ka ʻeʻe me Microsoft i kēia manawa."
 }

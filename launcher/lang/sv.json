@@ -1270,5 +1270,6 @@
   "{name}'s cape is kept.": "{name}s cape behålls.",
   "{name}'s skin": "{name}s skin",
   "{name}'s skin is kept.": "{name}s skin behålls.",
-  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ett namn är 3 till 16 bokstäver, siffror eller _"
+  "{name}: a name is 3 to 16 letters, digits or _": "{name}: ett namn är 3 till 16 bokstäver, siffror eller _",
+  "Horizon Atlas doesn't support Microsoft sign-in yet.": "Horizon Atlas stöder inte inloggning med Microsoft ännu."
 }

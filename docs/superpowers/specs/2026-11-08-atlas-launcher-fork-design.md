@@ -34,7 +34,7 @@ releases, unchanged.
 
 ## Anti-goals (a failure even if it works)
 
-- Unsigned self-updates (horizon-free disables the signature check; Atlas must not).
+- Unsigned self-updates (turning the signature check off; Atlas must not).
 - A patch set so wide that most upstream releases need manual merging.
 - Presenting the fork as official, or implying affiliation with Mojang, Microsoft or the Horizon authors.
 
@@ -68,8 +68,7 @@ releases, unchanged.
 3. **Narrow seams on top of 2.** Where possible a patch changes one line in upstream code (a constant
    such as `backend::OFFLINE_PLAY`) and puts new logic in new files.
 
-**Chosen: 2 + 3** (the owner's pick). Reference: `0CYBER/horizon-free` does the same by hand with
-`fork-sync.md`; Atlas automates it and keeps signing.
+**Chosen: 2 + 3** (the owner's pick). Atlas automates the rebase and keeps signing.
 
 ## Design
 
@@ -77,15 +76,14 @@ releases, unchanged.
 
 Each is one commit with one concern:
 
-1. `offline-play`: a constant (as in horizon-free, `OFFLINE_PLAY = true`) makes `Settings::load()` and
+1. `offline-play`: a constant (`OFFLINE_PLAY = true`) makes `Settings::load()` and
    `client_as()` use offline sessions; the CLI's `play`, `account offline NAME`, `account select NAME`
    and the MCP server stop requiring an owner; the Microsoft sign-in plates are hidden. Atlas has no
    Microsoft sign-in at all (my call): it has no client ID, so a card that cannot work would only
    mislead. Consequence: no online-mode servers; the README says so. Registering Atlas's own Azure
    app is a roadmap item.
 2. `choose-jar`: `Settings::minecraft_jar`, `sources::from_jar`, a "Choose jar…" row on Home,
-   `horizon-launcher settings minecraft-jar PATH`. Ported from `Horizon-Offline-Launcher` (its
-   `sources.rs` differs from upstream's by about 85 lines).
+   `horizon-launcher settings minecraft-jar PATH`.
 3. `own-releases`: `backend::LAUNCHER_REPO` points at the Atlas repository; the release-feed fallback
    (Atom) for rate-limited addresses; failed update checks are reported, not shown as "up to date".
    The game's own releases still come from `horizon-rust/horizon` (`backend::REPO`).
@@ -130,7 +128,7 @@ owner.
 
 ### Distribution
 
-GitHub Releases, `install.sh` (Linux/macOS, adapted from Offline-Launcher's) and the platform
+GitHub Releases, `install.sh` (Linux/macOS) and the platform
 installers upstream builds. Windows shows SmartScreen's warning (no code-signing certificate); the
 README says so. macOS ships unsigned (upstream signs only when the `MACOS_SIGN_IDENTITY` variable
 is set); the README explains how to open it. Atlas builds macOS on GitHub-hosted runners, not
@@ -140,13 +138,12 @@ upstream's self-hosted one.
 
 The plan ends with the patches and the pipeline built and verified locally, plus a checklist of what
 only the owner can do in GitHub: create the key pair, add `RELEASE_SIGNING_KEY` to a `release`
-environment, enable Issues and Actions, push, and publish the first release. Atlas's attribution of
-ported code (from `Horizon-Offline-Launcher`, MIT) goes into `THIRD_PARTY_NOTICES.md` (my call).
+environment, enable Issues and Actions, push, and publish the first release.
 
 ## Left to the builder
 
 - Which Mojang-derived inputs "Prepare" needs besides the client jar (upstream's install flow
-  handles a server jar too), and how `from_jar` satisfies them in `Horizon-Offline-Launcher`. Any
+  handles a server jar too), and how `from_jar` satisfies them. Any
   input the player cannot supply themselves stays gated on an owner; Atlas adds no download path.
 - Whether upstream guarantees a launcher tag works with newer game builds; if not, a compatibility
   check in the sync job.
@@ -154,7 +151,7 @@ ported code (from `Horizon-Offline-Launcher`, MIT) goes into `THIRD_PARTY_NOTICE
 - Exact tag/branch layout for rebased `main` and what users who cloned see (force-push vs a release
   branch).
 - The CI details: runner types, caching, which upstream jobs to keep in trimmed form.
-- Whether the Windows ARM64 job is optional like in horizon-free.
+- Whether the Windows ARM64 job is optional.
 - Wording of README and of the "Choose jar…" row, and its i18n keys (upstream requires `tr()`).
 - Checking how Horizon derives an offline player's UUID: if it comes from the name, say in the
   interface that changing the name starts a new player in saves.

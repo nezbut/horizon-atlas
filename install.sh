@@ -4,7 +4,8 @@
 #   curl -fsSL https://raw.githubusercontent.com/nezbut/horizon-atlas/main/install.sh | sh
 # Linux: ~/.local/share/horizon-atlas, `horizon-atlas` in ~/.local/bin, and the launcher adds itself to the
 # applications menu when it first starts.
-# macOS: ~/Applications/Horizon Atlas/Horizon.app, `horizon-atlas` in ~/.local/bin.
+# macOS: ~/Applications/Horizon Atlas/Horizon Atlas.app (it replaces the Horizon.app Atlas 0.1.x put there),
+# `horizon-atlas` in ~/.local/bin.
 # Windows: download horizon-launcher-setup.exe from the releases page instead.
 set -eu
 
@@ -53,11 +54,14 @@ case "$ASSET" in
     ;;
   *.zip)
     (cd "$TMP" && unzip -q "$ASSET")
-    rm -rf "$DIR/Horizon.app"
-    mv "$TMP/Horizon.app" "$DIR/Horizon.app"
+    # Releases before 0.2.0 hold Horizon.app: installed under the new name all the same.
+    [ -d "$TMP/Horizon Atlas.app" ] || mv "$TMP/Horizon.app" "$TMP/Horizon Atlas.app"
+    # Atlas 0.1.x installed Horizon.app in this folder: the new app takes its place.
+    rm -rf "$DIR/Horizon Atlas.app" "$DIR/Horizon.app"
+    mv "$TMP/Horizon Atlas.app" "$DIR/Horizon Atlas.app"
     # macOS asks before opening downloaded programs that aren't notarized.
     xattr -dr com.apple.quarantine "$DIR" 2>/dev/null || true
-    PROGRAM="$DIR/Horizon.app/Contents/MacOS/horizon-launcher"
+    PROGRAM="$DIR/Horizon Atlas.app/Contents/MacOS/horizon-launcher"
     ;;
 esac
 

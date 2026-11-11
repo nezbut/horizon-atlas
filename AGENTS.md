@@ -8,12 +8,18 @@ game, its crates and its harnesses are upstream's, unmodified. Atlas is a patch 
 commits on top of an upstream `launcher@X.Y.Z` tag, which `tools/atlas_sync.py` and the
 `atlas-sync` workflow (four times a day) replay onto each newer upstream launcher tag.
 
-- The patch commits, by exact subject: `patch: offline-play` (`backend::OFFLINE_PLAY`: play without a
-  Microsoft account that owns the game; the Microsoft sign-in plates are hidden), `patch: choose-jar`
-  (pick your own 26.3 client jar), `patch: own-releases` (`backend::LAUNCHER_REPO`: the launcher updates
-  from this repository, with an Atom-feed fallback and a visible error when it cannot check),
-  `patch: own-keys` (Atlas's public release key in `crates/horizon-release-sign/release-keys.txt`, beside
-  upstream's: signature checks stay on), `patch: branding` (a sidebar link to this repository).
+- The patch commits, by exact subject: `patch: choose-jar` (pick your own 26.3 client jar),
+  `patch: own-releases` (`backend::LAUNCHER_REPO`: the launcher updates from this repository, with an
+  Atom-feed fallback and a visible error when it cannot check), `patch: own-keys` (Atlas's public release
+  key in `crates/horizon-release-sign/release-keys.txt`, beside upstream's: signature checks stay on),
+  `patch: branding` (a sidebar link to this repository and the "Horizon Atlas" window title),
+  `patch: offline` (`launcher/src/offline/`: offline names with skins and capes, the Profile tab, the
+  `offline` CLI, Atlas's own accounts file and keychain service), `patch: no-sign-in` (a dialog instead of
+  a Microsoft sign-in, which needs a client ID Atlas doesn't have), `patch: own-install` (installed beside
+  the official launcher: on Windows as "Horizon Atlas Launcher" with its own folder and registry keys, on
+  Linux with the menu entry `horizon-atlas.desktop`).
+- Atlas's own files are in `<data_dir>/atlas/` (`backend::data_dir()`); the rest of the data folder is
+  shared with the official launcher.
 - Every other commit starts with `atlas:` (the sync tool, the workflows, `install.sh`, the README, docs).
   Keep a patch small and confined to its own purpose: a patch that touches much of upstream's code
   conflicts with its next release and stops the sync.
@@ -22,8 +28,8 @@ commits on top of an upstream `launcher@X.Y.Z` tag, which `tools/atlas_sync.py` 
   on sync, not kept. Atlas's version is its own `0.x`; the owner's one-time setup is in
   `docs/superpowers/owner-checklist.md`, the plan and design in `docs/superpowers/`.
 - Commits and PRs carry no agent attribution (no `Co-Authored-By:` or "Generated with" lines). Changes
-  are checked with `cargo fmt --check` and `cargo test --release --lib --bins` in `launcher/`, plus
-  `uv run python -m unittest discover -s tests -p 'test_atlas*.py'` for the sync tool.
+  are checked with `task check` (`Taskfile.yml`: fmt, clippy, the launcher's tests, the sync tool's
+  tests, actionlint).
 - Never fetch Minecraft's client or server jar from Mojang for a player without an owner: downloading from
   Mojang stays gated on an account that owns the game, exactly as upstream has it.
 

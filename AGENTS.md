@@ -8,14 +8,14 @@ game, its crates and its harnesses are upstream's, unmodified. Atlas is a patch 
 commits on top of an upstream `launcher@X.Y.Z` tag, which `tools/atlas_sync.py` and the
 `atlas-sync` workflow (four times a day) replay onto each newer upstream launcher tag.
 
-- The patch commits, by exact subject: `patch: choose-jar` (pick your own 26.3 client jar),
-  `patch: own-releases` (`backend::LAUNCHER_REPO`: the launcher updates from this repository, with an
-  Atom-feed fallback and a visible error when it cannot check), `patch: own-keys` (Atlas's public release
-  key in `crates/horizon-release-sign/release-keys.txt`, beside upstream's: signature checks stay on),
-  `patch: branding` (a sidebar link to this repository and the "Horizon Atlas" window title),
-  `patch: offline` (`launcher/src/offline/`: offline names with skins and capes, the Profile tab, the
+- The patch commits, by exact subject, in history order: `patch: choose-jar` (pick your own 26.3 client
+  jar), `patch: own-releases` (`backend::LAUNCHER_REPO`: the launcher updates from this repository, with an
+  Atom-feed fallback and a visible error when it cannot check), `patch: branding` (a sidebar link to this
+  repository, the "Horizon Atlas" window title and the "Horizon Atlas Launcher" macOS app menu),
+  `patch: own-keys` (Atlas's public release key in `crates/horizon-release-sign/release-keys.txt`, beside
+  upstream's: signature checks stay on), `patch: offline` (`launcher/src/offline/`: offline names with skins and capes, the Profile tab, the
   `offline` CLI, Atlas's own accounts file and keychain service), `patch: no-sign-in` (a dialog instead of
-  a Microsoft sign-in, which needs a client ID Atlas doesn't have), `patch: own-install` (installed beside
+  a Microsoft sign-in, which needs a client ID Atlas doesn't have; the glass top bar hides its sign-in button), `patch: own-install` (installed beside
   the official launcher: on Windows as "Horizon Atlas Launcher" with its own folder and registry keys, on
   Linux with the menu entry `horizon-atlas.desktop`).
 - Atlas's own files are in `<data_dir>/atlas/` (`backend::data_dir()`); the rest of the data folder is

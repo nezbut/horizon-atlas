@@ -28,8 +28,11 @@ git -C $C fetch -q --no-tags upstream '+refs/tags/launcher@*:refs/upstream/tags/
 
 ## 2. Replay by hand (when the rehearsal named a conflict)
 The tool aborted and left `C` clean. Run the same rebase directly in `C`, on a branch named after the tag. Use
-REPO's copy of the sync tool (`C`'s own copy is rewritten while the rebase runs):
+REPO's copy of the sync tool (`C`'s own copy is rewritten while the rebase runs). `rehearse` gave `C` a
+throwaway commit identity (`atlas-rehearsal`); this replay becomes `main`, so first give `C` the owner's (the
+`user.name` and `user.email` of REPO):
 ```
+git -C $C config user.name "$(git -C REPO config user.name)"; git -C $C config user.email "$(git -C REPO config user.email)"
 git -C $C switch -q -c sync-<tag>
 git -C $C -c merge.conflictStyle=diff3 rebase --onto refs/upstream/tags/launcher@<new> refs/upstream/tags/launcher@<old base>
 uv run python REPO/tools/atlas_sync.py --repo $C resolve    # at every stop: resolves what the sync resolves by itself
@@ -125,3 +128,13 @@ this clone has (`git range-diff -s main...origin/main`, the `<` lines).
 
 Never run a plain `git pull` here: it merges the old stack with the new one, every Atlas commit then exists twice,
 and once pushed the next sync conflicts with the duplicates.
+
+A clone that was once cloned from upstream keeps upstream's `launcher@*` tags in `refs/tags`. Atlas's own releases
+use the same names (`launcher@0.2.0`...), so those old tags hide them: `git fetch --tags origin` refuses to
+replace them, and `task status` then prints a next version below the newest release. With the owner's yes, drop
+only the local tags that are exactly upstream's (the same object as under `refs/upstream/tags/`, which keeps them),
+then fetch Atlas's:
+```
+for t in $(git -C REPO tag -l 'launcher@*'); do [ "$(git -C REPO rev-parse "refs/tags/$t")" = "$(git -C REPO rev-parse -q --verify "refs/upstream/tags/$t")" ] && git -C REPO tag -d "$t"; done
+git -C REPO fetch --tags origin
+```

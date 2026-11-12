@@ -8,7 +8,8 @@ launcher (commit `1e789800af`), so Atlas keeps offline play in its own module in
 - `patch: offline`: `launcher/src/offline/`, offline names with their own skins and capes in `<data_dir>/atlas/`
   (copied once from 0.1.x's files), the Profile tab and the `horizon-launcher offline …` CLI; Atlas's own accounts file
   and keychain service, so the official launcher's Microsoft accounts never show in Atlas.
-- `patch: no-sign-in`: a dialog instead of a Microsoft sign-in that cannot work without Atlas's own client ID.
+- `patch: no-sign-in`: a dialog instead of a Microsoft sign-in that cannot work without Atlas's own client ID; the
+  glass top bar hides its sign-in button until then.
 - `patch: own-install`: Atlas installs beside the official launcher. Windows: "Horizon Atlas Launcher" in its own
   folder and registry keys, with an option to remove an old Atlas copy from the official launcher's folder. Linux: its
   own menu entry, `horizon-atlas.desktop`.
@@ -33,6 +34,23 @@ Later:
 - A sync-tool check that upstream never contains the string `nezbut/horizon-atlas`: it is how the Windows installer
   tells an old Atlas copy from the official launcher (`launcher/src/atlas_install.rs`), so upstream gaining it would
   make an official launcher look like Atlas.
+- Release file names of Atlas's own: the assets are still upstream's (`horizon-launcher-setup.exe`,
+  `horizon-launcher-linux-x86_64.tar.gz`, `...-macos-arm64.zip`, the AppImage, the `.dmg`).
+  - The self-updater finds its asset by these exact names (`launcher/src/backend.rs`, the platform list and
+    `LAUNCHER_APPIMAGE_ASSET`): renaming the `.zip`, `.tar.gz` and AppImage needs a seam there and a transition of a
+    few releases that publish both names, or every installed Atlas stops updating.
+  - The setup `.exe` knows it is the setup by its file name starting with `horizon-launcher-setup`
+    (`installer::is_setup_exe`): renaming it needs a one-line seam there, plus `atlas-release.yml`, the Windows CI
+    check, `install.sh`'s messages and the README links. The `.dmg` is only downloaded by hand.
+  - Do it once the Windows CI job has run green on the current names.
+- Polish left from 0.2.0:
+  - The window doesn't reload `atlas/offline.json`: after `horizon-launcher offline select` from a terminal the
+    account chip shows the old name until the next change in the window, while Play already starts the new one.
+  - The MCP server's `account_list` reports no player and `owner: false` while its Play works offline; report the
+    offline name that plays.
+  - The macOS `.dmg` background is upstream's picture ("DRAG HORIZON TO APPLICATIONS"); give Atlas its own.
+  - `task check` and `atlas-ci.yml` don't run `--test desktop`, which the sync now runs; `tools/atlas_sync.py`'s
+    issue text names the older test command.
 - Linting and code quality for Atlas's Python (`tools/atlas_sync.py`, `tests/test_atlas_sync.py`): ruff (lint and
   format) and ty/pyright (type check), through `uvx`, run by `atlas-ci.yml` on every push. The tool stays standard-library
   only.

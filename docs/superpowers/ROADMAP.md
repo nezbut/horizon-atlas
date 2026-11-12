@@ -43,6 +43,9 @@ Later:
     (`installer::is_setup_exe`): renaming it needs a one-line seam there, plus `atlas-release.yml`, the Windows CI
     check, `install.sh`'s messages and the README links. The `.dmg` is only downloaded by hand.
   - Do it once the Windows CI job has run green on the current names.
+- Remove the one-time migration from Atlas 0.1.x (`launcher/src/offline/migrate.rs` and its tests) in a later
+  significant release, once no 0.1.x installs are likely left. It costs little meanwhile: it runs once per data
+  folder and lives in Atlas's own files.
 - Polish left from 0.2.0:
   - The window doesn't reload `atlas/offline.json`: after `horizon-launcher offline select` from a terminal the
     account chip shows the old name until the next change in the window, while Play already starts the new one.

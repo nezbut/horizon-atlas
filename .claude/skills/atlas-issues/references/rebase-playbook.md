@@ -53,6 +53,10 @@ git -C $C diff --name-only --diff-filter=U                   # what is left for 
   add Atlas's key lines. Check each JSON file still parses (`uv run python -m json.tool <file> > /dev/null`).
 - Then: `git -C $C add <files>` and `GIT_EDITOR=true git -C $C rebase --continue`. It stops again at the next
   conflicting commit; repeat until it says the rebase succeeded.
+- When it has succeeded, drop the workflows upstream added since the old base, as the sync does after every
+  rebase (a hand-run rebase skips it, and an upstream workflow then runs in Atlas's repository):
+  `uv run python REPO/tools/atlas_sync.py --repo $C drop-workflows` (prints the names it removed in one
+  `atlas: drop upstream workflows (...)` commit, or nothing).
 
 ## 4. Verify (all of it; paste the evidence into your report)
 ```
@@ -60,6 +64,7 @@ task -d $C check                                                                
 git -C $C grep -n -E '^(<<<<<<<|>>>>>>>) ' -- . ':!docs'                              # nothing
 uv run python REPO/tools/atlas_sync.py --repo $C base                                  # prints launcher@<new>
 git -C $C log --format='%s' refs/upstream/tags/launcher@<new>..HEAD | grep -c '^patch: '   # 7
+ls $C/.github/workflows                                                                # only atlas-ci.yml, atlas-release.yml, atlas-sync.yml
 cargo test --manifest-path $C/Cargo.toml -p horizon-release-sign
 ```
 Also check `git -C $C diff refs/upstream/tags/launcher@<new>..HEAD --stat -- crates/horizon-release-sign` shows

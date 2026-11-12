@@ -43,6 +43,13 @@ Later:
     (`installer::is_setup_exe`): renaming it needs a one-line seam there, plus `atlas-release.yml`, the Windows CI
     check, `install.sh`'s messages and the README links. The `.dmg` is only downloaded by hand.
   - Do it once the Windows CI job has run green on the current names.
+  - The release tags too: Atlas tags its releases `launcher@X.Y.Z`, the same names as upstream's launcher tags.
+    On GitHub and in CI they never meet (upstream's live under `refs/upstream/tags/`), but a clone that once cloned
+    upstream keeps upstream's tags in `refs/tags`, where they hide Atlas's of the same name (the skill's playbook,
+    section 9, cleans such a clone). An own prefix such as `launcher-atlas@` needs the same transition: the
+    self-updater recognises launcher releases by `backend::LAUNCHER_TAG_PREFIX` (`launcher@`), so first a release
+    whose launcher also accepts the new prefix, then, a few releases later, `atlas-release.yml`, `tools/atlas_sync.py`
+    (own tags, `next-version`, the title) and the signature check's `--tag` switch to it.
 - Remove the one-time migration from Atlas 0.1.x (`launcher/src/offline/migrate.rs` and its tests) in a later
   significant release, once no 0.1.x installs are likely left. It costs little meanwhile: it runs once per data
   folder and lives in Atlas's own files.

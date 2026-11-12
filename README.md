@@ -23,6 +23,25 @@ of Minecraft, and keeps up with every Horizon launcher release.
 > Microsoft: ask for help in this repository's [issues](https://github.com/nezbut/horizon-atlas/issues), not on
 > Horizon's channels. You need your own copy of Minecraft: Java Edition.
 
+## New in 0.2.0: Atlas's own offline play
+
+Since its version 0.2.59, the official Horizon launcher plays only with a Microsoft account that owns Minecraft: its
+offline names are gone (the game itself still plays offline). From 0.2.0 on, Atlas no longer switches the official
+launcher's offline mode on; it keeps offline play in a layer of its own:
+
+- **The Profile tab** (new): several offline player names, one of them plays. Each name has its own skin, with classic
+  or slim arms, and its own cape, as PNG pictures. Add, rename and remove names there.
+- **The account menu** (top right) shows who plays and switches between your names.
+- **Atlas's own data:** names, skins, capes and Atlas's accounts live in Atlas's own folder, apart from the official
+  launcher's. Names, skins and capes from Atlas 0.1.x are copied over on the first start ([details](#coming-from-atlas-01x)).
+- **Its own install:** Atlas installs beside the official launcher instead of over it ([Install](#install)).
+
+The game shows your skin and cape to you; other players see the default skin.
+
+<p align="center">
+  <img src="docs/media/atlas/profile.png" alt="Horizon Atlas: the Profile tab with two offline names, the selected name's skin and cape, and the buttons to choose a skin, a cape and the arm model" width="100%">
+</p>
+
 ## Features
 
 - **Offline profiles, no Microsoft account.** In the **Profile** tab, add your player names, give each its own skin and cape, and pick who plays. From a terminal: `horizon-atlas offline list`, `add`, `select`, `rename`, `remove`, `skin`, `cape` if you installed with `install.sh` on Linux or macOS (it links `horizon-atlas` into `~/.local/bin`); otherwise run the launcher's own program with `offline …`.
@@ -64,7 +83,7 @@ Atlas 0.1.x also took the official launcher's place; to move it to its own:
 
 **Do I need to own Minecraft?** Yes. Atlas prepares the game from your own copy of Minecraft: Java Edition 26.3 and never downloads Minecraft for you. The jar must be the 26.3 release, with the `libraries` and `assets` its launcher downloaded next to it; a jar on its own fails with a "Missing …/libraries/…" error.
 
-**Can I play on servers?** In single player, in LAN worlds and on servers that run in offline mode, yes. Online-mode servers (most public ones) check a Microsoft account, and Atlas doesn't support Microsoft sign-in yet, so they turn you away.
+**Can I play on servers?** In single player, in LAN worlds and on servers that run in offline mode, yes. Online-mode servers (most public ones) check a Microsoft account, and Atlas doesn't support Microsoft sign-in yet, so they turn you away. Horizon is Minecraft 26.3, so a server must let 26.3 players in (a 26.3 server, or an older one with an up-to-date ViaVersion). Other players there see your offline skin only if the server has a skin plugin.
 
 **Can I sign in with Microsoft?** Not yet. Atlas keeps its own accounts, apart from the official launcher's, and shows a short note where a Microsoft sign-in would start.
 

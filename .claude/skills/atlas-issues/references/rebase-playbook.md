@@ -81,9 +81,11 @@ and say in one paragraph why the conflict happened. Then ask the questions from 
 ## 6. Apply to the user's repository (only after a yes)
 ```
 git -C REPO fetch origin                                    # origin/main must still be what you started from
-git -C REPO fetch $C sync-<tag>:sync-<tag>                  # creates a local branch with the rebased stack; main is untouched
+git -C REPO fetch --no-tags $C sync-<tag>:sync-<tag>        # creates a local branch with the rebased stack; main is untouched
 ```
 If `origin/main` moved since you started, stop and tell the user: the work must be redone on the new `main`.
+`--no-tags` matters: by default a fetch also copies the tags that point into what it fetched, and a scratch clone
+may still hold upstream's old `launcher@*` tags, which would then hide Atlas's own again (section 9).
 
 ## 7. Publish (only after a yes to pushing)
 The rebased stack has new commit ids, so GitHub's `main` is not an ancestor of it and a plain push is refused;
@@ -129,12 +131,15 @@ this clone has (`git range-diff -s main...origin/main`, the `<` lines).
 Never run a plain `git pull` here: it merges the old stack with the new one, every Atlas commit then exists twice,
 and once pushed the next sync conflicts with the duplicates.
 
-A clone that was once cloned from upstream keeps upstream's `launcher@*` tags in `refs/tags`. Atlas's own releases
-use the same names (`launcher@0.2.0`...), so those old tags hide them: `git fetch --tags origin` refuses to
-replace them, and `task status` then prints a next version below the newest release. With the owner's yes, drop
-only the local tags that are exactly upstream's (the same object as under `refs/upstream/tags/`, which keeps them),
-then fetch Atlas's:
+A clone that was once cloned from upstream keeps upstream's `launcher@*` tags in `refs/tags`, and they come back
+through any fetch that follows tags from upstream or from a clone that still has them (a plain `git fetch upstream`,
+`git fetch --all`, an editor's background fetch, a branch brought in from a scratch clone without `--no-tags`).
+Atlas's own releases use the same names (`launcher@0.2.0`...), so those old tags hide them: `git fetch --tags origin`
+refuses to replace them (`would clobber existing tag`), and `task status` then prints a next version below the
+newest release. With the owner's yes, drop only the local tags that are exactly upstream's (the same object as
+under `refs/upstream/tags/`, which keeps them), stop the `upstream` remote from bringing tags, then fetch Atlas's:
 ```
 for t in $(git -C REPO tag -l 'launcher@*'); do [ "$(git -C REPO rev-parse "refs/tags/$t")" = "$(git -C REPO rev-parse -q --verify "refs/upstream/tags/$t")" ] && git -C REPO tag -d "$t"; done
+git -C REPO config remote.upstream.tagOpt --no-tags
 git -C REPO fetch --tags origin
 ```

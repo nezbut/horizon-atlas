@@ -27,8 +27,12 @@ the result afterwards; commits inside your own scratch clone are your workspace 
    the log text.
 2. **Get oriented** (read `references/project-map.md` once if you do not know the project). The repository has a
    `Taskfile.yml` (go-task): `task --list` shows its commands, and they never commit or push. Run
-   `task upstream:fetch` (upstream's launcher tags and `main`), `git fetch origin`, then `task status` (the current
-   base, the newest upstream tag newer than it, Atlas's next version, `git status -sb`). If the owner's `main`
+   `task upstream:fetch` (upstream's launcher tags and `main`), `git fetch --tags origin` (Atlas's release tags
+   too: a plain fetch skips a tag whose commit the clone already has), then `task status` (the current base, the
+   newest upstream tag newer than it, Atlas's next version, `git status -sb`). If the next version is not the
+   newest release on GitHub plus one, the clone holds upstream's old `launcher@*` tags in `refs/tags` (from
+   cloning upstream once); they hide Atlas's own tags of the same name, so the release's version comes from
+   GitHub's releases page instead (playbook section 9 says how to clean such a clone). If the owner's `main`
    differs from `origin/main`, say so before doing anything. Ahead and behind at once is normal after a
    successful sync (it rewrote `main` on GitHub): playbook section 9 (`task clone:sync`).
 3. **Reproduce in a scratch clone**: `task rehearse -- refs/upstream/tags/launcher@<new>` (or `-- upstream/main`

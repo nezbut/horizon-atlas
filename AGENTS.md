@@ -29,7 +29,8 @@ commits on top of an upstream `launcher@X.Y.Z` tag, which `tools/atlas_sync.py` 
   `docs/superpowers/owner-checklist.md`, the plan and design in `docs/superpowers/`.
 - Commits and PRs carry no agent attribution (no `Co-Authored-By:` or "Generated with" lines). Changes
   are checked with `task check` (`Taskfile.yml`: fmt, clippy, the launcher's tests, the sync tool's
-  tests, actionlint).
+  tests, actionlint). Run the sync tool as `uv run tools/atlas_sync.py <command>`: its script metadata asks
+  for Python 3.11+, which `python3 tools/atlas_sync.py` does not honour.
 - Never fetch Minecraft's client or server jar from Mojang for a player without an owner: downloading from
   Mojang stays gated on an account that owns the game, exactly as upstream has it.
 

@@ -58,8 +58,11 @@ and opens an issue that names the cause.
   sync; changes nothing when the clone has commits of its own), `run:scratch` / `run:copy` (the built launcher on
   scratch folders; `run:copy` starts with a copy of the real `accounts.json` and `skins/` to try the 0.1.x
   migration). No task commits or pushes. Builds honour `CARGO_TARGET_DIR`.
-- `tools/atlas_sync.py` (tests: `tests/test_atlas_sync.py`, run with `uv run python -m unittest discover -s tests
-  -p 'test_atlas*.py'`): `new-tag` (newest upstream `launcher@N.N.N` newer than the base, else prints nothing),
+- `tools/atlas_sync.py`, run as `uv run tools/atlas_sync.py <command>` (or `./tools/atlas_sync.py`): its PEP 723
+  script metadata asks for Python 3.11+ and no dependencies, and only `uv run <script>` reads it, so not
+  `python3 tools/atlas_sync.py` (Ubuntu 22.04's python3 is 3.10). Tests: `tests/test_atlas_sync.py`, run with
+  `task test:sync` (`uv run --python '>=3.11' python -m unittest discover -s tests -p 'test_atlas*.py'`).
+  Commands: `new-tag` (newest upstream `launcher@N.N.N` newer than the base, else prints nothing),
   `base` (the newest upstream tag that is an ancestor of HEAD), `next-version` (Atlas's next version: the highest
   own `launcher@*` tag, patch +1, first `0.1.0`), `rebase TAG` (`git rebase --onto`; resolves by itself the
   conflicts that need no human: an upstream workflow file gets the Atlas commit's version when both sides
@@ -67,22 +70,31 @@ and opens an issue that names the cause.
   conflict aborts cleanly and prints `FAILED_PATCH=<subject>`; on success each resolved file goes to stderr as
   `resolved: <path> in "<commit>" (<how>)`, which the sync run's summary lists), `rebase-onto REF` (the same onto any ref, e.g.
   `upstream/main`, used by `main-check`), `resolve` (that resolution for the commit a hand-run rebase stopped on),
-  `drop-workflows`, `title ATLAS UPSTREAM`.
+  `drop-workflows`, `title ATLAS UPSTREAM` (the release title, `Horizon Atlas X.Y.Z · based on Horizon launcher
+  A.B.C`), `release-notes ATLAS UPSTREAM ATLAS_RELEASES_JSON UPSTREAM_RELEASES_JSON` (the release body: what Atlas
+  is, which Windows file to download, Horizon's own notes of every launcher release after the previous Atlas
+  release's base, newest first and at most 10, each in a collapsed `<details>` block whose summary counts its
+  changes, with `@login` quoted and `#N` linked to Horizon's issues, then the licence from `launcher/Cargo.toml`
+  and the release's source; a missing or broken JSON file only leaves Horizon's notes out, never fails).
 - `.github/workflows/atlas-sync.yml`: four times a day (04:17, 10:17, 16:17 and 22:17 UTC) and by hand (input `dry_run`, default true); `main-check` runs only on the 04:17 run and by hand.
   Jobs: `build` (no secrets; fetch, find tag, rebase, fmt, tests, bundle), `publish` (the only job with
   `SYNC_TOKEN`; pushes `main` with a lease and starts `atlas-release`; skipped on dry run), `report` (opens the
   issue with the default token), `main-check` (rebases onto upstream `main` and runs `cargo check`, never
-  publishes), `report-main`.
+  publishes), `report-main`. `build` and `main-check` install uv (`astral-sh/setup-uv`, pinned by commit, no
+  cache) to run the sync tool; `publish` runs no repository code and has no uv.
 - `.github/workflows/atlas-release.yml`: inputs `version`, `upstream_tag`, `dry_run`. `meta`, `build` (Linux,
   macOS arm64 and Intel, Windows x64 and ARM64; Windows ARM64 is allowed to fail), `sign` (the only job with the
   signing key, environment `release`, restricted to `main`; a dry run signs with a throwaway key), `release`
-  (verifies the signature as launchers do, then `gh release create`, tag `launcher@<version>`, marked latest).
+  (writes the title and notes with `atlas_sync.py title` and `release-notes`, through uv, from this repository's
+  and Horizon's release lists, fetched with the default token, `[]` when a fetch fails; if the tool or uv fails,
+  a fallback title and a one-line body pointing to the README and the release's source; verifies the signature as
+  launchers do, then `gh release create`, tag `launcher@<version>`, marked latest).
   It is a copy of upstream's `launcher.yml`, so upstream changes to that file do not reach it by themselves.
   Atlas's own step after `package.sh` renames the macOS app to `Horizon Atlas.app` (bundle id
   `io.github.nezbut.horizon-atlas`), signs it again and rebuilds the zip and `.dmg`; upstream's `packaging/macos/`
   is not patched.
-- `.github/workflows/atlas-ci.yml`, for every push and pull request: `launcher` (Linux: fmt, launcher tests,
-  `owner_gate`) and `windows` (launcher tests, a release build, then `tools/atlas_installer_e2e.ps1`, which
+- `.github/workflows/atlas-ci.yml`, for every push and pull request: `launcher` (Linux: the sync tool's tests
+  through uv, fmt, launcher tests, `owner_gate`) and `windows` (launcher tests, a release build, then `tools/atlas_installer_e2e.ps1`, which
   installs, removes and uninstalls in a scratch profile and checks that the official launcher's install, keys
   and the shared data folder are never touched).
 - Atlas's versions are its own (`0.1.0`, `0.1.1`...). The version and tag reach the build as

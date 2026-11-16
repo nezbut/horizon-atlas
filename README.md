@@ -1,19 +1,34 @@
-# Horizon Atlas
+<h1 align="center">Horizon Atlas</h1>
 
-**Play Horizon offline.** Horizon Atlas is a launcher for [Horizon](https://github.com/horizon-rust/horizon), Minecraft:
-Java Edition 26.3 rewritten in Rust. It plays without a Microsoft account sign-in, prepares the game from your own copy
-of Minecraft, and keeps up with every Horizon launcher release.
+<p align="center">
+  <b>Play <a href="https://github.com/horizon-rust/horizon">Horizon</a> without a Microsoft account.</b><br>
+  A launcher for Horizon, Minecraft: Java Edition 26.3 rewritten in Rust: offline player names with your own skins
+  and capes, the game prepared from your own copy of Minecraft, and every Horizon launcher release within hours.
+</p>
 
-[![Latest release](https://img.shields.io/github/v/release/nezbut/horizon-atlas?label=latest)](https://github.com/nezbut/horizon-atlas/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/nezbut/horizon-atlas/total)](https://github.com/nezbut/horizon-atlas/releases)
-[![Windows · Linux · macOS](https://img.shields.io/badge/Windows%20%C2%B7%20Linux%20%C2%B7%20macOS-555)](#install)
+<p align="center">
+  <a href="https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-setup.exe"><img alt="Download Horizon Atlas for Windows (horizon-launcher-setup.exe)" src="https://img.shields.io/badge/Download%20Horizon%20Atlas-for%20Windows-7c5cff?style=for-the-badge&labelColor=2b2540"></a>
+</p>
 
-**Download:** [Windows](https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-setup.exe) ·
-[Windows ARM](https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-setup-arm64.exe) ·
-[Linux (AppImage)](https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-linux-x86_64.AppImage) ·
-[macOS (Apple Silicon)](https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-macos-arm64.dmg) ·
-[macOS (Intel)](https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-macos-x64.dmg) ·
-[all files](https://github.com/nezbut/horizon-atlas/releases/latest)
+<p align="center">
+  Other systems:
+  <a href="#linux-and-macos">Linux</a> ·
+  <a href="#linux-and-macos">macOS</a> ·
+  <a href="https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-setup-arm64.exe">Windows on ARM</a> ·
+  <a href="https://github.com/nezbut/horizon-atlas/releases/latest">all files</a>
+</p>
+
+<p align="center">
+  <a href="#windows">How to install</a> · <a href="#first-run">First run</a> · <a href="#faq">FAQ</a> · <a href="README.ru.md"><b>Русский</b></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/nezbut/horizon-atlas/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/nezbut/horizon-atlas?label=latest"></a>
+  <a href="https://github.com/nezbut/horizon-atlas/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/nezbut/horizon-atlas/total"></a>
+  <img alt="Minecraft: Java Edition 26.3" src="https://img.shields.io/badge/Minecraft-Java%2026.3-3c8527">
+  <img alt="Windows, Linux, macOS" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-555">
+  <a href="#license"><img alt="Licence: LGPL-3.0-or-later" src="https://img.shields.io/badge/licence-LGPL--3.0--or--later-blue"></a>
+</p>
 
 <p align="center">
   <img src="docs/media/atlas/launcher.png" alt="Horizon Atlas: the Home page with Play, an offline player name, the Nightly game build and two resource packs" width="100%">
@@ -22,6 +37,54 @@ of Minecraft, and keeps up with every Horizon launcher release.
 > **Unofficial.** Made by a player. Not affiliated with, endorsed by or supported by Horizon's authors, Mojang or
 > Microsoft: ask for help in this repository's [issues](https://github.com/nezbut/horizon-atlas/issues), not on
 > Horizon's channels. You need your own copy of Minecraft: Java Edition.
+
+## Features
+
+- **Offline profiles, no Microsoft account.** In the **Profile** tab, add your player names, give each its own skin and cape, and pick who plays. From a terminal: `horizon-atlas offline list`, `add`, `select`, `rename`, `remove`, `skin`, `cape` if you installed with `install.sh` on Linux or macOS (it links `horizon-atlas` into `~/.local/bin`); otherwise run the launcher's own program with `offline …`.
+- **Beside the official launcher.** Atlas installs as its own program, so the official Horizon launcher can stay installed next to it.
+- **Your own Minecraft, found or chosen.** Atlas finds Minecraft 26.3 in the launchers on your computer, or you pick its `26.3.jar` with **Choose jar…**.
+- **All of Horizon.** The game is Horizon's, unmodified: your worlds, mods, resource and shader packs, the fast native renderer ([Horizon's README below](#horizon)).
+- **Always current.** Each Horizon launcher release becomes an Atlas release, usually within hours, and the launcher updates itself.
+- **Signed updates.** Every update is checked against Atlas's signing key before it is installed.
+
+## Install
+
+### Windows
+
+1. Download **[horizon-launcher-setup.exe](https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-setup.exe)**
+   (the purple button at the top is the same file). A PC with an ARM processor (Snapdragon and the like: Settings →
+   System → About → System type says "ARM-based processor") takes
+   **[horizon-launcher-setup-arm64.exe](https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-setup-arm64.exe)** instead.
+2. Open the downloaded file. Windows may say **"Windows protected your PC"**: the installer has no paid code-signing
+   certificate, that's all. Click **More info**, then **Run anyway**.
+3. Click **Install**. It installs **Horizon Atlas Launcher** for your Windows account only, in
+   `%LOCALAPPDATA%\Programs\Horizon Atlas Launcher`, without administrator rights, with a Start menu entry (and a
+   desktop one if **Desktop shortcut** is ticked).
+4. Click **Launch Horizon Atlas** and go on with [First run](#first-run).
+
+From then on Atlas updates itself: no need to download it again.
+
+### Linux and macOS
+
+On Linux (x86-64) and macOS (Apple Silicon), from a terminal:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/nezbut/horizon-atlas/main/install.sh | sh
+```
+
+It installs for your user only and puts `horizon-atlas` in `~/.local/bin`. Or download the file yourself: the
+[AppImage](https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-linux-x86_64.AppImage) on
+Linux, the `.dmg` for [Apple Silicon](https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-macos-arm64.dmg)
+or [Intel](https://github.com/nezbut/horizon-atlas/releases/latest/download/horizon-launcher-macos-x64.dmg) on macOS.
+
+On macOS the app is **Horizon Atlas**. It is not notarized, so macOS may refuse to open it the first time: right-click
+it and choose **Open**, or run `xattr -dr com.apple.quarantine "<path to the app>"` (`install.sh` already does this).
+
+## First run
+
+1. Have Minecraft: Java Edition 26.3 installed once, in any launcher (the official one, Prism, Modrinth App and others work).
+2. Open Atlas and press **Prepare**. It finds your copy of 26.3 and prepares the game from it. If it cannot, press **Choose jar…** and pick `versions/26.3/26.3.jar` in the folder of the launcher that downloaded 26.3, so that its `libraries` and `assets` are found too.
+3. In the **Profile** tab, add a player name (and a skin and a cape, if you like), then press **Play**.
 
 ## New in 0.2.0: Atlas's own offline play
 
@@ -42,27 +105,6 @@ The game shows your skin and cape to you; other players see the default skin.
   <img src="docs/media/atlas/profile.png" alt="Horizon Atlas: the Profile tab with two offline names, the selected name's skin and cape, and the buttons to choose a skin, a cape and the arm model" width="100%">
 </p>
 
-## Features
-
-- **Offline profiles, no Microsoft account.** In the **Profile** tab, add your player names, give each its own skin and cape, and pick who plays. From a terminal: `horizon-atlas offline list`, `add`, `select`, `rename`, `remove`, `skin`, `cape` if you installed with `install.sh` on Linux or macOS (it links `horizon-atlas` into `~/.local/bin`); otherwise run the launcher's own program with `offline …`.
-- **Beside the official launcher.** Atlas installs as its own program, so the official Horizon launcher can stay installed next to it.
-- **Your own Minecraft, found or chosen.** Atlas finds Minecraft 26.3 in the launchers on your computer, or you pick its `26.3.jar` with **Choose jar…**.
-- **All of Horizon.** The game is Horizon's, unmodified: your worlds, mods, resource and shader packs, the fast native renderer ([Horizon's README below](#horizon)).
-- **Always current.** Each Horizon launcher release becomes an Atlas release, usually within hours, and the launcher updates itself.
-- **Signed updates.** Every update is checked against Atlas's signing key before it is installed.
-
-## Install
-
-- **Windows:** run `horizon-launcher-setup.exe` (`horizon-launcher-setup-arm64.exe` on ARM). It installs **Horizon Atlas Launcher** for your user, in `%LOCALAPPDATA%\Programs\Horizon Atlas Launcher`. It is not code-signed, so SmartScreen may say "Windows protected your PC": choose **More info**, then **Run anyway**.
-- **Linux (x86-64) and macOS (Apple Silicon)**, from a terminal:
-
-  ```sh
-  curl -fsSL https://raw.githubusercontent.com/nezbut/horizon-atlas/main/install.sh | sh
-  ```
-
-  It installs for your user only and puts `horizon-atlas` in `~/.local/bin`. Or take the AppImage (Linux) or the `.dmg` (macOS, Intel too) from the links above.
-- **macOS:** the app is **Horizon Atlas**. It is not notarized, so macOS may refuse to open it the first time. Right-click it and choose **Open**, or run `xattr -dr com.apple.quarantine "<path to the app>"` (`install.sh` already does this).
-
 ### Coming from Atlas 0.1.x
 
 Atlas updates itself to 0.2.0 as usual, and your worlds and settings stay where they are. Your offline names, the one you play as, and their skins and capes are copied into Atlas's own folder when Atlas 0.2.0 first starts, from the data folder it shares with the official Horizon launcher. The official launcher no longer has offline names: if its version 0.2.59 or newer was used to **Play** before that, it may already have removed them from the shared files, and then they can't be brought back.
@@ -72,12 +114,6 @@ Atlas 0.1.x also took the official launcher's place; to move it to its own:
 - **Windows:** run the new `horizon-launcher-setup.exe`. It installs Horizon Atlas Launcher in its own folder, and its option **Remove the old Horizon Atlas install (from the Horizon Launcher folder)** (ticked) removes the old copy from the official launcher's folder. Your worlds and settings stay. Remove the old copy this way, not with the old "Horizon Launcher" entry in Windows' installed apps. Until you move, Atlas reminds you when it starts (or choose **Don't show again**).
 - **Linux:** nothing to do: the menu entry becomes **Horizon Atlas** by itself.
 - **macOS:** an update keeps the old app's name (`Horizon`). To get **Horizon Atlas**, quit Atlas first, then install again: `install.sh` replaces the old app in `~/Applications/Horizon Atlas` by itself; with the new `.dmg` or zip, move the old **Horizon** app to the Trash afterwards (unless it is the official launcher, which has the same name). If you pinned the old app to the Dock, you may need to pin the new one again.
-
-## First run
-
-1. Have Minecraft: Java Edition 26.3 installed once, in any launcher (the official one, Prism, Modrinth App and others work).
-2. Open Atlas and press **Prepare**. It finds your copy of 26.3 and prepares the game from it. If it cannot, press **Choose jar…** and pick `versions/26.3/26.3.jar` in the folder of the launcher that downloaded 26.3, so that its `libraries` and `assets` are found too.
-3. In the **Profile** tab, add a player name (and a skin and a cape, if you like), then press **Play**.
 
 ## FAQ
 
@@ -101,7 +137,8 @@ Atlas is a short list of small commits (patches: `choose-jar`, `own-releases`, `
 Four times a day a workflow checks for a newer Horizon launcher tag, replays the patches onto it, tests, and publishes a release. If a patch no longer applies, nothing is published and an issue names the patch.
 Atlas's versions are its own (`0.x`); each release title says which Horizon launcher it is based on.
 
-The everyday commands are in `Taskfile.yml` ([go-task](https://taskfile.dev)):
+The everyday commands are in `Taskfile.yml` ([go-task](https://taskfile.dev)). The sync tool runs through
+[uv](https://docs.astral.sh/uv/) (`uv run tools/atlas_sync.py <command>`), which brings the Python 3.11+ it needs:
 
 - `task check`: every check (formatting, clippy, the launcher's tests, the sync tool's tests, actionlint).
 - `task status`: the Horizon launcher tag Atlas is on, a newer one if there is, and Atlas's next version.
@@ -111,7 +148,14 @@ The everyday commands are in `Taskfile.yml` ([go-task](https://taskfile.dev)):
 
 ## License
 
-MIT, like Horizon (see [LICENSE](LICENSE)). Horizon is by Ludovic Marie and the Horizon contributors; Atlas is built on their work. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for other credits.
+Atlas follows Horizon's licence. Since Horizon launcher 0.2.69 (Atlas 0.2.9) that is the GNU Lesser General Public
+License, version 3 or any later version: [LICENSE](LICENSE), with the GNU GPL it builds on in
+[LICENSES/GPL-3.0.txt](LICENSES/GPL-3.0.txt). Atlas 0.2.8 and earlier, built on Horizon's MIT releases, stay under the
+MIT licence ([LICENSES/MIT.txt](LICENSES/MIT.txt)).
+
+Horizon is by Ludovic Marie and the Horizon contributors; Atlas is built on their work and changes only the launcher.
+Its changes are the `patch:` and `atlas:` commits in this repository. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+for other credits.
 
 ---
 

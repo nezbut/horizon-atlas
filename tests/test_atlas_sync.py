@@ -1,10 +1,13 @@
 import contextlib
 import io
 import json
+import os
+import re
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tools import atlas_sync
 
@@ -165,9 +168,11 @@ class TagParsingTests(unittest.TestCase):
         self.assertEqual(
             atlas_sync.next_atlas_version(["launcher@0.1.0", "launcher@0.1.1", "v2"]), "0.1.2"
         )
+
+    def test_release_title_names_horizon_atlas_and_the_upstream_version(self):
         self.assertEqual(
             atlas_sync.release_title("0.1.0", "launcher@0.2.50"),
-            "Atlas 0.1.0 · based on Horizon launcher 0.2.50",
+            "Horizon Atlas 0.1.0 · based on Horizon launcher 0.2.50",
         )
 
 
@@ -416,7 +421,7 @@ class CliTests(SyncFixture):
         self.assertEqual(self.cli("base"), (0, "launcher@0.2.50\n"))
         self.assertEqual(
             self.cli("title", "0.1.0", "launcher@0.2.50"),
-            (0, "Atlas 0.1.0 · based on Horizon launcher 0.2.50\n"),
+            (0, "Horizon Atlas 0.1.0 · based on Horizon launcher 0.2.50\n"),
         )
 
 
@@ -965,6 +970,320 @@ class ResolveTests(CliFixture):
         self.assertEqual((code, out), (1, f"resolved: {LANG_CS}\nunmerged: a.txt\n"))
         self.assertEqual(self.unmerged(), ["a.txt"])
         self.assertEqual((self.atlas / LANG_CS).read_text(encoding="utf-8"), CS_MERGED)
+
+
+UPSTREAM_ISSUES = "https://github.com/horizon-rust/horizon/issues"
+UPSTREAM_FOOTER = (
+    "Your launcher updates itself. New here? On Linux take the .AppImage below, make it executable and run it; "
+    "on Windows and macOS download the archive, extract it and run `horizon-launcher` (Horizon.app on macOS). "
+    "Website: https://playhorizon.dev\n"
+    "\n"
+    "---\n"
+    "Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.\n"
+)
+BODY_0_2_69 = (
+    "### Fixed\n"
+    "- Port ledger: fix 1 stale citation in horizon-port-pack (#16881)\n"
+    "- Change Horizon's licence from MIT to LGPL-3.0-or-later (#17111)\n"
+    "\n"
+    "### Contributors\n"
+    "Thanks to @MSedgeMC, @kacpherek.\n"
+    "\n" + UPSTREAM_FOOTER
+)
+NOTES_0_2_9 = """\
+Horizon Atlas 0.2.9 is Horizon launcher 0.2.69 with Atlas's changes: play without a Microsoft account (offline names \
+with skins and capes), your own copy of Minecraft, and its own install beside the official launcher.
+
+**Windows:** download `horizon-launcher-setup.exe` below and run it (`horizon-launcher-setup-arm64.exe` on ARM). \
+**Linux and macOS:** see [Install](https://github.com/nezbut/horizon-atlas#install). Already installed? Atlas updates \
+itself.
+
+## What changed in Horizon
+
+Horizon's own notes for its official launcher, as published. What Atlas adds (above) still applies.
+
+<details>
+<summary><b>Horizon launcher 0.2.69</b>: 2 changes</summary>
+
+[Official release notes](https://github.com/horizon-rust/horizon/releases/tag/launcher%400.2.69)
+
+#### Fixed
+- Port ledger: fix 1 stale citation in horizon-port-pack ([#16881](https://github.com/horizon-rust/horizon/issues/16881))
+- Change Horizon's licence from MIT to LGPL-3.0-or-later ([#17111](https://github.com/horizon-rust/horizon/issues/17111))
+
+#### Contributors
+Thanks to `@MSedgeMC`, `@kacpherek`.
+
+</details>
+
+---
+Licence: LGPL-3.0-or-later ([LICENSE](https://github.com/nezbut/horizon-atlas/blob/launcher%400.2.9/LICENSE)). \
+Source code of this release: [launcher@0.2.9](https://github.com/nezbut/horizon-atlas/tree/launcher%400.2.9). \
+Unofficial: not affiliated with Horizon's authors, Mojang or Microsoft. You need your own copy of Minecraft: Java \
+Edition."""
+
+
+def upstream_release(version, body="### Fixed\n- a fix\n", draft=False):
+    return {
+        "tag_name": f"launcher@{version}",
+        "name": f"Horizon launcher {version}",
+        "body": body,
+        "draft": draft,
+        "prerelease": False,
+    }
+
+
+def atlas_release(version, base, title="Horizon Atlas", draft=False):
+    return {
+        "tag_name": f"launcher@{version}",
+        "name": f"{title} {version} · based on Horizon launcher {base}",
+        "body": "",
+        "draft": draft,
+        "prerelease": False,
+    }
+
+
+def section_versions(notes):
+    return re.findall(r"^<summary><b>Horizon launcher (\d+\.\d+\.\d+)</b>", notes, re.M)
+
+
+def official_link(version):
+    return f"[Official release notes](https://github.com/horizon-rust/horizon/releases/tag/launcher%40{version})"
+
+
+class CleanUpstreamNotesTests(unittest.TestCase):
+    def clean(self, body):
+        return atlas_sync.clean_upstream_notes(body)
+
+    def test_a_real_body_keeps_its_changes_and_loses_the_install_footer(self):
+        self.assertEqual(
+            self.clean(BODY_0_2_69),
+            "#### Fixed\n"
+            f"- Port ledger: fix 1 stale citation in horizon-port-pack ([#16881]({UPSTREAM_ISSUES}/16881))\n"
+            f"- Change Horizon's licence from MIT to LGPL-3.0-or-later ([#17111]({UPSTREAM_ISSUES}/17111))\n"
+            "\n"
+            "#### Contributors\n"
+            "Thanks to `@MSedgeMC`, `@kacpherek`.",
+        )
+
+    def test_a_rule_before_the_update_line_is_where_the_cut_is(self):
+        self.assertEqual(self.clean("- a fix\n\n---\nfooter\n\nYour launcher updates itself.\n"), "- a fix")
+        self.assertEqual(self.clean("- a fix\r\n\r\n---\r\nfooter\r\n"), "- a fix")
+
+    def test_headings_go_one_level_down(self):
+        self.assertEqual(
+            self.clean("# One\n## Two\n###### Six\n#hashtag\n"),
+            "## One\n### Two\n###### Six\n#hashtag",
+        )
+
+    def test_mentions_are_quoted_so_nobody_upstream_is_notified(self):
+        self.assertEqual(
+            self.clean("Thanks to @a-b and @Zed9 (mail me@example.com, see https://x.dev/@c, `@code`)\n"),
+            "Thanks to `@a-b` and `@Zed9` (mail me@example.com, see https://x.dev/@c, `@code`)",
+        )
+
+    def test_bare_issue_numbers_link_to_upstream_and_qualified_ones_stay(self):
+        self.assertEqual(
+            self.clean("Fixes #12 and horizon-rust/horizon#34, [#56](u), &#35;, a/#7, x#9, `#8`, ``a `#1` @b``\n"),
+            f"Fixes [#12]({UPSTREAM_ISSUES}/12) and horizon-rust/horizon#34, [#56](u), &#35;, a/#7, x#9, `#8`, "
+            "``a `#1` @b``",
+        )
+
+    def test_fenced_code_is_left_as_it_is(self):
+        self.assertEqual(
+            self.clean("```sh\n# not a heading @me #1\n```\n@you\n"),
+            "```sh\n# not a heading @me #1\n```\n`@you`",
+        )
+
+    def test_details_tags_cannot_close_or_open_atlas_blocks(self):
+        self.assertEqual(
+            self.clean("- a fix\n</details>\n  </DETAILS>  \n<details><summary>x</summary>\nsee `</details>`\n"),
+            "- a fix\n&lt;/details>\n  &lt;/DETAILS>  \n&lt;details><summary>x</summary>\nsee `</details>`",
+        )
+
+
+class ReleaseNotesTests(unittest.TestCase):
+    def notes(self, atlas, upstream, license_id="LGPL-3.0-or-later"):
+        return atlas_sync.release_notes(
+            "0.2.9", "launcher@0.2.69", atlas, upstream, license_id, "nezbut/horizon-atlas"
+        )
+
+    def test_the_whole_body_for_one_covered_release(self):
+        atlas = [atlas_release("0.2.8", "0.2.68", title="Atlas")]
+        upstream = [upstream_release("0.2.69", BODY_0_2_69), upstream_release("0.2.68")]
+
+        self.assertEqual(self.notes(atlas, upstream), NOTES_0_2_9)
+
+    def test_every_release_since_the_previous_base_newest_first_from_either_title(self):
+        upstream = [upstream_release(f"0.2.{n}") for n in (65, 69, 66, 70, 67, 68)]
+        for title in ("Atlas", "Horizon Atlas"):
+            with self.subTest(title=title):
+                notes = self.notes([atlas_release("0.2.8", "0.2.66", title=title)], upstream)
+                self.assertEqual(section_versions(notes), ["0.2.69", "0.2.68", "0.2.67"])
+
+    def test_the_previous_release_is_the_newest_published_one_below_this_version(self):
+        atlas = [
+            atlas_release("0.2.9", "0.2.69"),
+            atlas_release("0.2.10", "0.2.70"),
+            atlas_release("0.2.8", "0.2.68", draft=True),
+            atlas_release("0.2.7", "0.2.66"),
+            atlas_release("0.2.6", "0.2.60"),
+            {"tag_name": "nightly", "name": "based on Horizon launcher 0.2.1", "draft": False},
+        ]
+        upstream = [upstream_release(f"0.2.{n}") for n in range(60, 71)]
+
+        self.assertEqual(section_versions(self.notes(atlas, upstream)), ["0.2.69", "0.2.68", "0.2.67"])
+
+    def test_an_unknown_previous_base_covers_only_the_new_tag(self):
+        upstream = [upstream_release("0.2.69"), upstream_release("0.2.68")]
+        for atlas in ([], [{"tag_name": "launcher@0.2.8", "name": "Atlas 0.2.8", "draft": False}]):
+            with self.subTest(atlas=atlas):
+                self.assertEqual(section_versions(self.notes(atlas, upstream)), ["0.2.69"])
+
+    def test_a_new_tag_upstream_has_not_listed_still_gets_its_section(self):
+        notes = self.notes([atlas_release("0.2.8", "0.2.67")], [upstream_release("0.2.68")])
+
+        self.assertEqual(section_versions(notes), ["0.2.69", "0.2.68"])
+        self.assertIn(
+            "<details>\n<summary><b>Horizon launcher 0.2.69</b></summary>\n\n"
+            f"{official_link('0.2.69')}\n\nNo notes yet.\n\n</details>",
+            notes,
+        )
+
+    def test_a_body_with_nothing_left_says_so(self):
+        for body in (UPSTREAM_FOOTER, "", None):
+            with self.subTest(body=body):
+                notes = self.notes([], [upstream_release("0.2.69", body)])
+                self.assertIn(
+                    "<summary><b>Horizon launcher 0.2.69</b></summary>\n\n"
+                    f"{official_link('0.2.69')}\n\nNo notes.\n\n</details>",
+                    notes,
+                )
+
+    def test_a_fence_left_open_by_the_cut_is_closed_inside_the_block(self):
+        notes = self.notes([], [upstream_release("0.2.69", "```\n- not a change\n---\nfooter\n")])
+
+        self.assertIn(
+            "<summary><b>Horizon launcher 0.2.69</b></summary>\n\n"
+            f"{official_link('0.2.69')}\n\n```\n- not a change\n```\n\n</details>",
+            notes,
+        )
+
+    def test_the_summary_counts_top_level_changes_outside_code_and_contributors(self):
+        bodies = {
+            "### Fixed\n- one\n  - a detail, not a change\n\n### Contributors\n- @someone\n": ": 1 change",
+            "### New\n* one\n- two\n\n```\n- code\n```\n### Fixed\n- three\n": ": 3 changes",
+            "Only words.\n": "",
+        }
+        for body, count in bodies.items():
+            with self.subTest(body=body):
+                notes = self.notes([], [upstream_release("0.2.69", body)])
+                self.assertIn(f"<summary><b>Horizon launcher 0.2.69</b>{count}</summary>\n\n", notes)
+
+    def test_at_most_ten_sections_then_a_link_to_the_rest_outside_them(self):
+        upstream = [upstream_release(f"0.2.{n}") for n in range(51, 70)]
+
+        notes = self.notes([atlas_release("0.2.8", "0.2.50")], upstream)
+
+        self.assertEqual(section_versions(notes), [f"0.2.{n}" for n in range(69, 59, -1)])
+        last_block = notes.rindex("</details>")
+        more = notes.index("9 older")
+        link = notes.index("(https://github.com/horizon-rust/horizon/releases)")
+        self.assertLess(last_block, more)
+        self.assertLess(more, link)
+        self.assertLess(link, notes.index("\n---\n"))
+
+    def test_a_release_on_the_same_base_says_horizon_did_not_change(self):
+        notes = self.notes([atlas_release("0.2.8", "0.2.69")], [upstream_release("0.2.69")])
+
+        self.assertEqual(section_versions(notes), [])
+        self.assertIn(
+            "## What changed in Horizon\n\nNothing: Atlas 0.2.8 was already based on Horizon launcher 0.2.69.\n\n---\n",
+            notes,
+        )
+
+    def test_without_a_licence_id_the_line_points_to_the_file(self):
+        notes = self.notes([], [], license_id=None)
+
+        self.assertIn(
+            "\n---\nLicence: see [LICENSE](https://github.com/nezbut/horizon-atlas/blob/launcher%400.2.9/LICENSE). ",
+            notes,
+        )
+
+
+class ReleaseNotesCliTests(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.tmp = Path(tmp.name)
+        self.repo = self.tmp / "repo"
+        (self.repo / "launcher").mkdir(parents=True)
+        self.manifest = self.repo / "launcher" / "Cargo.toml"
+        self.manifest.write_text('[package]\nname = "horizon-launcher"\nlicense = "LGPL-3.0-or-later"\n')
+        self.atlas_json = self.tmp / "atlas.json"
+        self.upstream_json = self.tmp / "upstream.json"
+        env = mock.patch.dict(os.environ)
+        env.start()
+        self.addCleanup(env.stop)
+        os.environ.pop("GITHUB_REPOSITORY", None)
+
+    def cli(self, *args):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            code = atlas_sync.main(list(args), repo=self.repo)
+        return code, out.getvalue()
+
+    def release_notes(self):
+        return self.cli("release-notes", "0.2.9", "launcher@0.2.69", str(self.atlas_json), str(self.upstream_json))
+
+    def test_release_notes_reads_both_lists_the_licence_and_the_repository(self):
+        self.atlas_json.write_text(json.dumps([atlas_release("0.2.8", "0.2.67", title="Atlas")]))
+        self.upstream_json.write_text(json.dumps([upstream_release(f"0.2.{n}") for n in (67, 68, 69)]))
+        os.environ["GITHUB_REPOSITORY"] = "someone/fork"
+
+        code, out = self.release_notes()
+
+        self.assertEqual(code, 0)
+        self.assertEqual(section_versions(out), ["0.2.69", "0.2.68"])
+        self.assertIn("[Install](https://github.com/someone/fork#install)", out)
+        self.assertIn(
+            "Licence: LGPL-3.0-or-later ([LICENSE](https://github.com/someone/fork/blob/launcher%400.2.9/LICENSE))",
+            out,
+        )
+
+    def test_missing_empty_or_invalid_lists_count_as_no_releases(self):
+        contents = [None, "", "not json", '{"message": "Bad credentials"}', '[1, "x", null, {"tag_name": 5}]']
+        for text in contents:
+            with self.subTest(text=text):
+                for path in (self.atlas_json, self.upstream_json):
+                    path.unlink(missing_ok=True)
+                    if text is not None:
+                        path.write_text(text)
+
+                code, out = self.release_notes()
+
+                self.assertEqual(code, 0)
+                self.assertTrue(out.startswith("Horizon Atlas 0.2.9 is Horizon launcher 0.2.69 "), out)
+                self.assertIn(f"{official_link('0.2.69')}\n\nNo notes yet.\n", out)
+                self.assertIn("[launcher@0.2.9](https://github.com/nezbut/horizon-atlas/tree/launcher%400.2.9)", out)
+
+    def test_an_unreadable_manifest_leaves_only_see_licence(self):
+        for text in (None, "not = [toml", '[package]\nname = "horizon-launcher"\n'):
+            with self.subTest(text=text):
+                self.manifest.unlink(missing_ok=True)
+                if text is not None:
+                    self.manifest.write_text(text)
+
+                code, out = self.release_notes()
+
+                self.assertEqual(code, 0)
+                self.assertIn("Licence: see [LICENSE](", out)
+
+    def test_a_version_or_tag_that_is_not_x_y_z_is_a_usage_error(self):
+        for version, tag in (("0.2", "launcher@0.2.69"), ("0.2.9", "nightly")):
+            with self.subTest(version=version, tag=tag):
+                code, out = self.cli("release-notes", version, tag, str(self.atlas_json), str(self.upstream_json))
+                self.assertEqual((code, out), (2, ""))
 
 
 if __name__ == "__main__":

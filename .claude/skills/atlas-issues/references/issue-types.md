@@ -61,7 +61,9 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
 - **Do:** `git diff refs/upstream/tags/launcher@OLD refs/upstream/tags/launcher@NEW -- .github/workflows/launcher.yml`.
   Port what matters into `.github/workflows/atlas-release.yml` and keep Atlas's differences: the `meta` job and
   inputs (`version`, `upstream_tag`, `dry_run`), no `tools/release_train.py`, `macos-15` instead of upstream's
-  self-hosted Mac mini, `--latest=true`, the macOS arm64 test skip, the `release` environment on `sign`, and
+  self-hosted Mac mini, `--latest=true`, the macOS arm64 test skip, the `release` environment on `sign`, the
+  `setup-uv` and `Notes` steps of `release` (the title and body from `uv run tools/atlas_sync.py title` and
+  `release-notes`, fed by this repository's and Horizon's release lists, with fallbacks), and
   the macOS rename: `package.sh` runs with `MACOS_NOTARY_PROFILE=''`, then Atlas's own step renames the app to
   `Horizon Atlas.app`, sets the bundle id and names, signs again (and notarizes when a profile is set) and
   rebuilds the zip and `.dmg`. `packaging/` and `sign_release.sh` are upstream files and already updated by the

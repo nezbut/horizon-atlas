@@ -24,9 +24,9 @@ tasks:
       - cargo test --manifest-path {{.MANIFEST}} --release --lib --bins --test owner_gate
 
   test:sync:
-    desc: Run the sync tool's tests
+    desc: Run the sync tool's tests (on Python 3.11 or newer, as the tool needs)
     cmds:
-      - uv run python -m unittest discover -s tests -p 'test_atlas*.py'
+      - uv run --python '>=3.11' python -m unittest discover -s tests -p 'test_atlas*.py'
 
   lint:workflows:
     desc: Lint the GitHub workflows with actionlint
@@ -124,9 +124,9 @@ tasks:
   status:
     desc: Show Atlas's upstream base, a newer upstream launcher tag if any, the next Atlas version and git status
     cmds:
-      - uv run python tools/atlas_sync.py base
-      - uv run python tools/atlas_sync.py new-tag
-      - uv run python tools/atlas_sync.py next-version
+      - uv run tools/atlas_sync.py base
+      - uv run tools/atlas_sync.py new-tag
+      - uv run tools/atlas_sync.py next-version
       - git status -sb
 
   clone:sync:
@@ -192,7 +192,7 @@ tasks:
         fi
 
         # The sync tool comes from this checkout, not the clone: the rebase rewrites the clone's copy of it.
-        if result=$(uv run python "{{.ROOT_DIR}}/tools/atlas_sync.py" --repo "$scratch" rebase-onto "$REF"); then
+        if result=$(uv run "{{.ROOT_DIR}}/tools/atlas_sync.py" --repo "$scratch" rebase-onto "$REF"); then
           echo "rehearsal succeeded: the patches now sit on $result"
           echo "scratch clone: $scratch"
         else

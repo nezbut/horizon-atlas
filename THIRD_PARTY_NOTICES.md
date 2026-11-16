@@ -72,7 +72,10 @@ license.
 ## Horizon Atlas
 
 Horizon Atlas is an unofficial fork of [Horizon](https://github.com/horizon-rust/horizon) by Ludovic
-Marie and the Horizon contributors (MIT, see `LICENSE`). It changes the launcher only.
+Marie and the Horizon contributors, modified since 2026-11-08 by the Horizon Atlas maintainers. It changes the
+launcher only; its changes are the `patch:` and `atlas:` commits in its repository. Its licence follows Horizon's:
+LGPL-3.0-or-later since Horizon launcher 0.2.69 (Atlas 0.2.9, see `LICENSE` and `LICENSES/GPL-3.0.txt`), MIT for
+Atlas 0.2.8 and earlier (`LICENSES/MIT.txt`).
 
 ## Catnip / Ponder
 

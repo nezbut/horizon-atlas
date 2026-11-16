@@ -7,8 +7,10 @@ name: atlas-release
 #   gh workflow run atlas-release.yml -f version=0.1.0 -f upstream_tag=launcher@0.2.50                  # dry run: builds everything, publishes nothing
 #   gh workflow run atlas-release.yml -f version=0.1.0 -f upstream_tag=launcher@0.2.50 -f dry_run=false
 # The version is Atlas's own (tools/atlas_sync.py next-version) and `upstream_tag` the Horizon launcher tag it is based
-# on (it only goes into the release title). The version and the tag are given to the build (HORIZON_LAUNCHER_VERSION,
-# HORIZON_LAUNCHER_TAG): no bump commits. A run off main is always a dry run.
+# on. That tag goes into the release title and the release notes (tools/atlas_sync.py release-notes), which copy
+# Horizon's own notes of every launcher release after the previous Atlas release's base, up to that tag. The version
+# and the tag are given to the build (HORIZON_LAUNCHER_VERSION, HORIZON_LAUNCHER_TAG): no bump commits. A run off main
+# is always a dry run.
 # Linux ships two archives of one binary: the .tar.gz the launcher updates itself from, and an
 # AppImage (packaging/linux/appimage.sh) for players without a distribution package, which replaces
 # itself instead (launcher/src/backend.rs).
@@ -438,14 +440,36 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
+      # tools/atlas_sync.py runs through uv, on the Python 3.11+ its script metadata asks for. No cache: a cache can be
+      # saved by jobs that run other code. Without uv the Notes step below falls back to a short title and body.
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        continue-on-error: true
+        with:
+          enable-cache: false
       - name: Notes
         env:
+          GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.meta.outputs.version }}
           UPSTREAM_TAG: ${{ needs.meta.outputs.upstream_tag }}
         run: |
           mkdir notes
-          python3 tools/atlas_sync.py title "$VERSION" "$UPSTREAM_TAG" > notes/title.txt
-          echo "Unofficial fork; see README" > notes/body.md
+          # The previous Atlas release (its title names its base) and Horizon's own notes, only the fields the notes
+          # read. A failed fetch only leaves Horizon's notes out, and a failed tool gives a short title and body:
+          # the notes never fail the release.
+          fields='[.[] | {tag_name, name, body, draft, prerelease}]'
+          gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq "$fields" > notes/atlas-releases.json \
+            || { echo "::warning::could not list this repository's releases"; echo '[]' > notes/atlas-releases.json; }
+          gh api "repos/horizon-rust/horizon/releases?per_page=100" --jq "$fields" > notes/upstream-releases.json \
+            || { echo "::warning::could not list Horizon's releases"; echo '[]' > notes/upstream-releases.json; }
+          if ! uv run tools/atlas_sync.py title "$VERSION" "$UPSTREAM_TAG" > notes/title.txt; then
+            echo "::warning::atlas_sync.py title failed: the release gets a fallback title"
+            echo "Horizon Atlas $VERSION · based on Horizon launcher ${UPSTREAM_TAG#launcher@}" > notes/title.txt
+          fi
+          if ! uv run tools/atlas_sync.py release-notes "$VERSION" "$UPSTREAM_TAG" \
+            notes/atlas-releases.json notes/upstream-releases.json > notes/body.md; then
+            echo "::warning::atlas_sync.py release-notes failed: the release gets a one-line body"
+            echo "Horizon Atlas $VERSION: see the [README](https://github.com/$GITHUB_REPOSITORY#readme) and this release's source, [launcher@$VERSION](https://github.com/$GITHUB_REPOSITORY/tree/launcher%40$VERSION)." > notes/body.md
+          fi
           { echo "## $(cat notes/title.txt)"; echo; cat notes/body.md; } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/download-artifact@v8
         with:

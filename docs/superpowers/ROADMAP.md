@@ -34,6 +34,12 @@ Later:
 - A sync-tool check that upstream never contains the string `nezbut/horizon-atlas`: it is how the Windows installer
   tells an old Atlas copy from the official launcher (`launcher/src/atlas_install.rs`), so upstream gaining it would
   make an official launcher look like Atlas.
+- An early warning in the daily `main-check` that upstream's game still reads what Atlas's offline names hand it:
+  `HORIZON_PLAYER_NAME` (`crates/horizon-client/src/game/runtime/launch_options.rs`) and `HORIZON_OFFLINE_SKIN`,
+  `HORIZON_OFFLINE_SKIN_MODEL`, `HORIZON_OFFLINE_CAPE` (`crates/horizon-client-render/src/skins.rs`). Upstream keeps
+  them for its own harnesses and split-screen tests, not for players (`docs/microsoft-account.md`, "Who isn't
+  affected"; horizon-rust/horizon PR 14127), so a rename would quietly turn Atlas's names into `PlayerNNNNN` with the
+  default skin while the sync stays green. Open an issue when `upstream/main` stops reading any of them.
 - Release file names of Atlas's own: the assets are still upstream's (`horizon-launcher-setup.exe`,
   `horizon-launcher-linux-x86_64.tar.gz`, `...-macos-arm64.zip`, the AppImage, the `.dmg`).
   - The self-updater finds its asset by these exact names (`launcher/src/backend.rs`, the platform list and

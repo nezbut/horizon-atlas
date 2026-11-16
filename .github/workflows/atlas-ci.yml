@@ -1,6 +1,7 @@
 name: atlas-ci
 # Formatting and the launcher's tests (library and binary targets, on Linux the owner_gate test too) on Linux and
-# Windows, and the Windows installer end to end, for every push and pull request.
+# Windows, the sync tool's tests (tools/atlas_sync.py) on Linux, and the Windows installer end to end, for every push
+# and pull request.
 
 on:
   push:
@@ -24,6 +25,12 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      # The sync tool needs Python 3.11+ (this runner's python3 is 3.10): its tests run through uv, as the tool does.
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: false
+      - name: The sync tool's tests
+        run: uv run --python '>=3.11' python -m unittest discover -s tests -p 'test_atlas*.py'
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt

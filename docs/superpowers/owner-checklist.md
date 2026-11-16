@@ -103,7 +103,7 @@ A healthy `atlas-release` run:
 - starts with `launcher@0.1.0 (based on launcher@0.2.54) … dry run: true`;
 - builds the launcher on Linux, macOS (Apple Silicon and Intel) and Windows (x64 and ARM64) and ends green. The
   Windows ARM64 build may fail without failing the run (a warning says that file is left out);
-- ends with the release title and notes in the summary (`Atlas 0.1.0 · based on Horizon launcher 0.2.54`)
+- ends with the release title and notes in the summary (`Horizon Atlas 0.1.0 · based on Horizon launcher 0.2.54`)
   and publishes nothing. A dry run signs with a throwaway key, so it works before step 3 is done.
 
 ## 7. First real release

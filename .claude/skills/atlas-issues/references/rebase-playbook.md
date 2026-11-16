@@ -35,7 +35,7 @@ throwaway commit identity (`atlas-rehearsal`); this replay becomes `main`, so fi
 git -C $C config user.name "$(git -C REPO config user.name)"; git -C $C config user.email "$(git -C REPO config user.email)"
 git -C $C switch -q -c sync-<tag>
 git -C $C -c merge.conflictStyle=diff3 rebase --onto refs/upstream/tags/launcher@<new> refs/upstream/tags/launcher@<old base>
-uv run python REPO/tools/atlas_sync.py --repo $C resolve    # at every stop: resolves what the sync resolves by itself
+uv run REPO/tools/atlas_sync.py --repo $C resolve           # at every stop: resolves what the sync resolves by itself
 git -C $C diff --name-only --diff-filter=U                   # what is left for you in the commit it stopped at
 ```
 `<old base>` is what `task status` printed as the base. For the early-warning issue the new base is
@@ -58,14 +58,14 @@ git -C $C diff --name-only --diff-filter=U                   # what is left for 
   conflicting commit; repeat until it says the rebase succeeded.
 - When it has succeeded, drop the workflows upstream added since the old base, as the sync does after every
   rebase (a hand-run rebase skips it, and an upstream workflow then runs in Atlas's repository):
-  `uv run python REPO/tools/atlas_sync.py --repo $C drop-workflows` (prints the names it removed in one
+  `uv run REPO/tools/atlas_sync.py --repo $C drop-workflows` (prints the names it removed in one
   `atlas: drop upstream workflows (...)` commit, or nothing).
 
 ## 4. Verify (all of it; paste the evidence into your report)
 ```
 task -d $C check                                                                     # fmt, clippy -D warnings, launcher tests + owner_gate, sync tool tests, actionlint
 git -C $C grep -n -E '^(<<<<<<<|>>>>>>>) ' -- . ':!docs'                              # nothing
-uv run python REPO/tools/atlas_sync.py --repo $C base                                  # prints launcher@<new>
+uv run REPO/tools/atlas_sync.py --repo $C base                                         # prints launcher@<new>
 git -C $C log --format='%s' refs/upstream/tags/launcher@<new>..HEAD | grep -c '^patch: '   # 7
 ls $C/.github/workflows                                                                # only atlas-ci.yml, atlas-release.yml, atlas-sync.yml
 cargo test --manifest-path $C/Cargo.toml -p horizon-release-sign

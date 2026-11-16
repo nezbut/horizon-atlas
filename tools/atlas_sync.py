@@ -1,5 +1,9 @@
-#!/usr/bin/env python3
-"""Find new upstream launcher tags and replay Atlas's patches onto them.
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
+"""Find new upstream launcher tags and replay Atlas's patches onto them; write a release's title and notes.
 
 Upstream tags live in refs/upstream/tags/ (fetched with
 `git fetch upstream '+refs/tags/launcher@*:refs/upstream/tags/launcher@*'`),
@@ -11,9 +15,24 @@ import os
 import re
 import subprocess
 import sys
+import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
+ATLAS_REPO = "nezbut/horizon-atlas"
+UPSTREAM_REPO = "horizon-rust/horizon"
+UPSTREAM_RELEASES_URL = f"https://github.com/{UPSTREAM_REPO}/releases"
+UPSTREAM_ISSUES_URL = f"https://github.com/{UPSTREAM_REPO}/issues"
+NOTES_SECTIONS = 10
+NOTES_CUT_PREFIX = "Your launcher updates itself"
+BASE_IN_TITLE_RE = re.compile(r"based on Horizon launcher (\d+\.\d+\.\d+)")
+FENCE_RE = re.compile(r" {0,3}(`{3,}|~{3,})")
+HEADING_RE = re.compile(r"^( {0,3})(#{1,5})(?=[ \t]|$)")
+HEADING_TEXT_RE = re.compile(r" {0,3}#{1,6}(?:[ \t]+(.*?))?[ \t#]*$")
+DETAILS_TAG_RE = re.compile(r"<(/?details)\b", re.IGNORECASE)
+CODE_SPAN_RE = re.compile(r"(?<!`)(`+)(?!`).*?(?<!`)\1(?!`)")
+MENTION_RE = re.compile(r"(?<![\w`/])@[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})")
+ISSUE_RE = re.compile(r"(?<![\w&/\[])#(\d+)(?!\w)")
 UPSTREAM_REFS = "refs/upstream/tags"
 TAG_RE = re.compile(r"launcher@(\d+)\.(\d+)\.(\d+)")
 WORKFLOWS_DIR = ".github/workflows"
@@ -68,7 +87,209 @@ def next_atlas_version(tags: list[str]) -> str:
 
 def release_title(atlas_version: str, upstream_tag: str) -> str:
     upstream_version = upstream_tag.removeprefix("launcher@")
-    return f"Atlas {atlas_version} · based on Horizon launcher {upstream_version}"
+    return f"Horizon Atlas {atlas_version} · based on Horizon launcher {upstream_version}"
+
+
+def _quote_refs(text: str) -> str:
+    # Quoted mentions notify nobody; a bare #123 in Atlas's release would link to Atlas's own issue 123.
+    # A <details> or </details> tag of upstream's would open or close the block each release's notes sit in.
+    text = DETAILS_TAG_RE.sub(r"&lt;\1", text)
+    text = MENTION_RE.sub(lambda match: f"`{match[0]}`", text)
+    return ISSUE_RE.sub(lambda match: f"[#{match[1]}]({UPSTREAM_ISSUES_URL}/{match[1]})", text)
+
+
+def _quote_refs_outside_code(line: str) -> str:
+    pieces, at = [], 0
+    for span in CODE_SPAN_RE.finditer(line):
+        pieces += [_quote_refs(line[at : span.start()]), span[0]]
+        at = span.end()
+    pieces.append(_quote_refs(line[at:]))
+    return "".join(pieces)
+
+
+def _closes_fence(fence: str, line: str) -> bool:
+    closing = FENCE_RE.match(line)
+    return (
+        closing is not None
+        and closing[1][0] == fence[0]
+        and len(closing[1]) >= len(fence)
+        and not line[closing.end() :].strip()
+    )
+
+
+def clean_upstream_notes(body: str) -> str:
+    """Upstream's release notes without their install footer, headings one level down, refs safe to repost."""
+    lines = body.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    out = []
+    fence = None
+    for line in lines:
+        if line.startswith(NOTES_CUT_PREFIX) or line.strip() == "---":
+            break
+        if fence is not None:
+            out.append(line)
+            if _closes_fence(fence, line):
+                fence = None
+            continue
+        opening = FENCE_RE.match(line)
+        if opening:
+            fence = opening[1]
+            out.append(line)
+            continue
+        out.append(_quote_refs_outside_code(HEADING_RE.sub(r"\1#\2", line, count=1)))
+    if fence is not None:
+        out.append(fence)
+    while out and not out[-1].strip():
+        out.pop()
+    while out and not out[0].strip():
+        out.pop(0)
+    return "\n".join(out)
+
+
+def load_releases(path: Path) -> list[dict]:
+    """A GitHub release list saved as JSON; a missing, empty or malformed file is no releases."""
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if not isinstance(data, list):
+        return []
+    return [release for release in data if isinstance(release, dict)]
+
+
+def launcher_license(repo: Path) -> str | None:
+    try:
+        with (repo / "launcher" / "Cargo.toml").open("rb") as manifest:
+            package = tomllib.load(manifest).get("package")
+    except (OSError, ValueError):
+        return None
+    license_id = package.get("license") if isinstance(package, dict) else None
+    return license_id if isinstance(license_id, str) and license_id.strip() else None
+
+
+def _text(release: dict, key: str) -> str:
+    value = release.get(key)
+    return value if isinstance(value, str) else ""
+
+
+def _published_launcher_releases(releases: list[dict]) -> dict[tuple[int, int, int], dict]:
+    found = {}
+    for release in releases:
+        version = parse_launcher_tag(_text(release, "tag_name"))
+        if version is not None and release.get("draft") is not True:
+            found.setdefault(version, release)
+    return found
+
+
+def _dotted(version: tuple[int, int, int]) -> str:
+    return ".".join(map(str, version))
+
+
+def _previous_atlas(
+    version: tuple[int, int, int], atlas_releases: list[dict]
+) -> tuple[tuple[int, int, int], tuple[int, int, int] | None] | None:
+    """(version, upstream base) of the newest published Atlas release below `version`.
+
+    The base is None when that release's title does not name one.
+    """
+    published = _published_launcher_releases(atlas_releases)
+    older = {found: release for found, release in published.items() if found < version}
+    if not older:
+        return None
+    newest = max(older)
+    match = BASE_IN_TITLE_RE.search(_text(older[newest], "name"))
+    return newest, parse_launcher_tag(f"launcher@{match[1]}") if match else None
+
+
+def _change_count(notes: str) -> int:
+    """Top-level list items of cleaned notes, outside code fences and the Contributors section."""
+    count, fence, contributors = 0, None, False
+    for line in notes.split("\n"):
+        if fence is not None:
+            if _closes_fence(fence, line):
+                fence = None
+            continue
+        opening = FENCE_RE.match(line)
+        heading = HEADING_TEXT_RE.fullmatch(line)
+        if opening:
+            fence = opening[1]
+        elif heading:
+            contributors = (heading[1] or "").strip().lower() == "contributors"
+        elif not contributors and line.startswith(("- ", "* ")):
+            count += 1
+    return count
+
+
+def _upstream_section(version: tuple[int, int, int], release: dict | None) -> str:
+    """One upstream release's notes in a collapsed block; GitHub renders its Markdown only between blank lines."""
+    dotted = _dotted(version)
+    notes = "" if release is None else clean_upstream_notes(_text(release, "body"))
+    count = _change_count(notes)
+    summary = f"<b>Horizon launcher {dotted}</b>"
+    if count:
+        summary += f": {count} change{'s' if count > 1 else ''}"
+    text = notes or ("No notes yet." if release is None else "No notes.")
+    link = f"[Official release notes]({UPSTREAM_RELEASES_URL}/tag/launcher%40{dotted})"
+    return f"<details>\n<summary>{summary}</summary>\n\n{link}\n\n{text}\n\n</details>"
+
+
+def release_notes(
+    atlas_version: str,
+    upstream_tag: str,
+    atlas_releases: list[dict],
+    upstream_releases: list[dict],
+    license_id: str | None,
+    repository: str,
+) -> str:
+    """The release body: what Atlas is, what to download, upstream's notes since the previous Atlas release's
+    base (newest first), and where this release's licence and source are."""
+    upstream_version = upstream_tag.removeprefix("launcher@")
+    version = parse_launcher_tag(f"launcher@{atlas_version}")
+    upstream = parse_launcher_tag(f"launcher@{upstream_version}")
+    if version is None or upstream is None:
+        raise ValueError(f"not X.Y.Z: {atlas_version!r} or {upstream_tag!r}")
+
+    published = _published_launcher_releases(upstream_releases)
+    previous = _previous_atlas(version, atlas_releases)
+    base = previous[1] if previous else None
+    if base is None:
+        covered = [upstream]
+    elif base < upstream:
+        covered = sorted({found for found in published if base < found <= upstream} | {upstream}, reverse=True)
+    else:
+        covered = []
+
+    sections = [_upstream_section(found, published.get(found)) for found in covered[:NOTES_SECTIONS]]
+    if sections:
+        sections.insert(
+            0, "Horizon's own notes for its official launcher, as published. What Atlas adds (above) still applies."
+        )
+    if len(covered) > NOTES_SECTIONS:
+        more = len(covered) - NOTES_SECTIONS
+        plural = "s" if more > 1 else ""
+        sections.append(
+            f"And {more} older Horizon launcher release{plural}: see [Horizon's releases]({UPSTREAM_RELEASES_URL})."
+        )
+    if not covered:
+        sections.append(f"Nothing: Atlas {_dotted(previous[0])} was already based on Horizon launcher {_dotted(base)}.")
+
+    site = f"https://github.com/{repository}"
+    license_file = f"[LICENSE]({site}/blob/launcher%40{atlas_version}/LICENSE)"
+    licence = f"{license_id} ({license_file})" if license_id else f"see {license_file}"
+    return "\n\n".join(
+        [
+            f"Horizon Atlas {atlas_version} is Horizon launcher {upstream_version} with Atlas's changes: play "
+            "without a Microsoft account (offline names with skins and capes), your own copy of Minecraft, and its "
+            "own install beside the official launcher.",
+            "**Windows:** download `horizon-launcher-setup.exe` below and run it "
+            "(`horizon-launcher-setup-arm64.exe` on ARM). **Linux and macOS:** see "
+            f"[Install]({site}#install). Already installed? Atlas updates itself.",
+            "## What changed in Horizon",
+            *sections,
+            f"---\nLicence: {licence}. Source code of this release: [launcher@{atlas_version}]"
+            f"({site}/tree/launcher%40{atlas_version}). Unofficial: not affiliated with Horizon's authors, Mojang or "
+            "Microsoft. You need your own copy of Minecraft: Java Edition.",
+        ]
+    )
 
 
 def _git(repo: Path, *args: str, check: bool = True, text: bool = True) -> subprocess.CompletedProcess:
@@ -502,7 +723,7 @@ def main(argv: list[str], repo: Path | None = None) -> int:
     usage = (
         "usage: atlas_sync.py [--repo PATH] new-tag | base | next-version | rebase TAG [--report FILE] | "
         "rebase-onto REF [--report FILE] | resolve | conflict-report OLD_BASE_TAG NEW_REF | drop-workflows | "
-        "title ATLAS UPSTREAM"
+        "title ATLAS UPSTREAM | release-notes ATLAS UPSTREAM ATLAS_RELEASES_JSON UPSTREAM_RELEASES_JSON"
     )
     argv = list(argv)
     if "--repo" in argv:
@@ -565,6 +786,24 @@ def main(argv: list[str], repo: Path | None = None) -> int:
         return 0
     if command == "title" and len(args) == 2:
         print(release_title(args[0], args[1]))
+        return 0
+    if (
+        command == "release-notes"
+        and len(args) == 4
+        and parse_launcher_tag(f"launcher@{args[0]}")
+        and parse_launcher_tag(f"launcher@{args[1].removeprefix('launcher@')}")
+    ):
+        # Missing or unreadable release lists only shorten the notes: they never fail a release.
+        print(
+            release_notes(
+                args[0],
+                args[1],
+                load_releases(Path(args[2])),
+                load_releases(Path(args[3])),
+                launcher_license(repo),
+                os.environ.get("GITHUB_REPOSITORY") or ATLAS_REPO,
+            )
+        )
         return 0
     print(usage, file=sys.stderr)
     return 2

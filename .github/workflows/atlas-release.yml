@@ -178,12 +178,37 @@ jobs:
             echo "LAUNCHER_FEATURES=gpui_platform/runtime_shaders" >> "$GITHUB_ENV"
           fi
       # Every test target (the library, the binary, tests/), on each system the launcher ships for.
-      # Except one on the native macOS arm64 job. an_app_bundle_updates_in_place copies /usr/bin/true (a universal
+      # Binary and integration tests link the library without cfg(test), so its fallback
+      # test_home does not isolate them. Use pr_ready's scratch-home convention for every target.
+      # Except one test on the native macOS arm64 job. an_app_bundle_updates_in_place copies /usr/bin/true (a universal
       # x86_64 + arm64e binary on macOS 15) into a test app and re-signs it ad hoc; on Apple Silicon macOS kills such a
       # copy (SIGKILL, exit 137), so the test fails before it says anything about the launcher. Checked on this runner
       # (a binary built there, in the same sign / ditto zip / unzip / verify round trip, runs and verifies). The Intel
       # job runs the same test, and the same update code, under Rosetta, where it passes.
-      - run: cargo test --release --locked ${{ matrix.target && format('--target {0}', matrix.target) || '' }} ${LAUNCHER_FEATURES:+--features "$LAUNCHER_FEATURES"} ${{ matrix.name == 'macos' && '-- --skip an_app_bundle_updates_in_place' || '' }}
+      - name: Test every launcher target in a scratch home
+        run: |
+          set -euo pipefail
+          scratch=$(python3 - <<'PY'
+          import os
+          import tempfile
+          base = os.path.realpath(tempfile.gettempdir())
+          if os.name == "nt" and (not base.isascii() or " " in base):
+              public = os.environ.get("ProgramData", "")
+              base = public if os.path.isabs(public) and public.isascii() and " " not in public else r"C:\ProgramData"
+          print(tempfile.mkdtemp(prefix="horizon-launcher-tests-", dir=base).replace("\\", "/"))
+          PY
+          )
+          trap 'rm -rf "$scratch"' EXIT
+          export HORIZON_LAUNCHER_HOME="$scratch/launcher"
+          export HORIZON_HOME="$scratch/game"
+          export HORIZON_LAUNCHER_LOCATION_FILE="$scratch/location.json"
+          export XDG_DATA_HOME="$scratch/data"
+          export XDG_CONFIG_HOME="$scratch/config"
+          export HORIZON_LAUNCHER_TRASH="$scratch/trash"
+          export HORIZON_LAUNCHER_CLIPBOARD="$scratch/clipboard"
+          export HORIZON_LAUNCHER_DESKTOP="$scratch/desktop"
+          export HORIZON_LAUNCHER_NO_SELF_UPDATE=1 HORIZON_NO_AUDIO=1
+          cargo test --release --locked ${{ matrix.target && format('--target {0}', matrix.target) || '' }} ${LAUNCHER_FEATURES:+--features "$LAUNCHER_FEATURES"} ${{ matrix.name == 'macos' && '-- --skip an_app_bundle_updates_in_place' || '' }}
       - run: cargo build --release --locked ${{ matrix.target && format('--target {0}', matrix.target) || '' }} ${LAUNCHER_FEATURES:+--features "$LAUNCHER_FEATURES"}
       - name: Verify Windows executable architecture
         if: runner.os == 'Windows'
@@ -479,9 +504,12 @@ jobs:
         env:
           TAG: ${{ needs.meta.outputs.tag }}
           EPHEMERAL: ${{ needs.meta.outputs.dry_run == 'true' && 'yes' || '' }}
+        # Upstream's launcher.yml passes --repository "$GITHUB_REPOSITORY". Here that would be nezbut/horizon-atlas,
+        # which horizon-release-sign trusts no key for (it fails closed), while the launcher checks its own updates
+        # with trusted_keys_for(backend::REPO), horizon-rust/horizon's scope: release-keys.txt, Atlas's key included.
         run: |
           key=(); [[ -n "$EPHEMERAL" ]] && key=(--key "$(cat dist/ephemeral.pub)")
-          cargo run --locked --quiet -p horizon-release-sign -- verify --tag "$TAG" --publishing "${key[@]}" dist
+          cargo run --locked --quiet -p horizon-release-sign -- verify --repository horizon-rust/horizon --tag "$TAG" --publishing "${key[@]}" dist
       - name: The Windows ARM64 launcher, if it built
         # Its build may fail without holding the release (continue-on-error): the release then has no ARM64
         # files, and ARM64 launchers stay on their version until one has (backend::launcher_update_from).

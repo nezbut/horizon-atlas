@@ -44,7 +44,9 @@
 - **Beside the official launcher.** Atlas installs as its own program, so the official Horizon launcher can stay installed next to it.
 - **Your own Minecraft, found or chosen.** Atlas finds Minecraft 26.3 in the launchers on your computer, or you pick its `26.3.jar` with **Choose jar…**.
 - **All of Horizon.** The game is Horizon's, unmodified: your worlds, mods, resource and shader packs, the fast native renderer ([Horizon's README below](#horizon)).
-- **Always current.** Each Horizon launcher release becomes an Atlas release, usually within hours, and the launcher updates itself.
+- **Always current.** Each Horizon launcher release becomes an Atlas release, usually within hours. The launcher shows
+  when a new version is out and updates when you press **Update**; turn on **Update the launcher automatically** in
+  Settings and it updates itself.
 - **Signed updates.** Every update is checked against Atlas's signing key before it is installed.
 
 ## Install
@@ -62,7 +64,8 @@
    desktop one if **Desktop shortcut** is ticked).
 4. Click **Launch Horizon Atlas** and go on with [First run](#first-run).
 
-From then on Atlas updates itself: no need to download it again.
+No need to download it again later: Atlas shows when a new version is out, and **Update** in its sidebar installs
+it (or turn on **Update the launcher automatically** in Settings).
 
 ### Linux and macOS
 

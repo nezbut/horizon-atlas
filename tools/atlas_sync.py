@@ -36,6 +36,8 @@ ISSUE_RE = re.compile(r"(?<![\w&/\[])#(\d+)(?!\w)")
 UPSTREAM_REFS = "refs/upstream/tags"
 TAG_RE = re.compile(r"launcher@(\d+)\.(\d+)\.(\d+)")
 WORKFLOWS_DIR = ".github/workflows"
+# actionlint's runner labels for the workflows in the tree, which in Atlas are only Atlas's own.
+ACTIONLINT_CONFIG = ".github/actionlint.yaml"
 OWN_PREFIX = "atlas-"
 LANG_DIR = "launcher/lang"
 LANG_ENTRY_RE = re.compile(
@@ -617,6 +619,20 @@ def _resolve_workflow(repo: Path, path: str) -> str | None:
     return "an upstream workflow: the Atlas commit's version kept"
 
 
+def _resolve_actionlint(repo: Path, path: str) -> str | None:
+    # Upstream's labels name runners for its own workflows, which Atlas drops: the Atlas commit's version wins, also
+    # when upstream deleted the file. Only an Atlas commit that deletes it deletes it.
+    atlas = _stage_bytes(repo, path, 3)
+    if atlas is None:
+        if _git(repo, "rm", "-q", "--", path, check=False).returncode != 0:
+            return None
+        return "actionlint's runner labels: deleted, as the Atlas commit does"
+    (repo / path).write_bytes(atlas)
+    if _git(repo, "add", "--", path, check=False).returncode != 0:
+        return None
+    return "actionlint's runner labels: the Atlas commit's version kept"
+
+
 def _resolve_lang(repo: Path, path: str) -> str | None:
     # Index stages of a stopped rebase: 1 the merge base, 2 upstream's code (HEAD), 3 the patch being replayed.
     texts = [_stage_text(repo, path, stage) for stage in (1, 2, 3)]
@@ -637,6 +653,8 @@ def _resolve_stop(repo: Path) -> tuple[list[tuple[str, str]], list[str]]:
     for path in _unmerged_paths(repo):
         if _is_upstream_workflow(path):
             how = _resolve_workflow(repo, path)
+        elif path == ACTIONLINT_CONFIG:
+            how = _resolve_actionlint(repo, path)
         elif _is_lang_file(path):
             how = _resolve_lang(repo, path)
         else:

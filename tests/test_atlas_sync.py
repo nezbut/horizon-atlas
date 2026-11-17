@@ -376,6 +376,69 @@ class UpstreamWorkflowTests(WorkflowFixture):
         self.assert_clean()
 
 
+ACTIONLINT = ".github/actionlint.yaml"
+
+
+class ActionlintConfigTests(WorkflowFixture):
+    """`.github/actionlint.yaml` lists runner labels for the workflows in the tree, which in Atlas are its own."""
+
+    base = "self-hosted-runner:\n  labels: [horizon-game, windows-11-vs2026-arm]\n"
+    theirs = "self-hosted-runner:\n  labels: [horizon-game, windows-11-vs2026-arm, blacksmith]\n"
+    mine = "self-hosted-runner:\n  labels: [windows-11-vs2026-arm]\n"
+
+    def test_both_changed_keeps_the_atlas_commits_version(self):
+        self.build({ACTIONLINT: self.base, "a.txt": "line\n"}, {ACTIONLINT: self.theirs})
+        self.atlas_commit("atlas: daily sync", {ACTIONLINT: self.mine})
+        self.atlas_commit("patch: one", {"a.txt": "line patched\n"})
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertTrue(result.ok)
+        self.assertEqual((self.atlas / ACTIONLINT).read_text(), self.mine)
+        self.assertEqual(self.subjects(3), ["patch: one", "atlas: daily sync", "c2"])
+        self.assertEqual(
+            [(subject, path) for subject, path, _ in result.resolved],
+            [("atlas: daily sync", ACTIONLINT)],
+        )
+        self.assert_clean()
+
+    def test_upstream_deleting_it_keeps_the_atlas_commits_version(self):
+        self.build({ACTIONLINT: self.base}, {ACTIONLINT: None})
+        self.atlas_commit("atlas: daily sync", {ACTIONLINT: self.mine})
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertTrue(result.ok)
+        self.assertEqual((self.atlas / ACTIONLINT).read_text(), self.mine)
+        self.assert_clean()
+
+    def test_it_beside_a_source_conflict_still_names_the_commit(self):
+        self.build(
+            {ACTIONLINT: self.base, "a.txt": "line\n"},
+            {ACTIONLINT: self.theirs, "a.txt": "line upstream\n"},
+        )
+        self.atlas_commit("patch: mixed", {ACTIONLINT: self.mine, "a.txt": "line patched\n"})
+        head = git(self.atlas, "rev-parse", "HEAD")
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.failed_patch, "patch: mixed")
+        self.assert_clean()
+        self.assertEqual(git(self.atlas, "rev-parse", "HEAD"), head)
+
+    def test_another_config_file_is_still_left_to_a_human(self):
+        other = ".github/dependabot.yml"
+        self.build({other: "version: 2\n"}, {other: "version: 2\nupdates: []\n"})
+        self.atlas_commit("atlas: dependabot", {other: "version: 2\n# mine\n"})
+
+        result = atlas_sync.rebase_patches(self.atlas, "launcher@0.2.51")
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.failed_patch, "atlas: dependabot")
+        self.assert_clean()
+
+
 class CliTests(SyncFixture):
     def cli(self, *args):
         out = io.StringIO()

@@ -31,7 +31,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/media/atlas/launcher.png" alt="Horizon Atlas: главная страница с кнопкой Play, офлайн-именем игрока, сборкой игры Nightly и двумя ресурспаками" width="100%">
+  <img src="docs/media/atlas/launcher.png" alt="Horizon Atlas: главная страница с кнопкой Play, меню аккаунта с офлайн-именем игрока и сохранённым сервером" width="100%">
 </p>
 
 > **Неофициальный.** Сделан игроком. Не связан с авторами Horizon, Mojang или Microsoft и не поддерживается ими: с

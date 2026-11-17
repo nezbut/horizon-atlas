@@ -19,9 +19,22 @@ tasks:
       - task: lint:workflows
 
   test:
-    desc: Run the launcher's tests (lib, bins and the owner_gate test)
+    desc: Run the launcher's tests (lib, bins and the owner_gate test) on scratch data folders, never the real ones
     cmds:
-      - cargo test --manifest-path {{.MANIFEST}} --release --lib --bins --test owner_gate
+      # The binary and integration tests are not kept away from the real data folders by cfg(test): like
+      # upstream's launcher.yml since launcher@0.2.70, give them a scratch home, removed afterwards.
+      - |
+        scratch=$(mktemp -d "${TMPDIR:-/tmp}/horizon-launcher-tests-XXXXXX")
+        export HORIZON_LAUNCHER_HOME="$scratch/launcher" HORIZON_HOME="$scratch/game"
+        export HORIZON_LAUNCHER_LOCATION_FILE="$scratch/location.json"
+        export XDG_DATA_HOME="$scratch/data" XDG_CONFIG_HOME="$scratch/config"
+        export HORIZON_LAUNCHER_TRASH="$scratch/trash" HORIZON_LAUNCHER_CLIPBOARD="$scratch/clipboard"
+        export HORIZON_LAUNCHER_DESKTOP="$scratch/desktop"
+        export HORIZON_LAUNCHER_NO_SELF_UPDATE=1 HORIZON_NO_AUDIO=1 HORIZON_TELEMETRY_URL=off
+        status=0
+        cargo test --manifest-path {{.MANIFEST}} --release --lib --bins --test owner_gate || status=$?
+        rm -rf "$scratch"
+        exit $status
 
   test:sync:
     desc: Run the sync tool's tests (on Python 3.11 or newer, as the tool needs)

@@ -12,32 +12,54 @@ Horizon's may not be used): its buttons open a dialog that says so.
 ## What `main` is
 Upstream's commit for the tag `launcher@X.Y.Z` (the current *base*) plus a linear stack of Atlas commits:
 - seven **patches**, by exact subject, in history order:
-  - `patch: choose-jar`: `sources::from_jar`, `Settings::minecraft_jar`, the "Choose jar..." row, CLI
-    `settings minecraft-jar`. Accepts only the pinned 26.3 release jar (sha1 from `research-lock.json`); the jar
-    needs the `libraries` and `assets` of a launcher install next to it or in another launcher.
+  Since upstream's `launcher@0.2.70` the window's `impl Launcher` is split over many files (`launcher_*.rs`,
+  `blocks_*.rs`, `glass_*.rs`, `frame.rs`, `startup.rs`); `main.rs` keeps the `Page` enum, the `Launcher` struct
+  and the macOS menus. The seams below name the file each now lives in.
+  - `patch: choose-jar`: `sources::from_jar`, `Settings::minecraft_jar`, `backend::preparer` and
+    `backend::minecraft_dir`, `launcher_play.rs` (`prepare` takes the jar first; `choose_jar`, `clear_jar`), the
+    "Minecraft jar" row of the blocky Settings (`blocks_play.rs`), the glass folder menu's "Choose jar..."
+    (`glass_home.rs`), CLI `settings minecraft-jar` (`cli.rs`, `cli/settings_output.rs`,
+    `docs/launcher-commands.md`, which a test regenerates from the CLI). Accepts only the pinned 26.3 release jar
+    (sha1 from `research-lock.json`); the jar needs the `libraries` and `assets` of a launcher install next to it
+    or in another launcher.
   - `patch: own-releases`: `backend::LAUNCHER_REPO = "nezbut/horizon-atlas"`, the Atom-feed fallback
-    (`launcher_feed`, `feed_releases`), `Updates::launcher_error` (a failed check is shown, never "up to date"),
-    `signed::asset_url` reads a launcher release's checksums from Atlas's repository.
-  - `patch: branding`: a sidebar link to this repository (`frame.rs`, one lang key in every `launcher/lang/*.json`),
-    the window title "Horizon Atlas" (`titlebar.rs`) and the macOS app menu "Horizon Atlas Launcher" (`main.rs`).
+    (`launcher_feed`, `feed_releases`), `Updates::launcher_error` (a failed check is shown, never "up to date":
+    `blocks_settings.rs`, `cli.rs`), `signed::asset_url` (upstream builds every release download address with it
+    since 0.2.70) points a launcher tag at Atlas's repository; Atlas's versions of three upstream tests in
+    `backend.rs` and `backend/release_loading_tests.rs`. "Update the launcher automatically" (off by default):
+    `atlas_updates.rs` (Atlas's own `<data_dir>/atlas/settings.json`, the decision, the offer and the switch's row),
+    seams in `launcher_messages.rs` (one condition before `update_launcher`), `frame.rs` (the glass rail's card and
+    its dot), `blocks_chrome.rs` (the blocky sidebar), `glass_settings.rs` and `blocks_settings.rs` (the row under
+    "Install new versions automatically"), `main.rs` (`mod atlas_updates`); its keys in every lang file.
+  - `patch: branding`: a link to this repository, the first of the glass rail's links (`frame.rs`, one lang key in
+    every `launcher/lang/*.json`), the window title and title-bar name "Horizon Atlas" (`titlebar.rs`) and the
+    macOS app menu "Horizon Atlas Launcher" (`main.rs`).
   - `patch: own-keys`: Atlas's public key in `crates/horizon-release-sign/release-keys.txt` beside upstream's.
+    Since 0.2.70 upstream scopes trust per repository (`trusted_keys_for`): `horizon-rust/horizon` gets the whole
+    file, any other repository none. The launcher checks its own updates with `trusted_keys_for(backend::REPO)`,
+    so Atlas's key in that file is what verifies an Atlas release.
   - `patch: offline`: Atlas's own module `launcher/src/offline/` (offline names and their skins and capes, the
     one-time migration from Atlas 0.1.x, the game's offline session, the `horizon-launcher offline ...` CLI),
     the window's `atlas_ui.rs` (who plays, the account menu's offline rows, Atlas's dialogs) and
     `atlas_profile.rs` (the Profile tab); seams in `account.rs` (Atlas's own accounts file and keychain service;
-    first line of `session_for_game`), `main.rs`, `switch_page.rs`, `frame.rs`, `owner_page.rs`,
-    `servers_page.rs`, `lib.rs`; Atlas's `launcher/tests/owner_gate.rs`; its keys in every lang file.
+    first line of `session_for_game`), `main.rs` (`Page::Profile`, `Page::ALL`, the `atlas` field),
+    `launcher_setup.rs` (`AtlasUi::load`), `launcher_render.rs` (the Profile page, Escape, Atlas's dialog),
+    `startup.rs` (`offline::cli::from_env` before `cli::run`), `atlas_owner()` in `blocks_play.rs`, `glass_home.rs`
+    and `glass_home_lists.rs` (Join), `switch_page.rs`, `frame.rs`, `owner_page.rs`, `servers_page.rs`
+    (`Field::AtlasName`), `lib.rs`; Atlas's `launcher/tests/owner_gate.rs`; its keys in every lang file.
   - `patch: no-sign-in`: without a client ID the Microsoft sign-in opens Atlas's dialog (seam at the top of
-    `begin_sign_in` in `main.rs`, the dialog in `atlas_ui.rs`), and the glass top bar leaves out its Sign in with
-    Microsoft button (one line in `frame.rs`), so the eight tabs fit at the default window width.
+    `begin_sign_in` in `launcher_play.rs`, the dialog in `atlas_ui.rs`), and the glass top bar leaves out its Sign
+    in with Microsoft button (one line in `frame.rs`), so the eight tabs fit at the default window width.
   - `patch: own-install`: Windows installs as "Horizon Atlas Launcher" (`installer.rs` constants, keys
     `...\Uninstall\HorizonAtlas` and `Software\Horizon\Atlas`, folder `%LOCALAPPDATA%\Programs\Horizon Atlas Launcher`),
     the option to remove an old Atlas copy from the official launcher's folder (`installer_atlas.rs`,
     `atlas_install.rs`, `setup_page.rs`), the one-time "Atlas now installs on its own" dialog, the uninstaller's
     data switch limited to `atlas/`; Linux menu entry `horizon-atlas.desktop` ("Horizon Atlas", `desktop.rs`),
-    moved from the old entry by itself; `packaging/linux/appimage.sh`; its keys in every lang file. Upstream's
-    Polish test wants every Polish key used, so the upstream installer texts Atlas replaced stay as literals in a
-    `const _` in `atlas_install.rs` (`pl.json` keeps them; the patch only adds lang keys).
+    moved from the old entry by itself; `packaging/linux/appimage.sh`; the setup window's heading
+    (`setup_page.rs`); its keys in every lang file. Upstream's Polish test used to want every Polish key used, so
+    the upstream installer texts Atlas replaced stay as literals in a `const _` in `atlas_install.rs` (`pl.json`
+    keeps them; the patch only adds lang keys). Since 0.2.70 upstream's language tests are sparse (missing and
+    stale keys are only counted), so that `const _` is no longer required.
 - `atlas:` commits: `tools/atlas_sync.py` and its tests, `Taskfile.yml`, the three workflows,
   `tools/atlas_installer_e2e.ps1`, `install.sh`, README, AGENTS.md, CODEOWNERS, THIRD_PARTY_NOTICES,
   `docs/superpowers/` (specs, plans, roadmap, owner checklist), this skill.
@@ -88,7 +110,9 @@ and opens an issue that names the cause.
   (writes the title and notes with `atlas_sync.py title` and `release-notes`, through uv, from this repository's
   and Horizon's release lists, fetched with the default token, `[]` when a fetch fails; if the tool or uv fails,
   a fallback title and a one-line body pointing to the README and the release's source; verifies the signature as
-  launchers do, then `gh release create`, tag `launcher@<version>`, marked latest).
+  launchers do, with `--repository horizon-rust/horizon`: upstream's `--repository "$GITHUB_REPOSITORY"` would name
+  a repository horizon-release-sign trusts no key for; then `gh release create`, tag `launcher@<version>`, marked
+  latest). Its tests run in a scratch home (`HORIZON_LAUNCHER_HOME` and the rest), as upstream's do since 0.2.70.
   It is a copy of upstream's `launcher.yml`, so upstream changes to that file do not reach it by themselves.
   Atlas's own step after `package.sh` renames the macOS app to `Horizon Atlas.app` (bundle id
   `io.github.nezbut.horizon-atlas`), signs it again and rebuilds the zip and `.dmg`; upstream's `packaging/macos/`
@@ -122,8 +146,10 @@ and opens an issue that names the cause.
 - Linux (`install.sh`): the launcher is one file, `~/.local/share/horizon-atlas/horizon-atlas` (a symlink in
   `~/.local/bin`), with its own menu entry `horizon-atlas.desktop`. Self-update downloads the release archive into
   `~/.local/share/horizon-launcher/.launcher-update/<pid>-<nonce>/`, checks the signed SHA-256 (keys: upstream's
-  and Atlas's), unpacks, checks again, copies the new binary next to the old one and renames it over it. Game
-  builds update separately from Horizon's releases.
+  and Atlas's), unpacks, checks again, copies the new binary next to the old one and renames it over it. It does
+  so by itself only with "Update the launcher automatically" on (off by default): off, the launcher still checks
+  and offers the new version, and downloads it when the player presses Update. Game builds update separately from
+  Horizon's releases.
 - Windows: `%LOCALAPPDATA%\Programs\Horizon Atlas Launcher\horizon-launcher.exe`, Start menu and Apps entry
   "Horizon Atlas Launcher". Atlas 0.1.x installed into the official launcher's folder
   (`...\Programs\Horizon Launcher`); a copy still running there shows a one-time dialog pointing to the new
@@ -133,7 +159,7 @@ and opens an issue that names the cause.
   installed game builds, servers) is shared with the official launcher on purpose. Atlas's own data is its
   subfolder `atlas/`: `accounts.json` and `account-secrets.json` (Atlas's own accounts, none in 0.2.0),
   `offline.json` (offline names, their skin models, who plays), `skins/<name>.png` and `<name>.cape.png`,
-  `windows-move-dismissed`. On the first start of 0.2.0 the names, selection and skins of Atlas 0.1.x are copied
+  `windows-move-dismissed`, `settings.json` (Atlas's own settings: `auto_update_launcher`, off when missing). On the first start of 0.2.0 the names, selection and skins of Atlas 0.1.x are copied
   from the shared `accounts.json` and `skins/` (read only, once: `offline.json`'s existence marks it). Saves live in
   `~/.local/share/horizon` (the game's folder).
 - The launcher asks `api.github.com/repos/nezbut/horizon-atlas/releases`, and the repository's `releases.atom` if

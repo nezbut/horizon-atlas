@@ -88,7 +88,9 @@ and opens an issue that names the cause.
   `base` (the newest upstream tag that is an ancestor of HEAD), `next-version` (Atlas's next version: the highest
   own `launcher@*` tag, patch +1, first `0.1.0`), `rebase TAG` (`git rebase --onto`; resolves by itself the
   conflicts that need no human: an upstream workflow file gets the Atlas commit's version when both sides
-  changed it and is deleted when either side deleted it, and a `launcher/lang/*.json` where the patch only adds keys gets upstream's file plus those keys; any other
+  changed it and is deleted when either side deleted it, `.github/actionlint.yaml` gets the Atlas commit's version
+  (its runner labels are for Atlas's own workflows; upstream's are for the workflows Atlas drops), and a
+  `launcher/lang/*.json` where the patch only adds keys gets upstream's file plus those keys; any other
   conflict aborts cleanly and prints `FAILED_PATCH=<subject>`; on success each resolved file goes to stderr as
   `resolved: <path> in "<commit>" (<how>)`, which the sync run's summary lists), `rebase-onto REF` (the same onto any ref, e.g.
   `upstream/main`, used by `main-check`), `resolve` (that resolution for the commit a hand-run rebase stopped on),

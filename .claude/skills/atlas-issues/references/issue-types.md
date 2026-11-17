@@ -7,8 +7,8 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
 ### `Sync to launcher@X.Y.Z failed: <patch subject>`  (e.g. `... failed: patch: choose-jar`)
 - **Cause:** a rebase conflict. Upstream changed the same lines that the named patch touches. The run published
   nothing and `main` is unchanged; Atlas stays on its previous base until this is fixed. (`atlas_sync.py` already
-  resolved what needs no human: upstream workflow files, and `launcher/lang/*.json` where the patch only adds
-  keys. What the issue lists is a real conflict.)
+  resolved what needs no human: upstream workflow files, `.github/actionlint.yaml` (Atlas's runner labels kept),
+  and `launcher/lang/*.json` where the patch only adds keys. What the issue lists is a real conflict.)
 - **Do:** reproduce with `references/rebase-playbook.md` (scratch clone, rebase onto the tag in the title). The named
   patch is the first to conflict; later ones may too. Resolve each by keeping upstream's new code and re-applying
   only Atlas's seam. Typical hot spots: `launcher/src/backend.rs` (and its tests in `backend/`), `signed.rs`,

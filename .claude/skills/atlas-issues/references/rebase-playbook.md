@@ -17,7 +17,8 @@ task rehearse -- refs/upstream/tags/launcher@<new>         # or: task rehearse -
 `rehearse` clones what is committed in REPO into a new temporary folder (honours `TMPDIR`), fetches upstream
 there, runs `atlas_sync.py rebase-onto <ref>` and prints `scratch clone: <path>` and either the new base or the
 failing patch (`FAILED_PATCH=<subject>`, exit 1). Call that path `C`. The conflicts the sync resolves by itself
-(upstream workflow files; `launcher/lang/*.json` where a patch only adds keys) are resolved here too.
+(upstream workflow files; `.github/actionlint.yaml`; `launcher/lang/*.json` where a patch only adds keys) are
+resolved here too.
 
 `rehearse` starts from REPO's committed `main`. If REPO's `main` differs from GitHub's (step 2 of the workflow),
 the issue was produced from GitHub's `main`: bring REPO up to date first (section 9), or clone GitHub directly:

@@ -31,7 +31,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/media/atlas/launcher.png" alt="Horizon Atlas: the Home page with Play, an offline player name, the Nightly game build and two resource packs" width="100%">
+  <img src="docs/media/atlas/launcher.png" alt="Horizon Atlas: the Home page with Play, the account menu with an offline player name, and a saved server" width="100%">
 </p>
 
 > **Unofficial.** Made by a player. Not affiliated with, endorsed by or supported by Horizon's authors, Mojang or

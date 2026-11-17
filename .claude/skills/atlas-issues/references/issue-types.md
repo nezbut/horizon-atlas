@@ -11,19 +11,34 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
   keys. What the issue lists is a real conflict.)
 - **Do:** reproduce with `references/rebase-playbook.md` (scratch clone, rebase onto the tag in the title). The named
   patch is the first to conflict; later ones may too. Resolve each by keeping upstream's new code and re-applying
-  only Atlas's seam. Typical hot spots: `launcher/src/backend.rs`, `cli.rs`, `main.rs`, `frame.rs`,
-  `sources.rs`, `account.rs` (Atlas's accounts path, keychain service, the first line of `session_for_game`),
-  `switch_page.rs`, `owner_page.rs`, `servers_page.rs` (`Field`), `titlebar.rs`, `installer.rs`, `setup_page.rs`,
-  `desktop.rs`, `launcher/lang/*.json` (only when the patch does more than add keys: keep upstream's lines and
-  re-apply only Atlas's change), `THIRD_PARTY_NOTICES.md`, `README.md` (keep both sides). Atlas's own files
-  (`launcher/src/offline/`, `atlas_ui.rs`, `atlas_profile.rs`, `atlas_install.rs`, `installer_atlas.rs`) never
-  conflict, but upstream may change an API they call: that shows up as a compile error after the rebase.
+  only Atlas's seam. Typical hot spots: `launcher/src/backend.rs` (and its tests in `backend/`), `signed.rs`,
+  `cli.rs` (and `cli/settings_output.rs`), `docs/launcher-commands.md`, `main.rs` (the `Page` enum, the `Launcher`
+  struct, the menus), the window's `impl Launcher` files (`launcher_play.rs`: `prepare`, `choose_folder`,
+  `begin_sign_in`; `launcher_setup.rs`: `Launcher::new`, `update_launcher`; `launcher_messages.rs`: what a check
+  result starts; `launcher_render.rs`: the page match, Escape, the dialogs; `startup.rs`: `main`'s CLI hooks;
+  `blocks_play.rs`, `blocks_settings.rs`, `blocks_chrome.rs`, `glass_settings.rs`, `glass_home.rs`,
+  `glass_home_lists.rs`), `frame.rs` (the glass rail, its update card and links, the top bar), `sources.rs`,
+  `account.rs` (Atlas's accounts path, keychain service, the first line of `session_for_game`), `switch_page.rs`,
+  `owner_page.rs`, `servers_page.rs` (`Field`), `titlebar.rs`, `installer.rs`, `setup_page.rs`, `desktop.rs`,
+  `launcher/lang/*.json` (only when the patch does more than add keys: keep upstream's lines and re-apply only
+  Atlas's change), `THIRD_PARTY_NOTICES.md`, `README.md` (keep both sides). When upstream moves code out of a file,
+  the conflict's upstream side is empty: take upstream's file (`git checkout --ours <file>` after checking that
+  only the conflict differs from `HEAD`), then re-apply each of the patch's seams, by Edit, where the code lives
+  now. Atlas's own files (`launcher/src/offline/`, `atlas_ui.rs`, `atlas_profile.rs`, `atlas_updates.rs`,
+  `atlas_install.rs`, `installer_atlas.rs`) never conflict, but upstream may change an API they call: that shows
+  up as a compile error after the rebase. A new upstream test can pin upstream's repository where Atlas changed
+  it on purpose (a launcher tag's download address): give it Atlas's value in the patch that changed it.
 - **Known resolutions:** `launcher@0.2.54` conflicted in the old `offline-play` patch (gone since Atlas 0.2.0),
   `branding` (lang files) and the notices file. `launcher@0.2.56` conflicted in `choose-jar` only in
   `launcher/lang/cs.json`; that kind is now merged automatically. `launcher@0.2.59` (upstream removed its
   offline names, commit `1e789800af`) was the reason for Atlas 0.2.0: `offline-play` was replaced by the
   `offline`, `no-sign-in` and `own-install` patches, and `choose-jar` needed upstream's renamed
-  `horizon_prepare` -> `prepare` / `horizon_platform::prepare` path.
+  `horizon_prepare` -> `prepare` / `horizon_platform::prepare` path. `launcher@0.2.70` (upstream's mod API, PR
+  16941: `main.rs` lost ~5300 lines to `launcher_*.rs`, `blocks_*.rs`, `startup.rs` and others) conflicted in
+  every patch but `own-keys`; each seam moved to the file its code went to (the list in `project-map.md`), Atlas's
+  own files compiled unchanged, two new upstream tests in `backend/release_loading_tests.rs` got Atlas's launcher
+  repository, upstream's new owner gates on Home (Join, "Sign in to start") read `atlas_owner()`, and
+  `atlas-release.yml` took the tests' scratch home but not `verify --repository "$GITHUB_REPOSITORY"`.
 
 ### `Sync to launcher@X.Y.Z failed: the rebase did not start or finish`
 - **Cause:** the rebase failed without naming a conflicting patch (a missing ref, a dirty tree, a git error).
@@ -35,12 +50,12 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
 ### `Sync to launcher@X.Y.Z failed: cargo fmt or the tests`
 - **Cause:** the patches applied cleanly but `cargo fmt --check` or `cargo test --release --lib --bins` failed
   in `launcher/` on the rebased tree. Usual reasons: upstream changed an API that an Atlas patch uses (compile
-  error), upstream added user-visible strings and the language-consistency test wants the key in every
-  `launcher/lang/*.json`, upstream's Polish test (`polish_entries_are_valid_and_keep_placeholders`: every key in
-  `pl.json` must still appear as a string literal in `launcher/src`) after upstream reworded a text an Atlas
-  patch replaced (keep the replaced English texts in the `const _` in `atlas_install.rs` in step with `pl.json`),
-  upstream changed a test that pins behaviour Atlas changes on purpose (Atlas's `launcher/tests/owner_gate.rs`:
-  `play` and the MCP server play offline without an owner), or formatting drift.
+  error), a language test (since 0.2.70 upstream's tables are sparse: a translation must keep its `{holes}` and
+  not be empty, missing and stale keys are only counted), upstream changed a test that pins behaviour Atlas
+  changes on purpose (Atlas's `launcher/tests/owner_gate.rs`: `play` and the MCP server play offline without an
+  owner; a launcher tag's download address in `backend/release_loading_tests.rs`), `docs/launcher-commands.md`
+  out of step with the CLI (`HORIZON_WRITE_DOCS=1 cargo test --manifest-path launcher/Cargo.toml
+  the_launcher_reference` rewrites it), or formatting drift.
 - **Do:** rebase in the scratch clone, run the failing command, read the failure, fix it in the patch that owns
   the code. Prefer amending the owning patch commit (so the next sync conflicts, if ever, on a meaningfully
   named patch); if that is not possible in this environment, add one `atlas: ...` fix commit and say so.
@@ -61,7 +76,9 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
 - **Do:** `git diff refs/upstream/tags/launcher@OLD refs/upstream/tags/launcher@NEW -- .github/workflows/launcher.yml`.
   Port what matters into `.github/workflows/atlas-release.yml` and keep Atlas's differences: the `meta` job and
   inputs (`version`, `upstream_tag`, `dry_run`), no `tools/release_train.py`, `macos-15` instead of upstream's
-  self-hosted Mac mini, `--latest=true`, the macOS arm64 test skip, the `release` environment on `sign`, the
+  self-hosted Mac mini, `--latest=true`, the macOS arm64 test skip, `verify --repository horizon-rust/horizon`
+  (the trust scope the launcher checks its updates with; this repository's own name has no key), the `release`
+  environment on `sign`, the
   `setup-uv` and `Notes` steps of `release` (the title and body from `uv run tools/atlas_sync.py title` and
   `release-notes`, fed by this repository's and Horizon's release lists, with fallbacks), and
   the macOS rename: `package.sh` runs with `MACOS_NOTARY_PROFILE=''`, then Atlas's own step renames the app to

@@ -284,7 +284,8 @@ def release_notes(
             "own install beside the official launcher.",
             "**Windows:** download `horizon-launcher-setup.exe` below and run it "
             "(`horizon-launcher-setup-arm64.exe` on ARM). **Linux and macOS:** see "
-            f"[Install]({site}#install). Already installed? Atlas updates itself.",
+            f"[Install]({site}#install). Already installed? Atlas shows the new version: press **Update** in its "
+            "sidebar, or turn on **Update the launcher automatically** in Settings.",
             "## What changed in Horizon",
             *sections,
             f"---\nLicence: {licence}. Source code of this release: [launcher@{atlas_version}]"

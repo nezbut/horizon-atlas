@@ -1058,8 +1058,8 @@ Horizon Atlas 0.2.9 is Horizon launcher 0.2.69 with Atlas's changes: play withou
 with skins and capes), your own copy of Minecraft, and its own install beside the official launcher.
 
 **Windows:** download `horizon-launcher-setup.exe` below and run it (`horizon-launcher-setup-arm64.exe` on ARM). \
-**Linux and macOS:** see [Install](https://github.com/nezbut/horizon-atlas#install). Already installed? Atlas updates \
-itself.
+**Linux and macOS:** see [Install](https://github.com/nezbut/horizon-atlas#install). Already installed? Atlas shows \
+the new version: press **Update** in its sidebar, or turn on **Update the launcher automatically** in Settings.
 
 ## What changed in Horizon
 

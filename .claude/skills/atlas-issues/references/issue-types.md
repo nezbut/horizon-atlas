@@ -78,7 +78,8 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
   inputs (`version`, `upstream_tag`, `dry_run`), no `tools/release_train.py`, `macos-15` instead of upstream's
   self-hosted Mac mini, `--latest=true`, the macOS arm64 test skip, `verify --repository horizon-rust/horizon`
   (the trust scope the launcher checks its updates with; this repository's own name has no key), the `release`
-  environment on `sign`, the
+  environment on `sign` and `publish` (`publish` gated on `dry_run == 'false'`, upstream's on `main` too: here
+  `meta` already makes every run off `main` a dry run), the
   `setup-uv` and `Notes` steps of `release` (the title and body from `uv run tools/atlas_sync.py title` and
   `release-notes`, fed by this repository's and Horizon's release lists, with fallbacks), and
   the macOS rename: `package.sh` runs with `MACOS_NOTARY_PROFILE=''`, then Atlas's own step renames the app to
@@ -100,7 +101,9 @@ Titles below are exactly what the workflows write (`.github/workflows/atlas-sync
   run warns.
 - **atlas-release, `sign` fails:** the secret `RELEASE_SIGNING_KEY` is missing from the environment `release`, the
   environment is not restricted correctly, or the run is not on `main` (then it is a dry run with a throwaway
-  key and should not fail). The `release` job fails if the signature does not verify.
+  key and should not fail). The `release` job fails if the signature does not verify; `publish` then does not run.
+- **atlas-release, `publish` fails:** it only runs `gh release create`. A tag `launcher@<version>` that already
+  exists (a release made by hand, or a re-run after a partial publish) is the usual cause: check the releases page.
 - **atlas-release failed after `publish` pushed `main`:** the next scheduled run finds no newer tag and does not
   retry. The user re-runs `atlas-release` with the version and tag shown in the sync run's summary.
 - **`publish` fails on the push (`stale info` / lease):** `main` on GitHub changed while the run was in

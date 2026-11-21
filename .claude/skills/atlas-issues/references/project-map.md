@@ -113,8 +113,11 @@ and opens an issue that names the cause.
   and Horizon's release lists, fetched with the default token, `[]` when a fetch fails; if the tool or uv fails,
   a fallback title and a one-line body pointing to the README and the release's source; verifies the signature as
   launchers do, with `--repository horizon-rust/horizon`: upstream's `--repository "$GITHUB_REPOSITORY"` would name
-  a repository horizon-release-sign trusts no key for; then `gh release create`, tag `launcher@<version>`, marked
-  latest). Its tests run in a scratch home (`HORIZON_LAUNCHER_HOME` and the rest), as upstream's do since 0.2.70.
+  a repository horizon-release-sign trusts no key for; its token only reads, since it runs the repository's code),
+  `publish` (only when `dry_run` is `false`, environment `release`: the one job whose token writes; it runs no code
+  from the repository, only `gh release create` with the built, signed and checked files, tag
+  `launcher@<version>`, marked latest). Its tests run in a scratch home (`HORIZON_LAUNCHER_HOME` and the rest), as
+  upstream's do since 0.2.70.
   It is a copy of upstream's `launcher.yml`, so upstream changes to that file do not reach it by themselves.
   Atlas's own step after `package.sh` renames the macOS app to `Horizon Atlas.app` (bundle id
   `io.github.nezbut.horizon-atlas`), signs it again and rebuilds the zip and `.dmg`; upstream's `packaging/macos/`

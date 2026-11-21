@@ -460,11 +460,13 @@ jobs:
           retention-days: 3
 
   release:
+    # Notes and the signature check, on every run: it runs the checked-out commit's code (the sync tool, the signature
+    # check), so its token only reads. Publishing is the publish job's, as in upstream's launcher.yml (#19162).
     needs: [meta, build, sign]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: write
+      contents: read
     steps:
       - uses: actions/checkout@v7
       # tools/atlas_sync.py runs through uv, on the Python 3.11+ its script metadata asks for. No cache: a cache can be
@@ -519,18 +521,8 @@ jobs:
           for file in horizon-launcher-windows-arm64.zip horizon-launcher-setup-arm64.exe; do
             [[ -f "dist/$file" ]] || echo "::warning::$file is missing: this release goes out without it"
           done
-      - name: Publish ${{ needs.meta.outputs.tag }}
-        if: needs.meta.outputs.dry_run != 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.meta.outputs.tag }}
-          HEAD_SHA: ${{ needs.meta.outputs.head }}
-        run: |
-          signature=(); [[ -f dist/SHA256SUMS.sig ]] && signature=(dist/SHA256SUMS.sig)
-          gh release create "$TAG" --target "$HEAD_SHA" --title "$(cat notes/title.txt)" \
-            --notes-file notes/body.md --latest=true dist/horizon-launcher-* dist/SHA256SUMS "${signature[@]}"
       - name: Dry run, the release that would be published
-        if: needs.meta.outputs.dry_run == 'true'
+        if: needs.meta.outputs.dry_run != 'false'
         run: |
           echo "Would publish ${{ needs.meta.outputs.tag }} at ${{ needs.meta.outputs.head }}: $(cat notes/title.txt)"
           ls -l dist
@@ -539,3 +531,39 @@ jobs:
           name: launcher-release-notes
           path: notes/
           retention-days: 3
+
+  publish:
+    # Only a real release, after the release job checked the signature: the one job whose token writes. It runs no
+    # code from the repository, only gh with the files this run built, signed and checked. The `release` environment
+    # admits main only (docs/superpowers/owner-checklist.md), and an empty or other dry_run publishes nothing.
+    needs: [meta, release]
+    if: needs.meta.outputs.dry_run == 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          pattern: horizon-launcher-*
+          merge-multiple: true
+      - uses: actions/download-artifact@v8
+        with:
+          name: signature
+          path: dist
+      - uses: actions/download-artifact@v8
+        with:
+          name: launcher-release-notes
+          path: notes
+      - name: Publish ${{ needs.meta.outputs.tag }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.meta.outputs.tag }}
+          HEAD_SHA: ${{ needs.meta.outputs.head }}
+        run: |
+          signature=(); [[ -f dist/SHA256SUMS.sig ]] && signature=(dist/SHA256SUMS.sig)
+          gh release create "$TAG" --target "$HEAD_SHA" --title "$(cat notes/title.txt)" \
+            --notes-file notes/body.md --latest=true dist/horizon-launcher-* dist/SHA256SUMS "${signature[@]}"

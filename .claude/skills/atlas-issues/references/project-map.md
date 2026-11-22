@@ -15,7 +15,8 @@ Upstream's commit for the tag `launcher@X.Y.Z` (the current *base*) plus a linea
   Since upstream's `launcher@0.2.70` the window's `impl Launcher` is split over many files (`launcher_*.rs`,
   `blocks_*.rs`, `glass_*.rs`, `frame.rs`, `startup.rs`); `main.rs` keeps the `Page` enum, the `Launcher` struct
   and the macOS menus. The seams below name the file each now lives in.
-  - `patch: choose-jar`: `sources::from_jar`, `Settings::minecraft_jar`, `backend::preparer` and
+  - `patch: choose-jar`: `sources::from_jar`, `Settings::minecraft_jar` (in `backend/settings.rs` since
+    upstream's 0.2.105; its test stays in `backend.rs`'s tests), `backend::preparer` and
     `backend::minecraft_dir`, `launcher_play.rs` (`prepare` takes the jar first; `choose_jar`, `clear_jar`), the
     "Minecraft jar" row of the blocky Settings (`blocks_play.rs`), the glass folder menu's "Choose jar..."
     (`glass_home.rs`), CLI `settings minecraft-jar` (`cli.rs`, `cli/settings_output.rs`,
@@ -34,7 +35,8 @@ Upstream's commit for the tag `launcher@X.Y.Z` (the current *base*) plus a linea
   - `patch: branding`: a link to this repository, the first of the glass rail's links (`frame.rs`, one lang key in
     every `launcher/lang/*.json`), the window title and title-bar name "Horizon Atlas" (`titlebar.rs`) and the
     macOS app menu "Horizon Atlas Launcher" (`main.rs`).
-  - `patch: own-keys`: Atlas's public key in `crates/horizon-release-sign/release-keys.txt` beside upstream's.
+  - `patch: own-keys`: Atlas's public key in `crates/horizon-release-sign/release-keys.txt` beside upstream's,
+    and the test `release_keys_hold_upstream_and_atlas` (exactly those two keys) in the crate's `src/tests.rs`.
     Since 0.2.70 upstream scopes trust per repository (`trusted_keys_for`): `horizon-rust/horizon` gets the whole
     file, any other repository none. The launcher checks its own updates with `trusted_keys_for(backend::REPO)`,
     so Atlas's key in that file is what verifies an Atlas release.
